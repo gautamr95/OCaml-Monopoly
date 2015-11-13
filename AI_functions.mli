@@ -14,5 +14,6 @@ val property_eval : property -> property list -> player list -> player -> string
   your own players material*)
 val make_trade : player list -> player -> string
 
-(*if you recieve *)
+(*if you recieve a trade, take in the property that is offered and the price
+  and determine if you will buy*)
 val receive_trade : int -> property -> string
