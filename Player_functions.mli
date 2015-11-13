@@ -19,6 +19,9 @@ val request_trade : player -> player -> string
 (*Accepts an incoming trade request from a player*)
 val accept_trade : player -> player -> string
 
+(*Declines an incoming trade request from a player*)
+val decline_trade : player -> player -> string
+
 (*Upgrades a property owned by a player if they have enough money
   and if the property can be upgraded*)
 val upgrade_property : property -> player -> string
