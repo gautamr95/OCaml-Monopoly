@@ -13,18 +13,36 @@ val roll_dice : unit -> string
   player's current savings*)
 val buy_property : property -> property list -> player -> string
 
-(*Requests a trade with the selected player*)
+(*requests a trade with the selected player*)
 val request_trade : player -> player -> string
 
-(*Accepts an incoming trade request from a player*)
+(*accepts an incoming trade request from a player*)
 val accept_trade : player -> player -> string
 
-(*Declines an incoming trade request from a player*)
+(*declines an incoming trade request from a player*)
 val decline_trade : player -> player -> string
 
-(*Upgrades a property owned by a player if they have enough money
+(*upgrades a property owned by a player if they have enough money
   and if the property can be upgraded*)
 val upgrade_property : property -> player -> string
 
 (*ends a players turn and returns the updated player state*)
 val end_turn : unit -> player
+
+(*quits the game*)
+val quit : unit -> string
+
+(*gets player money*)
+val savings : player -> string
+
+(*gets turns*)
+val turns : player -> string
+
+(*gets scores*)
+val scores : player -> string
+
+(*gets owned properties*)
+val get_properties : player -> string
+
+(*gets current location*)
+val get_location : player -> string
