@@ -18,8 +18,8 @@ val sell_property : string -> (property list) ref -> unit
 and modifies the list so the drawn card moves to the bottom of the deck. *)
 val get_chance_card : (chance list) ref -> chance
 
-(* get_community_chest [a] returns the community chest card at the top of 
-the list and modifies the list so the drawn card moves to the bottom of the 
+(* get_community_chest [a] returns the community chest card at the top of
+the list and modifies the list so the drawn card moves to the bottom of the
 deck. *)
 val get_community_chest : (community_chest list) ref -> community_chest
 
