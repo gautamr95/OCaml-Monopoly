@@ -1,22 +1,41 @@
 (* Give introductory message, need to press enter to continue *)
 Printf.printf "Welcome to OCaml Monopoly! This game has been developed
-  by\nSacheth Hegde\nGautam Ramaswamy\nGaurab\nTian Yao\n\nPlease press enter to start."
+  by\nSacheth Hegde\nGautam Ramaswamy\nGaurab Bhattacharya\nTian Yao\n\nPlease press enter to start -> "
 
-let _ = (* Press enter *)
+let _ = Pervasives.read_line ()
+
+(* Applies regex and tokenizing to split an input into the corresponding words
+  Input: input_str - the String that needs to be tokenized
+  Output: A string list of the tokenized input *)
+let parse_input (input_str: string) : string list =
+  (Str.bounded_split (Str.regexp "[ \t]+") input_str 2)
 
 (* See if connecting to a separate game or making a new one. (If using Ocsigen) *)
 
-(* Get total players. *)
-let get_players () =
-  Printf.printf "Please enter the number of players playing: ";
-  let num_players =(* Get input *) in
 
-  Printf.printf "Is this value correct? (y/n)";
-  let correct = (* Get input *) in
-  if correct then num_players else get_players ()
+(* Gets total players through user input
+  Input: Unit
+  Output: Number of players determined by user input. *)
+let get_players () : int =
+  Printf.printf "Please enter the number of players playing -> ";
+  let num_players_option =
+    try Some (int_of_string (Pervasives.read_line ())) with
+    | Failure s -> None in
 
-let num_players = get_players()
+  let num_players =
+    match num_players with
+    | None -> get_players ()
+    | Some a -> a in
 
+  Printf.printf "Is this value correct? (y/n) -> ";
+  let correct = try Some (Pervasives.read_line ()) with
+    | Failure s -> None in
+  if correct = "y" then num_players
+  else  get_players ()
+
+let num_players = get_players ()
+
+(* Ref that will point to a list of the players *)
 let player_list = ref []
 
 (* Function to manage configurations for every player *)
@@ -74,7 +93,7 @@ let game_loop () =
 
 game_loop ()
 
-Printf.printf "Game finished, yay"
+Printf.printf "Game finished, yay!"
 
 (* Done *)
 
