@@ -55,3 +55,9 @@ val move_property : board -> player -> property -> board
 val is_player : board -> string -> bool
 
 val is_property : board -> string -> bool
+
+val get_prop_price : property -> int
+
+val get_prop_name : property -> string
+
+val in_jail : player -> bool

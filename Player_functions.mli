@@ -38,3 +38,5 @@ val has_property : player -> property -> bool
 
 val set_property : player -> property -> player
 
+val get_player_name : player -> string
+
