@@ -41,3 +41,17 @@ val get_chance : board -> chance
 
 (*set a new player position*)
 val move_player : board -> player -> int -> board
+
+(*create board*)
+val create_board : int -> string list -> string list -> string -> board
+
+(*takes in board and player and change in money*)
+val change_money : board -> player ->  int -> board
+
+(*take in board, property name to move *)
+val move_property : board -> player -> property -> board
+
+(*contains player*)
+val is_player : board -> string -> bool
+
+val is_property : board -> string -> bool
