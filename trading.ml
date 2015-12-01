@@ -33,8 +33,20 @@ let trade_prompt pl b =
           | None -> "Invalid Entry"
           | Some money_o ->
             if money_o > get_money pl then "invalid entry" else
-              let trade_accept = trade_offer req_props offer_props money money_o pl trade_player in
+              let trade_accept = trade_offer req_list offer_list money_s money_o_s pl trade_player in
               if trade_accept then make_trade req_props offer_props money money_o pl trade_player else
                 print_string "trade denied"
 
 
+let rec trade_offer req off rm om pl tp =
+  print_endline (get_name tp) ^ "'s trade request:";
+  print_endline (get_name pl) ^ " wants:";
+  List.iter print_endline req;
+  print_endline ("$" ^ rm);
+  print_endline "In exchange for:";
+  List.iter print_endline off;
+  print_endline ("$" ^ om);
+  print_endline "will you accept? (y/n)";
+  let input = String.lowercase(read_line ()) in
+  if input = y then true else if input = n then false else print_endline "Invalid";
+    trade_offer req off rm om pl tp
