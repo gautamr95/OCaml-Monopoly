@@ -1,6 +1,14 @@
 open Str
 if readline_string = "TRADE" then
-let trade_prompt pl b =
+
+(*call this function given the above event, if the player says they want to trade,
+this function steps them through the prompts to make a trade request, if the any input is valid
+it kicks you out of trading and repeat the main repl, once its taken all your inputs,
+ it calls trade_offer which then prompts the player who was requested to respond to
+the trade, if they say yes, then the trade carries out with the function make_trade
+which manipupates the players money and property list based on this, it is a function who returns
+unit, this function will be done once we get the board figured out more*)
+let trade_prompt pl b : unit=
   print_string "Who do you want to trade with?\n";
   let trade_player_s = String.lowercase(read_line ()) in
   let trade_player = get_player b trade_player_s in
@@ -38,7 +46,7 @@ let trade_prompt pl b =
                 print_string "trade denied"
 
 
-let rec trade_offer req off rm om pl tp =
+let rec trade_offer req off rm om pl tp : bool =
   print_endline (get_name tp) ^ "'s trade request:";
   print_endline (get_name pl) ^ " wants:";
   List.iter print_endline req;
