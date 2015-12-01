@@ -1,13 +1,11 @@
-open Player_functions
-open Board_functions
 open AI_functions
 
+type community_chest
+type chance
 type board
 type player
 type property
-
-(*main repl*)
-val main : board -> player -> player -> player -> player -> int -> unit
+type property_container
 
 (*move player on board, modify players position and return a new player and
   return property landed on*)
@@ -42,19 +40,24 @@ val get_chance : board -> chance
 (*set a new player position*)
 val move_player : board -> player -> int -> board
 
-(*create board*)
-val create_board : int -> string list -> string list -> string -> board
+(* Creates a board to be used in the beginning
+  Inputs:
+  - number of human players
+  - list of names of the human players (ids will be generated in this order)
+  -
+*)
+val create_board : int -> string array -> string list -> string -> board
 
 (*takes in board and player and change in money*)
 val change_money : board -> player ->  int -> board
 
 (*take in board, property name to move *)
-val move_property : board -> player -> property -> board
+val move_property : board -> player -> property -> unit
 
 (*contains player*)
 val is_player : board -> string -> bool
 
-val is_property : board -> string -> bool
+val is_property : board -> int -> bool
 
 val get_prop_price : property -> int
 
