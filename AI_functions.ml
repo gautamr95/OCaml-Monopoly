@@ -6,4 +6,6 @@ let roll_die () =
 
 let property_eval (b : board) (pl : player) (prp : property): string =
   if (get_money pl) > (get_prop_price prp) then
-    "BUY " ^ get_prop_name
+    "BUY"
+  else
+    "NO"
