@@ -1,6 +1,8 @@
 open Player_functions
 open Board_functions
 
+type ai_decision 
+   
 
 (*generates string to roll dice, called by top level if player is ai*)
 val roll_die : unit -> string
