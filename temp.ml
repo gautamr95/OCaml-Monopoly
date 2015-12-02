@@ -1,8 +1,8 @@
-let rec main_game 
+let rec main_game
 let curr_player = get_turn game_state in
 let curr_pos = get_position game_state curr_player in
 
-let rec mini_repl _ = 
+let rec mini_repl _ =
   Printf.printf "You have the following options:
     Money: Displays how much money you currently have
     Property: Displays what properties you own
@@ -17,7 +17,7 @@ let rec mini_repl _ =
     | "House" -> (*Show houses*); mini_repl ()
     | "Trade" -> (*Initiate trade*); mini_repl ()
     | "Upgrade" -> (*Upgrade property*) ; mini_repl ()
-    | "End" -> 
+    | "End" ->
   (* Display options for trading and upgrading
    * exit on end turn*)
 if (is_player game_state) then
@@ -60,6 +60,6 @@ else
     mini_repl ();
   else
     mini_repl ();
-     
-     
-  
+
+
+

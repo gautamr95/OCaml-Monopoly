@@ -55,7 +55,7 @@ let get_position p = p.position
 let create_empty_prop_cont () : property_container =
   {blue= ref []; green= ref []; yellow= ref []; orange= ref []; black= ref []}
 
-let create_board human_players player_names token_names =
+let create_board human_players player_names =
   let temp_player_list = ref [] in
   let id_counter = ref 0 in
 
