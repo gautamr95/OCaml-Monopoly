@@ -7,17 +7,15 @@ type player
 type property
 type property_container
 
-(*move player on board, modify players position and return a new player and
-  return property landed on*)
-val move : player -> board -> player * property
 
 (*take in landed on property, list of players in the game, player making move,
   game board, and return the players updated state if the bought or not
   and the new game board*)
 val prop_check : property -> player list -> player ->  board -> player * board
 
-(*board is game state, give it player name, returns player*)
-val get_player : board -> string -> player
+(*board is game state, give it player number, returns player, precondition is that
+int is always less than or equal to number of players*)
+val get_player : board -> int -> player
 
 (*get list of players*)
 val get_player_list : board -> player list
@@ -53,9 +51,6 @@ val change_money : board -> player ->  int -> board
 
 (*take in board, property name to move *)
 val move_property : board -> player -> property -> unit
-
-(*contains player*)
-val is_player : board -> string -> bool
 
 val is_property : board -> int -> bool
 
