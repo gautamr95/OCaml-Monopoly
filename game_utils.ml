@@ -3,6 +3,7 @@ open Random
 let jail_position = 20
 
 (* Types used in the game *)
+
 type property = { position: int;
                   color: string;
                   cost: int;
@@ -11,29 +12,39 @@ type property = { position: int;
                   name: string;
                 }
 
+
 and player = { id: int;
                token: string;
                position: int ref;
                properties: property_container;
-               is_AI: bool
+               is_AI: bool;
+               money: int
              }
 
-and property_container = { blue: property list ref;
-                           green: property list ref;
-                           yellow: property list ref;
+and property_container = { brown: property list ref;
+                           grey: property list ref;
+                           pink: property list ref;
                            orange: property list ref;
-                           black: property list ref
+                           red: property list ref;
+                           yellow: property list ref;
+                           green: property list ref;
+                           blue: property list ref;
                          }
 
 type community_chest = string * int
 
 type chance = string * int
 
+
 type board = { player_list: player list;
                community_chest_list: community_chest list;
                chance_list: chance list;
-               property_list: property list
+               property_list: property list;
+               tile_list : tile list;
              }
+
+type tile = Prop of property | Chance of int | Chest of int |Jail of int
+            | Go of int |Tax of int | Go_jail of int
 
 let in_jail p = p.position = jail_position
 
@@ -48,7 +59,7 @@ let get_prop_name p = p.name
 let get_prop_price p = p.cost
 
 let get_position b p =
-  List.nth b.property_list p.position
+  List.nth b.tile_list p.position
 
 (* Creates an empty property container and returns it
    Inputs: None
@@ -82,12 +93,12 @@ let create_board human_players player_names =
   {player_list= !temp_player_list; community_chest_list= ;
   chance_list= ; property_list= }
 
-let get_player b pl_id =
-  let pl_list = b.player_list in
-  List.nth pl_list (pl_id)
-
 let get_player_list b =
   b.player_list
+
+let get_player b pl_id =
+  let pl_list = get_player_list b in
+  List.nth pl_list (pl_id)
 
 let get_property b p_name =
   let p_list = b.property_list in
@@ -103,3 +114,17 @@ let get_chance b =
   let num_chance = List.length b.chance_list in
   let rand_num = Random.int num_chance in
   List.nth b.chance_list
+
+let change_money b pl_id amt =
+  let pl = get_player b pl_id in
+  pl.money := !pl.money + amt
+
+let move_player b pl_id i =
+  let pl = get_player b pl_id in
+  let new_pos = !pl.position + i in
+  if new_pos < pl.position then change_money b pl_id 200 else ();
+  pl.position := () mod (List.length b.tile_list)
+
+let move_property b pl_id prop =
+  let pl = get_player b pl_id in
+  match prop.color with

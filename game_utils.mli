@@ -6,6 +6,7 @@ type board
 type player
 type property
 type property_container
+type tile
 
 
 (*take in landed on property, list of players in the game, player making move,
@@ -21,10 +22,10 @@ val get_player : board -> int -> player
 val get_player_list : board -> player list
 
 (*get property from name of it*)
-val get_property : board -> string -> property
+val get_property : board -> string -> property option
 
 (*get a players position*)
-val get_position : board -> player -> property
+val get_position : board -> player -> tile
 
 (*get the player whos turn it is*)
 val get_turn : board -> player
@@ -36,7 +37,7 @@ val get_chest : board -> community_chest
 val get_chance : board -> chance
 
 (*set a new player position*)
-val move_player : board -> player -> int -> board
+val move_player : board -> int -> int -> unit
 
 (* Creates a board to be used in the beginning
   Inputs:
@@ -47,10 +48,10 @@ val move_player : board -> player -> int -> board
 val create_board : int -> string array -> string list -> string -> board
 
 (*takes in board and player and change in money*)
-val change_money : board -> player ->  int -> board
+val change_money : board -> int ->  int -> unit
 
-(*take in board, property name to move *)
-val move_property : board -> player -> property -> unit
+(*take in board, property to move and id of player to get it*)
+val move_property : board -> int -> property -> unit
 
 val is_property : board -> int -> bool
 
