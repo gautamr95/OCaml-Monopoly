@@ -6,27 +6,26 @@ type board
 type player
 type property
 type property_container
+type tile
 
-(*move player on board, modify players position and return a new player and
-  return property landed on*)
-val move : player -> board -> player * property
 
 (*take in landed on property, list of players in the game, player making move,
   game board, and return the players updated state if the bought or not
   and the new game board*)
 val prop_check : property -> player list -> player ->  board -> player * board
 
-(*board is game state, give it player name, returns player*)
-val get_player : board -> string -> player
+(*board is game state, give it player number, returns player, precondition is that
+int is always less than or equal to number of players*)
+val get_player : board -> int -> player
 
 (*get list of players*)
 val get_player_list : board -> player list
 
 (*get property from name of it*)
-val get_property : board -> string -> property
+val get_property : board -> string -> property option
 
 (*get a players position*)
-val get_position : board -> player -> property
+val get_position : board -> player -> tile
 
 (*get the player whos turn it is*)
 val get_turn : board -> player
@@ -38,7 +37,7 @@ val get_chest : board -> community_chest
 val get_chance : board -> chance
 
 (*set a new player position*)
-val move_player : board -> player -> int -> board
+val move_player : board -> int -> int -> unit
 
 (* Creates a board to be used in the beginning
   Inputs:
@@ -49,13 +48,12 @@ val move_player : board -> player -> int -> board
 val create_board : int -> string array -> string list -> string -> board
 
 (*takes in board and player and change in money*)
-val change_money : board -> player ->  int -> board
+val change_money : board -> int ->  int -> unit
 
-(*take in board, property name to move *)
-val move_property : board -> player -> property -> unit
-
-(*contains player*)
-val is_player : board -> string -> bool
+(* the player is an AI *)
+val is_ai : player -> bool
+(*take in board, property to move and id of player to get it*)
+val move_property : board -> int -> property -> unit
 
 val is_property : board -> int -> bool
 
@@ -64,3 +62,9 @@ val get_prop_price : property -> int
 val get_prop_name : property -> string
 
 val in_jail : player -> bool
+
+val is_chance : board -> position -> bool
+
+val is_community_chest : board -> position -> bool
+
+val is_tax : board -> position -> bool
