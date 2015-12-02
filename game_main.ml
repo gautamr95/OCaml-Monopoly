@@ -3,19 +3,6 @@ let total_players = 4
 let starting_money = 200
 let go_salary = 30
 
-(* Types used in the game *)
-
-type player =
-
-type property =
-
-type chance =
-
-type community_chest =
-
-type board = {player_list: player list;
-              c_chest_list: community_chest list ref;
-              chance_list: chance list ref}
 
 (* Give introductory message, need to press enter to continue *)
 Printf.printf "Welcome to OCaml Monopoly! This game has been developed
