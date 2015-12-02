@@ -54,8 +54,8 @@ val change_money : board -> player ->  int -> board
 (*take in board, property name to move *)
 val move_property : board -> player -> property -> unit
 
-(*contains player*)
-val is_player : board -> string -> bool
+(* the player is an AI *)
+val is_ai : player -> bool
 
 val is_property : board -> int -> bool
 
@@ -64,3 +64,9 @@ val get_prop_price : property -> int
 val get_prop_name : property -> string
 
 val in_jail : player -> bool
+
+val is_chance : board -> position -> bool
+
+val is_community_chest : board -> position -> bool
+
+val is_tax : board -> position -> bool

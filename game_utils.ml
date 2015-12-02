@@ -15,7 +15,8 @@ and player = { id: int;
                token: string;
                position: int ref;
                properties: property_container;
-               is_AI: bool
+               is_AI: bool;
+               in_jail: bool
              }
 
 and property_container = { blue: property list ref;
@@ -62,7 +63,8 @@ let create_board human_players player_names =
   for i = 1 to human_players do
     let temp_player = { id= !id_counter; name= player_names.(!id_counter);
                         token= token_names.(!id_counter); position= ref 0;
-                        properties= create_empty_prop_cont (); is_AI= false
+                        properties= create_empty_prop_cont (); is_AI= false;
+                        in_jail= false
                       } in
     id_counter := !id_counter + 1;
     temp_player_list := !temp_player_list@[temp_player]
@@ -72,7 +74,8 @@ let create_board human_players player_names =
     for i = 1 to 4 - human_players do
       let temp_player = { id= !id_counter; name= player_names.(!id_counter);
                         token= token_names.(!id_counter); position= ref 0;
-                        properties= create_empty_prop_cont (); is_AI= false
+                        properties= create_empty_prop_cont (); is_AI= false;
+                        in_jail= false
                       } in
       id_counter := !id_counter + 1;
       temp_player_list := !temp_player_list@[temp_player]
