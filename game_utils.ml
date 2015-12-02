@@ -3,11 +3,11 @@ open Random
 let jail_position = 20
 
 (* Types used in the game *)
-
+type color = Bromn|Grey (*to do*)
 type property = { position: int;
-                  color: string;
+                  color: color;
                   cost: int;
-                  holder: player option;
+                  holder: player option ref;
                   rent: int;
                   name: string;
                 }
@@ -125,6 +125,13 @@ let move_player b pl_id i =
   if new_pos < pl.position then change_money b pl_id 200 else ();
   pl.position := () mod (List.length b.tile_list)
 
-let move_property b pl_id prop =
+let move_property b pl_id pl_id2 prop =
   let pl = get_player b pl_id in
   match prop.color with
+  | Brown -> pl.properties.brown:= prop :: !pl.properties.brown;
+             if pl_id2 <> -1 then
+               let pl2 = get_player b pl_id2 in
+               pl2.properties.brown := List.filter (fun x -> x = prop)!pl2.properties.brown
+             else ();
+  (*copy this 8 times*)
+  prop.holder := some pl
