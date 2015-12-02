@@ -1,3 +1,4 @@
+open Random
 (* Constant values *)
 let jail_position = 20
 
@@ -11,7 +12,6 @@ type property = { position: int;
                 }
 
 and player = { id: int;
-               name: string;
                token: string;
                position: int ref;
                properties: property_container;
@@ -30,8 +30,8 @@ type community_chest = string * int
 type chance = string * int
 
 type board = { player_list: player list;
-               community_chest_list: community_chest list ref;
-               chance_list: chance list ref;
+               community_chest_list: community_chest list;
+               chance_list: chance list;
                property_list: property list
              }
 
@@ -47,7 +47,8 @@ let get_prop_name p = p.name
 
 let get_prop_price p = p.cost
 
-let get_position p = p.position
+let get_position b p =
+  List.nth b.property_list p.position
 
 (* Creates an empty property container and returns it
    Inputs: None
@@ -81,6 +82,24 @@ let create_board human_players player_names =
   {player_list= !temp_player_list; community_chest_list= ;
   chance_list= ; property_list= }
 
+let get_player b pl_id =
+  let pl_list = b.player_list in
+  List.nth pl_list (pl_id)
 
+let get_player_list b =
+  b.player_list
 
+let get_property b p_name =
+  let p_list = b.property_list in
+  try Some(List.find (fun x -> x.name = p_name) p_list) with
+  | Not_Found -> None
 
+let get_chest b =
+  let num_chest = List.length b.community_chest_list in
+  let rand_num = Random.int num_chest in
+  List.nth b.community_chest_list
+
+let get_chance b =
+  let num_chance = List.length b.chance_list in
+  let rand_num = Random.int num_chance in
+  List.nth b.chance_list
