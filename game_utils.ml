@@ -1,6 +1,6 @@
 open Random
 (* Constant values *)
-
+exception TODO
 (* Types used in the game *)
 type color = Brown|Grey|Pink|Orange|Red|Yellow|Green|Blue (*to do*)
 type property = { position: int;
@@ -81,19 +81,19 @@ let get_chance b =
   let rand_num = Random.int num_chance in
   List.nth b.chance_list
 
-let move_player b pl_id i =
-  let pl = get_player b pl_id in
-  let new_pos = ((!pl.position + i) mod ((List.length b.tile_list) - 1)) in
-  if new_pos < pl.position then change_money b pl_id 200 else ();
-  pl.position := new_pos
-
 let change_money b pl_id amt =
   let pl = get_player b pl_id in
   pl.money := !pl.money + amt;
   if !pl.money < 0 then
     pl.bankrupt:=true
-    print_endline "Collected $200 for passing go"
-  else ()
+  else ();
+
+(*let () = print_endline "Collected $200 for passing go" in*)
+let move_player b pl_id i =
+  let pl = get_player b pl_id in
+  let new_pos = ((!pl.position + i) mod ((List.length b.tile_list) - 1)) in
+  pl.position := new_pos
+
 
 let is_ai b pl_id =
   let pl = get_player b pl_id in
@@ -181,7 +181,11 @@ let move_to_jail b pl_id =
   | Jail i -> pl.position := i; pl.in_jail := true
   | _ -> ()
 
+let print_player_properties b pl_id prop = raise TODO
 
+let can_buy_house b pl_id prop = raise TODO
+
+let add_house b pl_id prop = raise TODO
 (*
 let is_property b prop_name =
   let prop_list = b.property_list in
@@ -221,34 +225,3 @@ let create_board human_players player_names =
   {player_list= !temp_player_list; community_chest_list= ;
   chance_list= ; property_list= }
 *)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(*these 2 functions are dumb*)
-
-
-
-
-
-
-
-
-
-
