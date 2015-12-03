@@ -27,8 +27,6 @@ val get_property : board -> string -> property option
 (*get a players position*)
 val get_position : board -> player -> tile
 
-(*get the player whos turn it is*)
-val get_turn : board -> player
 
 (*get a random chest card*)
 val get_chest : board -> community_chest
@@ -55,7 +53,7 @@ val is_ai : player -> bool
 (*take in board, property to move and id of player to get it*)
 val move_property : board -> int -> property -> unit
 
-val is_property : board -> int -> bool
+val is_property : board -> string -> bool
 
 val get_prop_price : property -> int
 
@@ -68,3 +66,9 @@ val is_chance : board -> position -> bool
 val is_community_chest : board -> position -> bool
 
 val is_tax : board -> position -> bool
+
+(*take in player id*)
+val get_player_property : board -> int -> property_container
+
+(*get players money from id*)
+val get_money : board -> int -> int
