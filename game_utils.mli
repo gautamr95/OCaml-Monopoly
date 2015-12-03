@@ -25,7 +25,10 @@ val get_player_list : board -> player list
 val get_property : board -> string -> property option
 
 (*get a players position*)
-val get_position : board -> player -> tile
+val get_pl_position : board -> int -> tile
+
+(*get a ploperty position*)
+val get_prop_position : board -> property -> tile
 
 
 (*get a random chest card*)
@@ -59,16 +62,23 @@ val get_prop_price : property -> int
 
 val get_prop_name : property -> string
 
-val in_jail : player -> bool
+(*take in player id*)
+val in_jail : board -> int -> bool
 
-val is_chance : board -> position -> bool
+val is_chance : board -> int -> bool
 
 val is_community_chest : board -> position -> bool
-
-val is_tax : board -> position -> bool
 
 (*take in player id*)
 val get_player_property : board -> int -> property_container
 
 (*get players money from id*)
 val get_money : board -> int -> int
+
+(*takes in position*)
+val get_tile : board -> int -> tile
+
+val is_bankrupt : board -> int -> bool
+
+val others_bankrupt : board -> int -> bool
+
