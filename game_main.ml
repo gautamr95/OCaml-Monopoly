@@ -100,7 +100,8 @@ let rec game_loop () =
           let (d1, d2) = roll_dice () in
           Printf.printf "\nYou have rolled a %d and %d, with a total move of %d." d1 d2 (d1+d2);
 
-          let can_buy_further_house = ref true in
+          let can_buy_further_house = ref false in
+          let prompt_buy_house = ref false in
 
           let mini_repl () =
 
@@ -146,8 +147,8 @@ let rec game_loop () =
                 let num_houses = get_houses prop in
                 if p_id = curr_player_id then (* Can upgrade or buy a house if necessary *)
                   if num_houses < 4 then
-
-                  else ()
+                    can_buy_further_house :=
+                  else () (* Nothing they can do since all the houses are on the tile. *)
                 else
                   let rent_amt = get_rent prop in
 
