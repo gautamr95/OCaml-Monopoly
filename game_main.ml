@@ -75,17 +75,25 @@ let rounds = ref 0
 let turns = ref 0
 
 (* Helper function that will prompt the player if they want to buy a certain property. *)
-let prompt_for_property p_id p_position : bool =
+let prompt_buy_property p_id p_position : bool =
   let prop_opt = get_property game_board p_position in
   match prop_opt with
   | None -> false
   | Some prop ->
     let prop_name = get_prop_name prop in
-    Printf.printf "\nWould you like to purchase %s, for a cost of %d? (y/n) -> " prop_name (get_prop_price prop);
+    let prop_price = get_prop_price prop in
+    Printf.printf "\nWould you like to purchase %s, for a cost of %d? (y/n) -> " prop_name prop_price;
     let answer = Pervasives.read_line () in
     match String.lowercase (answer) with
     | "y" ->
-
+      let tot_money = get_money game_board p_id in
+      if prop_price > tot_money then
+        Printf.printf "\nError. You do not have enough money for this transaction.";
+        false
+      else
+        Printf.printf "\nYou have bought the property!";
+        move_property game_board p_id None prop;
+        true
     | "n" -> false
     | _ -> Printf.printf "\nInvalid command."; false
 
