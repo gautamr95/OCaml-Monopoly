@@ -1,11 +1,12 @@
 open Str
+
 (* Game constants *)
-(*let total_players = 4 in
+let total_players = 4 in
 let starting_money = 200 in
 let go_salary = 30 in
 let jail_fee = 30 in
 let tot_rounds = 50 in
-*)
+
 
 (* Give introductory message, need to press enter to continue *)
 Printf.printf "\n\n\nWelcome to OCaml Monopoly! This game has been developed by
@@ -13,14 +14,13 @@ Printf.printf "\n\n\nWelcome to OCaml Monopoly! This game has been developed by
 
 let _ = Pervasives.read_line ()
 
-(* Applies regex and tokenizing to split an input into the corresponding words
-  Input: input_str - the String that needs to be tokenized
-  Output: A string list of the tokenized input *)
-let parse_input (input_str: string) : string list =
-  (Str.bounded_split (Str.regexp "[ \t]+") input_str 2)
-
-let is_correct () =
+(* Function that asks for correct values (confirmation), and returns
+a boolean based on the user input.
+  Input - Unit
+  Output - bool of whether or not the input was valid *)
+let is_correct () : bool =
   Printf.printf "Is this value correct? (y/n) -> ";
+  (* Checks for any input errors *)
   let correct = try Some (Pervasives.read_line ()) with
     | Failure s -> None in
 
@@ -46,21 +46,6 @@ let rec get_players () : int =
 
 let num_players = get_players ()
 
-(* Ref that will point to a list of the players *)
-(* let player_list = ref [] *)
-
-(* Function to get names of each of the players. *)
-let get_player_names () : string list =
-
-  let rec player_list_creator player_id acc =
-    if player_id <= 4 then
-      ((Printf.printf "\nPlayer %d, enter your name -> " player_id);
-      let name = (Pervasives.read_line ()) in
-      player_list_creator (player_id + 1) (acc@[name]))
-    else acc in
-
-  player_list_creator 1 []
-
 let player_names_list = get_player_names ()
 
 let game_board = create_board num_players player_names_list
@@ -73,6 +58,33 @@ let rounds = ref 0
 
 (* Used to calculate the accumulated turns, within a round *)
 let turns = ref 0
+
+(* Helper function that will prompt the player if they want to buy a certain property.
+   Inputs:
+   p_id - int of the player ID
+   p_position - int of the player's position on the board.
+   Output: bool of whether a transaction occurred or not*)
+let prompt_buy_property p_id p_position : bool =
+  let prop_opt = get_property game_board p_position in
+  match prop_opt with
+  | None -> false
+  | Some prop ->
+    let prop_name = get_prop_name prop in
+    let prop_price = get_prop_price prop in
+    Printf.printf "\nWould you like to purchase %s, for a cost of %d? (y/n) -> " prop_name prop_price;
+    let answer = Pervasives.read_line () in
+    match String.lowercase (answer) with
+    | "y" ->
+      let tot_money = get_money game_board p_id in
+      if prop_price > tot_money then
+        Printf.printf "\nError. You do not have enough money for this transaction.";
+        false
+      else
+        Printf.printf "\nYou have bought the property!";
+        move_property game_board p_id None prop;
+        true
+    | "n" -> false
+    | _ -> Printf.printf "\nInvalid command."; false
 
 (* Loop through game states, and update game state. This loop is taken for
 each player that plays the game. *)
@@ -94,16 +106,18 @@ let rec game_loop () =
         else begin
           (* REPL for the individual players and the actions they can perform. *)
 
-          Printf.printf "Press any key to roll the dice -> "
+          Printf.printf "Player %d, it is your turn.\nPress any key to roll the dice -> " curr_player_id;
           let _ = Pervasives.read_line () in
 
           let (d1, d2) = roll_dice () in
           Printf.printf "\nYou have rolled a %d and %d, with a total move of %d." d1 d2 (d1+d2);
 
-          let can_buy_further_house = ref false in
-          let prompt_buy_house = ref false in
+          let prompt_buy_property = ref false in
+          let bought_property     = ref false in
 
           let mini_repl () =
+
+            prompt_buy_property := false;
 
             (* Not really implemented yet. *)
             let _ = if in_jail curr_player then
@@ -113,6 +127,7 @@ let rec game_loop () =
               else
                 Printf.printf "\nYou did not roll a double, so you will lose $%d and move out of jail.\n" jail_fee;
                 change_money game_board curr_player_id (-jail_fee);
+              raise TODO
 
             else () in
 
@@ -140,15 +155,13 @@ let rec game_loop () =
               begin match holder with
               | None -> (* No one is holding the current property. *)
                 (* They will have an extra prompt to buy the property *)
+                if (not !bought_property) then  prompt_buy_property := true else ()
 
               | Some p_id -> (* id of player holding the property. *)
                 (* They will have a prompt that they lost money. *)
 
                 let num_houses = get_houses prop in
-                if p_id = curr_player_id then (* Can upgrade or buy a house if necessary *)
-                  if num_houses < 4 then
-                    can_buy_further_house :=
-                  else () (* Nothing they can do since all the houses are on the tile. *)
+                if p_id = curr_player_id then ()
                 else
                   let rent_amt = get_rent prop in
 
@@ -165,11 +178,46 @@ let rec game_loop () =
             Printf.printf "You have the following options:\n
               Money - Displays how much money you currently have\n
               Property - Displays what properties you own\n
-              Summary - Displays a summary of all the players\n
               Position - Displays your numeric position on the board\n
-              Trade: Initiates a trade, if possible\n
-              Upgrade: Upgrades a property with additional houses, if possible\n
-              Done: End turn";
+              Trade - Initiates a trade, if possible\n
+              Upgrade - Upgrades a property with additional houses, if possible\n
+              House - Options for buying houses for a property\n
+              Done - End turn";
+
+            if prompt_buy_property then
+              Printf.printf "Buy - Options for buying the current property."
+            else () in
+
+            Printf.printf "\n\nCommand -> ";
+            let command = Pervasives.read_line () in
+
+            let _ = begin match command with
+            | "Money" ->
+              Printf.printf "\nYou have $%d." get_money game_board curr_player_id;
+              mini_repl ()
+            | "Property" ->
+              print_players_properties game_board curr_player_id;
+              mini_repl ()
+            | "Position" ->
+              Printf.printf "\nYou are currently on position %d." player_position;
+              mini_repl ()
+            | "Trade" ->
+              execute_trade ();
+              mini_repl ()
+            | "House" ->
+              buy_house ();
+              mini_repl ()
+            | "Done" -> ()
+            | "Buy" -> (* Buying a new property. *)
+              if !prompt_buy_property then Printf.printf "\nInvalid command."
+              else
+                let transaction = prompt_for_property curr_player_id player_position in
+                if transaction then bought_property := true else ()
+              mini_repl ()
+            | _ ->
+             Printf.printf "\nInvalid command.";
+             mini_repl ()
+            end
         end
       end
     end
