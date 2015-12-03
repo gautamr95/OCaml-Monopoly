@@ -14,45 +14,45 @@ type board = { player_list: player list;
 let locale = GtkMain.Main.init ()
 
 let tilelocation = [(720,720);
-                    (635,720);
-                    (570,720);
-                    (505,720);
-                    (440,720);
-                    (375,720);
-                    (310,720);
-                    (240,720);
-                    (175,720);
-                    (110,720);
-                    (20 ,710);
-                    (20 ,625);
-                    (20 ,560);
-                    (20 ,495);
-                    (20 ,430);
-                    (20 ,365);
-                    (20 ,300);
-                    (20 ,230);
-                    (20 ,165);
-                    (20 ,100);
-                    (20 ,20 );
-                    (110,20 );
-                    (175,20 );
-                    (240,20 );
-                    (310,20 );
-                    (375,20 );
-                    (440,20 );
-                    (505,20 );
-                    (570,20 );
-                    (635,20 );
-                    (740,20 );
-                    (740,100);
-                    (740,165);
-                    (740,230);
-                    (740,300);
-                    (740,365);
-                    (740,430);
-                    (740,495);
-                    (740,560);
-                    (740,625);]
+                    (630,720);
+                    (565,720);
+                    (500,720);
+                    (435,720);
+                    (368,720);
+                    (303,720);
+                    (237,720);
+                    (171,720);
+                    (106,720);
+                    (0  ,720);
+                    (0  ,630);
+                    (0  ,565);
+                    (0  ,500);
+                    (0  ,435);
+                    (0  ,368);
+                    (0  ,303);
+                    (0  ,237);
+                    (0  ,171);
+                    (0  ,106);
+                    (0  ,0  );
+                    (106,0  );
+                    (171,0  );
+                    (237,0  );
+                    (303,0  );
+                    (368,0  );
+                    (435,0  );
+                    (500,0  );
+                    (565,0  );
+                    (630,0  );
+                    (720,0  );
+                    (720,106);
+                    (720,171);
+                    (720,237);
+                    (720,303);
+                    (720,368);
+                    (720,435);
+                    (720,500);
+                    (720,565);
+                    (720,630);]
 
 let board_state = {
   player_list = [{id = 0; position = ref 5};{id = 1; position = ref 6}];
@@ -96,7 +96,7 @@ let main () =
                                         ~packing:commandarea#add () in
 
   (*Create board image*)
-  let board_pixbuf = GdkPixbuf.from_file "monopoly.jpg" in
+  let board_pixbuf = GdkPixbuf.from_file "assets/monopoly.jpg" in
   (*scaled_board_pixbuf is the static and constant board picture pixbuf*)
   (*it's used as the base image to overlay stuff onto; houses, players, etc*)
   let scaled_board_pixbuf = GdkPixbuf.create ~width:800
@@ -114,8 +114,9 @@ let main () =
                                 ~height:800
                                 ~packing:board#add () in
 
-  let obama_pixbuf = GdkPixbuf.from_file "face.png" in
-  let cena_pixbuf = GdkPixbuf.from_file "cena.png" in
+  let obama_pixbuf = GdkPixbuf.from_file "assets/obama.png" in
+  let cena_pixbuf = GdkPixbuf.from_file "assets/cena.png" in
+  let sanders_pixbuf = GdkPixbuf.from_file "assets/sanders.png" in
   let green_house_pixbuf = GdkPixbuf.from_file "green_house.png" in
 
   (*-----------------HELPER FUNCTIONS FOR UPDATING BOARD-----------------*)
@@ -140,10 +141,10 @@ let main () =
                                               ~dest_x:x
                                               ~dest_y:y
                                               ~interp:`BILINEAR
-                                              ~scale_x:0.1
-                                              ~scale_y:0.1
-                                              ~width:28
-                                              ~height:38
+                                              ~scale_x:0.5
+                                              ~scale_y:0.5
+                                              ~width:30
+                                              ~height:30
                                               obama_pixbuf
       else
         GdkPixbuf.composite ~dest:dest_pixbuf ~alpha:200
@@ -152,10 +153,10 @@ let main () =
                                               ~dest_x:x
                                               ~dest_y:y
                                               ~interp:`BILINEAR
-                                              ~scale_x:0.075
-                                              ~scale_y:0.075
-                                              ~width:47
-                                              ~height:60
+                                              ~scale_x:0.5
+                                              ~scale_y:0.5
+                                              ~width:30
+                                              ~height:30
                                               cena_pixbuf) playerlst in
 
   (*Helper function for drawing a list of properties at a given physical pos*)
