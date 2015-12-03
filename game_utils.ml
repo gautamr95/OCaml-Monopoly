@@ -138,3 +138,38 @@ let move_property b pl_id pl_id2 prop =
              else ();
   (*copy this 8 times*)
   prop.holder := some pl
+
+let is_property b prop_name =
+  let prop_list = b.property_list in
+  List.exists (fun x -> x.name = prop_name) prop_list
+
+let get_player_property b pl_id =
+  let pl = get_player b pl_id in
+  pl.properties
+
+let get_money b pl_id =
+  let pl = get_player b pl_id in
+  pl.money
+
+(*these 2 functions are dumb*)
+let is_chance b pos =
+  let tile = List.nth b.tile_list pos in
+  match tile with
+  |Chance _ -> true
+  | _ -> false
+
+let is_jail b pos =
+  let tile = List.nth b.tile_list pos in
+  match tile with
+  |Jail _ -> true
+  | _ -> false
+
+let get_tile b pos =
+  List.nth b.tile_list pos
+
+let in_jail b pl_id =
+  let pl = get_player b pl_id in
+  let pos = List.nth b.tile_list pl.position in
+  match pos with
+  | Jail _ -> true
+  | _      -> false
