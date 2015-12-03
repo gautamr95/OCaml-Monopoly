@@ -9,10 +9,6 @@ type property_container
 type tile
 
 
-(*take in landed on property, list of players in the game, player making move,
-  game board, and return the players updated state if the bought or not
-  and the new game board*)
-val prop_check : property -> player list -> player ->  board -> player * board
 
 (*board is game state, give it player number, returns player, precondition is that
 int is always less than or equal to number of players*)
@@ -21,15 +17,17 @@ val get_player : board -> int -> player
 (*get list of players*)
 val get_player_list : board -> player list
 
-(*get property from name of it*)
-val get_property : board -> string -> property option
+(*get property from name of it, none if it doesnt exist*)
+val get_property_from_name : board -> string -> property option
 
-(*get a players position*)
-val get_pl_position : board -> int -> tile
+(*get property from position, none if it isnt a property*)
+val get_property : board -> int -> property option
 
-(*get a ploperty position*)
-val get_prop_position : board -> property -> tile
+(*get the integer position a player is at take in board and player id*)
+val get_pl_position : board -> int -> int
 
+(*get the integer position a property is at take in board and property*)
+val get_prop_position : board -> property -> int
 
 (*get a random chest card*)
 val get_chest : board -> community_chest
@@ -37,24 +35,16 @@ val get_chest : board -> community_chest
 (*get a random chance card*)
 val get_chance : board -> chance
 
-(*set a new player position*)
+(*set a new player position, thake in board, player id and how many spaces to move*)
 val move_player : board -> int -> int -> unit
-
-(* Creates a board to be used in the beginning
-  Inputs:
-  - number of human players
-  - list of names of the human players (ids will be generated in this order)
-  -
-*)
-val create_board : int -> string array -> string list -> string -> board
 
 (*takes in board and player and change in money*)
 val change_money : board -> int ->  int -> unit
 
 (* the player is an AI *)
 val is_ai : player -> bool
-(*take in board, property to move and id of player to get it*)
-val move_property : board -> int -> property -> unit
+(*take in board, property to move and id of player to get it, and id of player to lose it*)
+val move_property : board -> int -> int -> property -> unit
 
 val is_property : board -> string -> bool
 
@@ -67,7 +57,7 @@ val in_jail : board -> int -> bool
 
 val is_chance : board -> int -> bool
 
-val is_community_chest : board -> position -> bool
+val is_chest : board -> position -> bool
 
 (*take in player id*)
 val get_player_property : board -> int -> property_container
@@ -82,3 +72,16 @@ val is_bankrupt : board -> int -> bool
 
 val others_bankrupt : board -> int -> bool
 
+val get_pl_prop_of_color: board -> int -> property -> property list ref
+
+val get_rent : property -> int
+
+val get_holder : property -> int option
+
+(* Creates a board to be used in the beginning
+  Inputs:
+  - number of human players
+  - list of names of the human players (ids will be generated in this order)
+  -
+*)
+val create_board : int -> string array -> string list -> string -> board
