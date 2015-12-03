@@ -4,6 +4,7 @@ open Str
 let starting_money = 200 in
 let go_salary = 30 in
 let jail_fee = 30 in
+let tot_rounds = 50 in
 *)
 
 (* Give introductory message, need to press enter to continue *)
@@ -67,59 +68,77 @@ let game_board = create_board num_players player_names_list
 (* Returns a number between 1 and 12 inclusive, simulating two dice rolled. *)
 let roll_dice () : (int * int) = (Random.int 6, Random.int 6)
 
-(* Used to handle extraneous wildcard cases to avoid code duplication. *)
-let wildcard_command command =
+(* total turns (for each round)*)
+let rounds = ref 0
+
+(* Used to calculate the accumulated turns, within a round *)
+let turns = ref 0
 
 (* Loop through game states, and update game state. This loop is taken for
 each player that plays the game. *)
-let game_loop () =
-  let curr_player = get_turn game_board in
-  let curr_pos = get_position game_board curr_player in
+let rec game_loop () =
+  turns := !turns + 1;
+  let _ = if !turns > 4 then turns := 0; rounds := !rounds + 1 else () in
+  let _ = if rounds >= tot_rounds then () else
+    let curr_player_id = !turns - 1 in
 
-  if is_ai curr_player then
-    (* Call corresponding AI functions. *)
-  else
-    (* REPL for the individual players and the actions they can perform. *)
-    let mini_repl () =
-      Printf.printf "Press any key to roll the dice -> "
-      let _ = Pervasives.read_line () in
+    if others_bankrupt game_board curr_player_id then () else begin
 
-      let (d1, d2) = roll_dice () in
-      Printf.printf "\nYou have rolled a %d and %d, with a total move of %d." d1 d2;
+      if is_bankrupt game_board curr_player_id then
+      Printf.printf "\nPlayer %d, you are bankrupt, so your turn will be skipped.\n" curr_player_id;
 
-      (* First print the relevant options. *)
-      Printf.printf "You have the following options:\n
-        Money - Displays how much money you currently have\n
-        Property - Displays what properties you own\n
-        Summary - Displays a summary of all the players\n
-        Position - Displays your numeric position on the board\n
-        Trade: Initiates a trade, if possible\n
-        Upgrade: Upgrades a property with additional houses, if possible\n
-        Done: End turn ";
+      else begin
 
-      let _ = if in_jail curr_player then
-        Printf.printf "\n\nYou are currently in jail. The following options are available:\n
-        Pay - Pay %d to escape out of jail\n
-        Roll - Roll a double in three opportunities\n" jail_fee;
-        let command = String.lowercase (Pervasives.read_line ()) in
+        if is_ai curr_player then
+          ai_decision game_board player ()
+        else begin
+          (* REPL for the individual players and the actions they can perform. *)
 
-        let _ = match command with
-        | "pay" ->
-          (* Pay money *)
-        | "roll" ->
-        | a -> wildcard_command a in
+          Printf.printf "Press any key to roll the dice -> "
+          let _ = Pervasives.read_line () in
 
-      else (* Not in jail, so on some other location. *)
-        if is_chance game_board curr_pos then
-        (* Actions *)
-        else if is_community_chest game_board curr_pos then
+          let (d1, d2) = roll_dice () in
+          Printf.printf "\nYou have rolled a %d and %d, with a total move of %d." d1 d2 (d1+d2);
 
-        else if is_tax game_board curr_pos then
+          let mini_repl () =
 
-        else (* is_go_to_jail *)
+            (* Not really implemented yet. *)
+            let _ = if in_jail curr_player then
+              Printf.printf "\n\nYou are also currently in jail.";
+              if (d1=d2)
+                Printf.printf "\nSince you rolled a double, you can move out of jail at no cost!\n";
+              else
+                Printf.printf "\nYou did not roll a double, so you will lose $%d and move out of jail.\n" jail_fee;
+                change_money game_board curr_player_id (-jail_fee);
 
+            else () in
 
+            move_player game_board curr_player_id (d1+d2);
+            (* First move to the location, and then check the stuff below *)
 
+            if is_chance game_board (get_pl_position curr_player_id) then
+              let card = get_chance game_board in
+              Printf.printf "\n%d\n" (fst card);
+              change_money game_board curr_player_id (snd card)
+            else if is_chest game_board (get_pl_position curr_player_id) then
+              let card = get_chest game_board in
+              Printf.printf "\n%d\n" (fst card);
+              change_money game_board curr_player_id (snd card)
+            else (* is_go_to_jail *)
+
+            (* First print the relevant options. *)
+            Printf.printf "You have the following options:\n
+              Money - Displays how much money you currently have\n
+              Property - Displays what properties you own\n
+              Summary - Displays a summary of all the players\n
+              Position - Displays your numeric position on the board\n
+              Trade: Initiates a trade, if possible\n
+              Upgrade: Upgrades a property with additional houses, if possible\n
+              Done: End turn";
+        end
+      end
+    end
+  end
 
 game_loop ()
 
