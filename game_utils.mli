@@ -42,25 +42,30 @@ val move_player : board -> int -> int -> unit
 val change_money : board -> int ->  int -> unit
 
 (* the player is an AI *)
-val is_ai : player -> bool
-(*take in board, property to move and id of player to get it, and id of player to lose it*)
-val move_property : board -> int -> int -> property -> unit
+val is_ai : board -> int -> bool
 
-val is_property : board -> string -> bool
+(*take in board,  and id of player to get it, and id of player to lose it*)
+val move_property : board -> int -> int option -> property -> unit
 
 val get_prop_price : property -> int
 
 val get_prop_name : property -> string
 
-(*take in player id*)
+(*take in player id return if the player is in jail, will change to something else tho*)
 val in_jail : board -> int -> bool
 
 val is_chance : board -> int -> bool
 
-val is_chest : board -> position -> bool
+val is_chest : board -> int -> bool
+
+val is_go_jail : board -> int -> bool
 
 (*take in player id*)
 val get_player_property : board -> int -> property_container
+
+(*gets the color of a property and returns a the player with player ids
+  list of properties with thatcolor*)
+val get_pl_prop_of_color: board -> int -> property -> property list ref
 
 (*get players money from id*)
 val get_money : board -> int -> int
@@ -72,12 +77,15 @@ val is_bankrupt : board -> int -> bool
 
 val others_bankrupt : board -> int -> bool
 
-val get_pl_prop_of_color: board -> int -> property -> property list ref
+
 
 val get_rent : property -> int
 
 val get_holder : property -> int option
 
+val get_houses : property -> int
+
+val get_tile : board -> int -> tile
 (* Creates a board to be used in the beginning
   Inputs:
   - number of human players
@@ -85,3 +93,5 @@ val get_holder : property -> int option
   -
 *)
 val create_board : int -> string array -> string list -> string -> board
+
+val move_to_jail : board -> int -> unit

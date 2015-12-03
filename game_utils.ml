@@ -9,7 +9,8 @@ type property = { position: int;
                   holder: int option ref;
                   rent: int;
                   name: string;
-                  bankrupt:bool ref
+                  bankrupt:bool ref;
+                  houses: int ref
                 }
 
 
@@ -44,8 +45,7 @@ type board = { player_list: player list;
                tile_list : tile list;
              }
 
-type tile = Prop of property | Chance of int | Chest of int |Jail of int
-            | Go of int |Tax of int | Go_jail of int
+type tile = Prop of property | Chance | Chest |Jail | Go | Go_jail
 
 let get_player b pl_id =
   let pl_list = get_player_list b in
@@ -87,24 +87,102 @@ let move_player b pl_id i =
   if new_pos < pl.position then change_money b pl_id 200 else ();
   pl.position := new_pos
 
-let is_property b pos =
-  let property_list = b.property_list in
-  List.fold_left
-    (fun acc prop -> if acc || prop.position = pos then true else false )
-    false property_list
+let change_money b pl_id amt =
+  let pl = get_player b pl_id in
+  pl.money := !pl.money + amt;
+  if !pl.money < 0 then pl.bankrupt:=true;
+  print_endline "Collected $200 for passing go" else ()
 
+let is_ai b pl_id =
+  let pl = get_player b pl_id in
+  pl.is_AI
 
+let move_property b pl_id pl_id2 prop =
+  let prop_list = get_pl_prop_of_color b pl_id prop in
+  prop_list:= prop :: !prop_list;
+  match pl_id2 with
+  | None   -> ();
+  | Some x -> let pl2_props = get_pl_prop_of_color b x prop in
+    pl2_props := List.filter (fun x -> x = prop) !pl2_props;
+  prop.holder := some pl
 
 let get_prop_price p = p.cost
 
 let get_prop_name p = p.name
 
+let in_jail b pl_id =
+  let pl = get_player b pl_id in
+  let pos = List.nth b.tile_list pl.position in
+  match pos with
+  | Jail _ -> true
+  | _      -> false
 
+let is_chance b pos =
+  let tile = List.nth b.tile_list pos in
+  match tile with
+  |Chance _ -> true
+  | _ -> false
 
+let is_chest b pos =
+  let tile = List.nth b.tile_list pos in
+  match tile with
+  |Chest _ -> true
+  | _ -> false
 
+let is_go_jail b pos =
+  let tile = List.nth b.tile_list pos in
+  match tile with
+  |Go_jail _ -> true
+  | _ -> false
 
+let get_player_property b pl_id =
+  let pl = get_player b pl_id in
+  pl.properties
 
+let get_pl_prop_of_color b pl_id prop =
+  let pl = get_player_property b pl_id in
+  match prop.color with
+  |Brown ->pl.brown
+  |Grey  ->pl.grey
+  |Pink  ->pl.pink
+  |Orange->pl.orange
+  |Red   ->pl.red
+  |Yellow->pl.yellow
+  |Green ->pl.green
+  |Blue  ->pl.blue
 
+let get_money b pl_id =
+  let pl = get_player b pl_id in
+  pl.money
+
+let get_tile b pos =
+  List.nth b.tile_list pos
+
+let is_bankrupt b pl_id =
+  let pl = get_player b pl_id in
+    !pl.bankrupt
+
+let others_bankrupt b pl_id =
+  let filtered = List.filter (fun x -> x.id <> pl_id) b.player_list in
+  List.fold_left (fun x y -> (!y.bankrupt = true) && x) true filtered
+
+let get_holder prop =
+  !prop.holder
+
+let get_rent prop =
+  prop.rent
+
+let get_tile b pos =
+  List.nth b.tile_list pos
+
+let move_to_jail
+
+let get_rent
+
+let is_property b prop_name =
+  let prop_list = b.property_list in
+  List.exists (fun x -> x.name = prop_name) prop_list
+(*
 (* Creates an empty property container and returns it
    Inputs: None
    Output: empty property_container *)
@@ -138,6 +216,7 @@ let create_board human_players player_names =
 
   {player_list= !temp_player_list; community_chest_list= ;
   chance_list= ; property_list= }
+*)
 
 
 
@@ -146,88 +225,26 @@ let create_board human_players player_names =
 
 
 
-let change_money b pl_id amt =
-  let pl = get_player b pl_id in
-  pl.money := !pl.money + amt;
-  if !pl.money < 0 then pl.bankrupt:=true else ()
 
 
 
-let get_pl_prop_of_color b pl_id prop =
-  let pl = get_player b pl_id in
-  match prop.color with
-  |Brown ->pl.properties.brown
-  |Grey  ->pl.properties.grey
-  |Pink  ->pl.properties.pink
-  |Orange->pl.properties.orange
-  |Red   ->pl.properties.red
-  |Yellow->pl.properties.yellow
-  |Green ->pl.properties.green
-  |Blue  ->pl.properties.blue
 
 
-let move_property b pl_id pl_id2 prop =
-  let prop_list = get_pl_prop_of_color b pl_id prop in
-  prop_list:= prop :: !prop_list;
-  if pl_id2 <> -1 then
-    let pl2_props = get_pl_prop_of_color b pl_id2 prop in
-    pl2_props := List.filter (fun x -> x = prop) !pl2_props
-  else ();
-  prop.holder := some pl
 
-let is_property b prop_name =
-  let prop_list = b.property_list in
-  List.exists (fun x -> x.name = prop_name) prop_list
 
-let get_player_property b pl_id =
-  let pl = get_player b pl_id in
-  pl.properties
 
-let get_money b pl_id =
-  let pl = get_player b pl_id in
-  pl.money
+
+
+
 
 (*these 2 functions are dumb*)
-let is_chance b pos =
-  let tile = List.nth b.tile_list pos in
-  match tile with
-  |Chance _ -> true
-  | _ -> false
 
-let is_chest b pos =
-  let tile = List.nth b.tile_list pos in
-  match tile with
-  |Chest _ -> true
-  | _ -> false
 
-let is_go_jail b pos =
-  let tile = List.nth b.tile_list pos in
-  match tile with
-  |Go_jail _ -> true
-  | _ -> false
 
-let get_tile b pos =
-  List.nth b.tile_list pos
 
-let in_jail b pl_id =
-  let pl = get_player b pl_id in
-  let pos = List.nth b.tile_list pl.position in
-  match pos with
-  | Jail _ -> true
-  | _      -> false
 
-let is_bankrupt b pl_id =
-  let pl = get_player b pl_id in
-    !pl.bankrupt
 
-let others_bankrupt b pl_id =
-  let filtered = List.filter (fun x -> x.id <> pl_id) b.player_list in
-  List.fold_left (fun x y -> (!y.bankrupt = true) && x) true filtered
 
-let get_holder prop =
-  !prop.holder
 
-let get_rent prop =
-  prop.rent
 
 

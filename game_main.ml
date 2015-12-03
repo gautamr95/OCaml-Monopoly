@@ -89,7 +89,7 @@ let rec game_loop () =
 
       else begin
 
-        if is_ai curr_player then
+        if is_ai game_board curr_player_id then
           ai_decision game_board player ()
         else begin
           (* REPL for the individual players and the actions they can perform. *)
@@ -99,6 +99,8 @@ let rec game_loop () =
 
           let (d1, d2) = roll_dice () in
           Printf.printf "\nYou have rolled a %d and %d, with a total move of %d." d1 d2 (d1+d2);
+
+          let can_buy_further_house = ref true in
 
           let mini_repl () =
 
@@ -114,17 +116,49 @@ let rec game_loop () =
             else () in
 
             move_player game_board curr_player_id (d1+d2);
-            (* First move to the location, and then check the stuff below *)
 
-            if is_chance game_board (get_pl_position curr_player_id) then
-              let card = get_chance game_board in
-              Printf.printf "\n%d\n" (fst card);
-              change_money game_board curr_player_id (snd card)
-            else if is_chest game_board (get_pl_position curr_player_id) then
-              let card = get_chest game_board in
-              Printf.printf "\n%d\n" (fst card);
-              change_money game_board curr_player_id (snd card)
-            else (* is_go_to_jail *)
+            let player_position = (get_pl_position game_board curr_player_id) in
+
+            let prop_option = get_property game_board player_position in
+
+            let _ = begin match prop_option with
+            | None -> ()
+              if is_chance game_board player_position then
+                let card = get_chance game_board in
+                Printf.printf "\n%d\n" (fst card);
+                change_money game_board curr_player_id (snd card)
+              else if is_chest game_board player_position then
+                let card = get_chest game_board in
+                Printf.printf "\n%d\n" (fst card);
+                change_money game_board curr_player_id (snd card)
+              else if is_go_jail game_board player_position then
+                Printf.printf "\nYou are going to jail :(\n";
+                (*  TODO!! *) raise TODO
+            | Some prop ->
+              let holder = get_holder prop in
+              begin match holder with
+              | None -> (* No one is holding the current property. *)
+                (* They will have an extra prompt to buy the property *)
+
+              | Some p_id -> (* id of player holding the property. *)
+                (* They will have a prompt that they lost money. *)
+
+                let num_houses = get_houses prop in
+                if p_id = curr_player_id then (* Can upgrade or buy a house if necessary *)
+                  if num_houses < 4 then
+
+                  else ()
+                else
+                  let rent_amt = get_rent prop in
+
+                  let int_pow a b = int_of_float ((float_of_int a) ** (float_of_int b)) in
+
+                  let pay_amt = rent_amt * (int_pow 2 num_houses) in
+                  Printf.printf "\nYou have landed on player %d's property, and will pay a rent of %d.\n" pay_amt;
+                  change_money game_board curr_player_id (-1 * pay_amt);
+                  change_money game_board p_id (pay_amt)
+              end
+            end
 
             (* First print the relevant options. *)
             Printf.printf "You have the following options:\n
