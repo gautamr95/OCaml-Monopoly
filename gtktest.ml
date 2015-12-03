@@ -56,7 +56,7 @@ let tilelocation = [(720,720);
 
 let board_state = {
   player_list = [{id = 0; position = ref 5};{id = 1; position = ref 6}];
-  property_list = [{position = 7}];
+  property_list = [{position = 8};{position = 8};{position = 8};{position = 8}];
 }
 
 let main () =
@@ -117,7 +117,7 @@ let main () =
   let obama_pixbuf = GdkPixbuf.from_file "assets/obama.png" in
   let cena_pixbuf = GdkPixbuf.from_file "assets/cena.png" in
   let sanders_pixbuf = GdkPixbuf.from_file "assets/sanders.png" in
-  let green_house_pixbuf = GdkPixbuf.from_file "green_house.png" in
+  let house_pixbuf = GdkPixbuf.from_file "assets/black_house.png" in
 
   (*-----------------HELPER FUNCTIONS FOR UPDATING BOARD-----------------*)
   (*Helper function for getting list of properties at the given board pos*)
@@ -161,19 +161,24 @@ let main () =
 
   (*Helper function for drawing a list of properties at a given physical pos*)
   let draw_properties physpos proplst dest_pixbuf =
-    let x = fst physpos in let y = snd physpos in
-    List.iter (fun p ->
-      GdkPixbuf.composite ~dest:dest_pixbuf ~alpha:200
-                                            ~ofs_x: (float_of_int x)
-                                            ~ofs_y: (float_of_int y)
-                                            ~dest_x:x
-                                            ~dest_y:y
-                                            ~interp:`BILINEAR
-                                            ~scale_x:0.015
-                                            ~scale_y:0.015
-                                            ~width:15
-                                            ~height:12
-                                            green_house_pixbuf) proplst in
+    let x = fst physpos in let y = (snd physpos) - 20 in
+    let rec propdraw_helper pnum plst =
+      match plst with
+      | [] -> ()
+      | hd::tl ->
+        let xadj = x + pnum*15 in
+        (GdkPixbuf.composite ~dest:dest_pixbuf ~alpha:255
+                                              ~ofs_x: (float_of_int xadj)
+                                              ~ofs_y: (float_of_int y)
+                                              ~dest_x:xadj
+                                              ~dest_y:y
+                                              ~interp:`BILINEAR
+                                              ~scale_x:0.25
+                                              ~scale_y:0.25
+                                              ~width:15
+                                              ~height:15
+                                              house_pixbuf); propdraw_helper (pnum + 1) tl in
+    propdraw_helper 0 proplst in
 
   (*Callback function for updating the board pixbuf in the GUI*)
   let updateboard curboard: GdkPixbuf.pixbuf =
