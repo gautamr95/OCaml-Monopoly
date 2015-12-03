@@ -63,6 +63,10 @@ val is_go_jail : board -> int -> bool
 (*take in player id*)
 val get_player_property : board -> int -> property_container
 
+(*gets the color of a property and returns a the player with player ids
+  list of properties with thatcolor*)
+val get_pl_prop_of_color: board -> int -> property -> property list ref
+
 (*get players money from id*)
 val get_money : board -> int -> int
 
@@ -73,7 +77,7 @@ val is_bankrupt : board -> int -> bool
 
 val others_bankrupt : board -> int -> bool
 
-val get_pl_prop_of_color: board -> int -> property -> property list ref
+
 
 val get_rent : property -> int
 

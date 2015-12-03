@@ -139,7 +139,50 @@ let get_player_property b pl_id =
   let pl = get_player b pl_id in
   pl.properties
 
+let get_pl_prop_of_color b pl_id prop =
+  let pl = get_player_property b pl_id in
+  match prop.color with
+  |Brown ->pl.brown
+  |Grey  ->pl.grey
+  |Pink  ->pl.pink
+  |Orange->pl.orange
+  |Red   ->pl.red
+  |Yellow->pl.yellow
+  |Green ->pl.green
+  |Blue  ->pl.blue
 
+let get_money b pl_id =
+  let pl = get_player b pl_id in
+  pl.money
+
+let get_tile b pos =
+  List.nth b.tile_list pos
+
+let is_bankrupt b pl_id =
+  let pl = get_player b pl_id in
+    !pl.bankrupt
+
+let others_bankrupt b pl_id =
+  let filtered = List.filter (fun x -> x.id <> pl_id) b.player_list in
+  List.fold_left (fun x y -> (!y.bankrupt = true) && x) true filtered
+
+let get_holder prop =
+  !prop.holder
+
+let get_rent prop =
+  prop.rent
+
+let get_tile b pos =
+  List.nth b.tile_list pos
+
+let move_to_jail
+
+let get_rent
+
+let is_property b prop_name =
+  let prop_list = b.property_list in
+  List.exists (fun x -> x.name = prop_name) prop_list
+(*
 (* Creates an empty property container and returns it
    Inputs: None
    Output: empty property_container *)
@@ -173,6 +216,7 @@ let create_board human_players player_names =
 
   {player_list= !temp_player_list; community_chest_list= ;
   chance_list= ; property_list= }
+*)
 
 
 
@@ -185,55 +229,22 @@ let create_board human_players player_names =
 
 
 
-let get_pl_prop_of_color b pl_id prop =
-  let pl = get_player_property b pl_id in
-  match prop.color with
-  |Brown ->pl.brown
-  |Grey  ->pl.grey
-  |Pink  ->pl.pink
-  |Orange->pl.orange
-  |Red   ->pl.red
-  |Yellow->pl.yellow
-  |Green ->pl.green
-  |Blue  ->pl.blue
 
 
 
 
-let is_property b prop_name =
-  let prop_list = b.property_list in
-  List.exists (fun x -> x.name = prop_name) prop_list
 
 
 
-let get_money b pl_id =
-  let pl = get_player b pl_id in
-  pl.money
 
 (*these 2 functions are dumb*)
 
 
-let get_tile b pos =
-  List.nth b.tile_list pos
 
 
 
-let is_bankrupt b pl_id =
-  let pl = get_player b pl_id in
-    !pl.bankrupt
 
-let others_bankrupt b pl_id =
-  let filtered = List.filter (fun x -> x.id <> pl_id) b.player_list in
-  List.fold_left (fun x y -> (!y.bankrupt = true) && x) true filtered
 
-let get_holder prop =
-  !prop.holder
-
-let get_rent prop =
-  prop.rent
-
-let get_tile b pos =
-  List.nth b.tile_list pos
 
 
 
