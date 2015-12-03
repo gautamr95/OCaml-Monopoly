@@ -60,7 +60,6 @@ let main () =
   let factory = new GMenu.factory menubar in
   let accel_group = factory#accel_group in
   let file_menu = factory#add_submenu "Game" in
-  let fuck_menu = factory#add_submenu "fuck" in
 
   (* Game menu *)
   let factory = new GMenu.factory file_menu ~accel_group in
@@ -68,22 +67,23 @@ let main () =
   let factory = new GMenu.factory file_menu ~accel_group in
   factory#add_item "Restart" ~key:_R ~callback: Main.quit;
 
-  (* Fuck menu *)
-  let factory = new GMenu.factory fuck_menu ~accel_group in
-  factory#add_item "fuck it" ~key:_Q ~callback: Main.quit;
-
   (*Set up the actual game area*)
-
   let game_area = GPack.box `HORIZONTAL ~packing:main_container#add () in
   window#connect#destroy ~callback:Main.quit;
 
   let board = GPack.box `VERTICAL ~width:800
                                   ~packing:game_area#add () in
-  window#connect#destroy ~callback:Main.quit;
 
   let controls = GPack.box `VERTICAL ~width:400
                                      ~packing:game_area#add () in
-  window#connect#destroy ~callback:Main.quit;
+
+  let buttons = GPack.box `VERTICAL ~packing:controls#add () in
+
+  let commandarea = GPack.box `VERTICAL ~packing:controls#add () in
+
+  let scrollingtext = GBin.scrolled_window  ~hpolicy:`NEVER
+                                        ~vpolicy:`AUTOMATIC
+                                        ~packing:commandarea#add () in
 
   (*Create board image*)
   let board_pixbuf = GdkPixbuf.from_file "monopoly.jpg" in
@@ -143,14 +143,13 @@ let main () =
 
   (* Button *)
   let button = GButton.button ~label:"Push me!"
-                              ~packing:controls#add () in
-  button#connect#clicked ~callback: (fun () -> board_image#set_pixbuf scaled_board_pixbuf);
-
-  Random.init 1738;
+                              ~packing:buttons#add () in
+  button#connect#clicked ~callback: (
+    fun () -> board_image#set_pixbuf scaled_board_pixbuf);
 
   (* Button2 *)
   let button2 = GButton.button ~label:"Push me2!"
-                              ~packing:controls#add () in
+                              ~packing:buttons#add () in
   button2#connect#clicked ~callback: (
     fun () -> let drawn_board_pixbuf = drawspirites 0 0 in
       board_image#set_pixbuf drawn_board_pixbuf);
@@ -159,9 +158,26 @@ let main () =
   let togglebutton = GButton.toggle_button ~label:"Toggle me!"
                               ~active: false
                               ~draw_indicator: true
-                              ~packing:controls#add () in
+                              ~packing:buttons#add () in
   togglebutton#connect#enter ~callback: (fun () -> prerr_endline "Entered!");
   togglebutton#connect#leave ~callback: (fun () -> prerr_endline "Left!");
+
+  (* Command input and display*)
+  let commanddisplay = GText.view ~editable:false
+                                ~cursor_visible:false
+                                ~wrap_mode:`CHAR
+                                ~show:true
+                                ~packing:scrollingtext#add () in
+
+  let commandinput = GEdit.entry ~editable:true
+                                ~show:true
+                                ~packing:commandarea#add () in
+  commandinput#connect#activate ~callback: (
+    fun () -> commanddisplay#buffer#insert ~iter:commanddisplay#buffer#end_iter
+                                          (commandinput#text ^ "\n");
+      scrollingtext#vadjustment#set_value (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size);
+      commandinput#set_text "");
+
 
   (* Display the windows and enter Gtk+ main loop *)
   window#add_accel_group accel_group;
