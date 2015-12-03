@@ -1,6 +1,6 @@
 open Random
 (* Constant values *)
-
+exception TODO
 (* Types used in the game *)
 type color = Brown|Grey|Pink|Orange|Red|Yellow|Green|Blue (*to do*)
 type property = { position: int;
@@ -14,7 +14,7 @@ type property = { position: int;
                 }
 
 
-and player = { id: int;
+type player = { id: int;
                token: string;
                position: int ref;
                properties: property_container;
@@ -23,7 +23,7 @@ and player = { id: int;
                money: int
              }
 
-and property_container = { brown: property list ref;
+type property_container = { brown: property list ref;
                            grey: property list ref;
                            pink: property list ref;
                            orange: property list ref;
@@ -45,7 +45,7 @@ type board = { player_list: player list;
                tile_list : tile list;
              }
 
-type tile = Prop of property | Chance | Chest |Jail | Go | Go_jail
+type tile = Prop of property | Chance | Chest |Jail of int | Go | Go_jail
 
 let get_player b pl_id =
   let pl_list = get_player_list b in
@@ -81,17 +81,19 @@ let get_chance b =
   let rand_num = Random.int num_chance in
   List.nth b.chance_list
 
-let move_player b pl_id i =
-  let pl = get_player b pl_id in
-  let new_pos = ((!pl.position + i) mod ((List.length b.tile_list) - 1)) in
-  if new_pos < pl.position then change_money b pl_id 200 else ();
-  pl.position := new_pos
-
 let change_money b pl_id amt =
   let pl = get_player b pl_id in
   pl.money := !pl.money + amt;
-  if !pl.money < 0 then pl.bankrupt:=true;
-  print_endline "Collected $200 for passing go" else ()
+  if !pl.money < 0 then
+    pl.bankrupt:=true
+  else ();
+
+(*let () = print_endline "Collected $200 for passing go" in*)
+let move_player b pl_id i =
+  let pl = get_player b pl_id in
+  let new_pos = ((!pl.position + i) mod ((List.length b.tile_list) - 1)) in
+  pl.position := new_pos
+
 
 let is_ai b pl_id =
   let pl = get_player b pl_id in
@@ -112,10 +114,7 @@ let get_prop_name p = p.name
 
 let in_jail b pl_id =
   let pl = get_player b pl_id in
-  let pos = List.nth b.tile_list pl.position in
-  match pos with
-  | Jail _ -> true
-  | _      -> false
+  !pl.in_jail
 
 let is_chance b pos =
   let tile = List.nth b.tile_list pos in
@@ -166,23 +165,32 @@ let others_bankrupt b pl_id =
   let filtered = List.filter (fun x -> x.id <> pl_id) b.player_list in
   List.fold_left (fun x y -> (!y.bankrupt = true) && x) true filtered
 
-let get_holder prop =
-  !prop.holder
-
 let get_rent prop =
   prop.rent
+
+let get_holder prop =
+  !prop.holder
 
 let get_tile b pos =
   List.nth b.tile_list pos
 
-let move_to_jail
+let move_to_jail b pl_id =
+  let pl = get_player b pl_id in
+  let jail = List.find (fun x -> match x with | Jail _ -> true |_ -> false) b.tile_list in
+  match jail with
+  | Jail i -> pl.position := i; pl.in_jail := true
+  | _ -> ()
 
-let get_rent
+let print_player_properties b pl_id prop = raise TODO
 
+let can_buy_house b pl_id prop = raise TODO
+
+let add_house b pl_id prop = raise TODO
+(*
 let is_property b prop_name =
   let prop_list = b.property_list in
   List.exists (fun x -> x.name = prop_name) prop_list
-(*
+
 (* Creates an empty property container and returns it
    Inputs: None
    Output: empty property_container *)
@@ -217,34 +225,3 @@ let create_board human_players player_names =
   {player_list= !temp_player_list; community_chest_list= ;
   chance_list= ; property_list= }
 *)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(*these 2 functions are dumb*)
-
-
-
-
-
-
-
-
-
-
