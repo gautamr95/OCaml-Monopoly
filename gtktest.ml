@@ -1,6 +1,8 @@
 open GMain
 open GdkKeysyms
 
+exception Gui_error of string;;
+
 type property = { position: int;
                 }
 type player = { id: int;
@@ -56,7 +58,10 @@ let tilelocation = [(720,720);
 
 let board_state = {
   player_list = [{id = 0; position = ref 5};{id = 1; position = ref 6}];
-  property_list = [{position = 8};{position = 8};{position = 8};{position = 8}];
+  property_list = [{position = 8};{position = 8};{position = 8};{position = 8};
+                {position = 13};{position = 13};{position = 13};{position = 13};
+                {position = 26};{position = 26};{position = 26};{position = 26};
+                {position = 37};{position = 37};{position = 37};{position = 37}];
 }
 
 let main () =
@@ -161,23 +166,40 @@ let main () =
 
   (*Helper function for drawing a list of properties at a given physical pos*)
   let draw_properties physpos proplst dest_pixbuf =
-    let x = fst physpos in let y = (snd physpos) - 20 in
+    (*A pair that contains a physical pos pair and pos adjustment pair*)
+    (*The pos adjustment pair is how much change in x and y position for
+     *for each property added*)
+    let physpos_and_adj =
+      match physpos with
+      | (x, y) when y = 720 -> ((x, y-20),(15,0))
+      | (x, y) when x = 0   -> ((x+85, y),(0,15))
+      | (x, y) when y = 0   -> ((x, y+85),(15,0))
+      | (x, y) when x = 720 -> ((x-20, y),(0,15))
+      | _ -> raise (Gui_error "draw property fail") in
+    let x  = fst (fst physpos_and_adj) in
+    let y  = snd (fst physpos_and_adj) in
+    let dx = fst (snd physpos_and_adj) in
+    let dy = snd (snd physpos_and_adj) in
     let rec propdraw_helper pnum plst =
       match plst with
       | [] -> ()
       | hd::tl ->
-        let xadj = x + pnum*15 in
+        (*Calculate the adjusted x and y positions*)
+        let xadj = x + pnum*dx in
+        let yadj = y + pnum*dy in
+        (*Draw the properties onto the pixbuf*)
         (GdkPixbuf.composite ~dest:dest_pixbuf ~alpha:255
                                               ~ofs_x: (float_of_int xadj)
-                                              ~ofs_y: (float_of_int y)
+                                              ~ofs_y: (float_of_int yadj)
                                               ~dest_x:xadj
-                                              ~dest_y:y
+                                              ~dest_y:yadj
                                               ~interp:`BILINEAR
                                               ~scale_x:0.25
                                               ~scale_y:0.25
                                               ~width:15
                                               ~height:15
-                                              house_pixbuf); propdraw_helper (pnum + 1) tl in
+                                              house_pixbuf);
+        propdraw_helper (pnum + 1) tl in
     propdraw_helper 0 proplst in
 
   (*Callback function for updating the board pixbuf in the GUI*)
