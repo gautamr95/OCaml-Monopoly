@@ -1,5 +1,6 @@
+let curr_player = ref 0 in
 let rec main_game _ =
-  let curr_player = get_turn game_state in
+
   let curr_pos = get_position game_state curr_player in
   
   let rec mini_repl _ =
@@ -17,6 +18,7 @@ let rec main_game _ =
       | "House" -> (*Show houses*); mini_repl ()
       | "Trade" -> (*Initiate trade*); mini_repl ()
       | "Upgrade" -> (*Upgrade property*) ; mini_repl ()
+      | "Downgrade" -> (*Downgrade property*); mini_repl ()
       | "End" ->
     (* Display options for trading and upgrading
      * exit on end turn*) in
