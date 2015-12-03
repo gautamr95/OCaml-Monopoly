@@ -1,11 +1,12 @@
 open Str
+
 (* Game constants *)
-(*let total_players = 4 in
+let total_players = 4 in
 let starting_money = 200 in
 let go_salary = 30 in
 let jail_fee = 30 in
 let tot_rounds = 50 in
-*)
+
 
 (* Give introductory message, need to press enter to continue *)
 Printf.printf "\n\n\nWelcome to OCaml Monopoly! This game has been developed by
@@ -13,14 +14,13 @@ Printf.printf "\n\n\nWelcome to OCaml Monopoly! This game has been developed by
 
 let _ = Pervasives.read_line ()
 
-(* Applies regex and tokenizing to split an input into the corresponding words
-  Input: input_str - the String that needs to be tokenized
-  Output: A string list of the tokenized input *)
-let parse_input (input_str: string) : string list =
-  (Str.bounded_split (Str.regexp "[ \t]+") input_str 2)
-
-let is_correct () =
+(* Function that asks for correct values (confirmation), and returns
+a boolean based on the user input.
+  Input - Unit
+  Output - bool of whether or not the input was valid *)
+let is_correct () : bool =
   Printf.printf "Is this value correct? (y/n) -> ";
+  (* Checks for any input errors *)
   let correct = try Some (Pervasives.read_line ()) with
     | Failure s -> None in
 
@@ -46,21 +46,6 @@ let rec get_players () : int =
 
 let num_players = get_players ()
 
-(* Ref that will point to a list of the players *)
-(* let player_list = ref [] *)
-
-(* Function to get names of each of the players. *)
-let get_player_names () : string list =
-
-  let rec player_list_creator player_id acc =
-    if player_id <= 4 then
-      ((Printf.printf "\nPlayer %d, enter your name -> " player_id);
-      let name = (Pervasives.read_line ()) in
-      player_list_creator (player_id + 1) (acc@[name]))
-    else acc in
-
-  player_list_creator 1 []
-
 let player_names_list = get_player_names ()
 
 let game_board = create_board num_players player_names_list
@@ -74,7 +59,11 @@ let rounds = ref 0
 (* Used to calculate the accumulated turns, within a round *)
 let turns = ref 0
 
-(* Helper function that will prompt the player if they want to buy a certain property. *)
+(* Helper function that will prompt the player if they want to buy a certain property.
+   Inputs:
+   p_id - int of the player ID
+   p_position - int of the player's position on the board.
+   Output: bool of whether a transaction occurred or not*)
 let prompt_buy_property p_id p_position : bool =
   let prop_opt = get_property game_board p_position in
   match prop_opt with
