@@ -1,4 +1,5 @@
 open Random
+Random.init 22;
 (* Constant values *)
 exception TODO
 (* Types used in the game *)
@@ -9,19 +10,8 @@ type property = { position: int;
                   holder: int option ref;
                   rent: int;
                   name: string;
-                  bankrupt:bool ref;
                   houses: int ref
                 }
-
-
-type player = { id: int;
-               token: string;
-               position: int ref;
-               properties: property_container;
-               is_AI: bool;
-               in_jail: bool;
-               money: int
-             }
 
 type property_container = { brown: property list ref;
                            grey: property list ref;
@@ -32,11 +22,22 @@ type property_container = { brown: property list ref;
                            green: property list ref;
                            blue: property list ref;
                          }
+type player = { id: int;
+               token: string;
+               position: int ref;
+               properties: property_container;
+               is_AI: bool;
+               in_jail: bool ref;
+               bankrupt:bool ref;
+               money: int ref
+             }
+
 
 type community_chest = string * int
 
 type chance = string * int
 
+type tile = Prop of property | Chance | Chest |Jail of int | Go | Go_jail
 
 type board = { player_list: player list;
                community_chest_list: community_chest list;
@@ -45,19 +46,22 @@ type board = { player_list: player list;
                tile_list : tile list;
              }
 
-type tile = Prop of property | Chance | Chest |Jail of int | Go | Go_jail
+
+let get_player_list b =
+  b.player_list
 
 let get_player b pl_id =
   let pl_list = get_player_list b in
   List.nth pl_list (pl_id)
 
-let get_player_list b =
-  b.player_list
 
 let get_property_from_name b p_name =
   let p_list = b.property_list in
   try Some(List.find (fun x -> x.name = p_name) p_list) with
-  | Not_Found -> None
+  | Not_found -> None
+
+let get_tile b pos =
+  List.nth b.tile_list pos
 
 let get_property b pos =
   match get_tile b pos with
@@ -66,73 +70,46 @@ let get_property b pos =
 
 let get_pl_position b pl_id =
   let pl = get_player b pl_id in
-  pl.position
+  !(pl.position)
 
-let get_prop_position b p =
-  p.position
+(*
+let get_prop_position prop =
+  prop.position
+*)
 
 let get_chest b =
   let num_chest = List.length b.community_chest_list in
-  let rand_num = Random.int num_chest in
-  List.nth b.community_chest_list
+  let rand_num = (Random.int num_chest) in
+  List.nth b.community_chest_list rand_num
 
 let get_chance b =
   let num_chance = List.length b.chance_list in
   let rand_num = Random.int num_chance in
-  List.nth b.chance_list
+  List.nth b.chance_list rand_num
+
+let get_money b pl_id =
+  let pl = get_player b pl_id in
+  !(pl.money)
 
 let change_money b pl_id amt =
   let pl = get_player b pl_id in
-  pl.money := !pl.money + amt;
-  if !pl.money < 0 then
+  pl.money := !(pl.money) + amt;
+  if !(pl.money) < 0 then
     pl.bankrupt:=true
-  else ();
+  else ()
 
-(*let () = print_endline "Collected $200 for passing go" in*)
 let move_player b pl_id i =
   let pl = get_player b pl_id in
-  let new_pos = ((!pl.position + i) mod ((List.length b.tile_list) - 1)) in
+  let new_pos = ((!(pl.position) + i) mod ((List.length b.tile_list) - 1)) in
+  if new_pos < !(pl.position) then
+    let () = print_endline "Collected $200 for passing go" in
+    change_money b pl_id 200
+  else ();
   pl.position := new_pos
-
 
 let is_ai b pl_id =
   let pl = get_player b pl_id in
   pl.is_AI
-
-let move_property b pl_id pl_id2 prop =
-  let prop_list = get_pl_prop_of_color b pl_id prop in
-  prop_list:= prop :: !prop_list;
-  match pl_id2 with
-  | None   -> ();
-  | Some x -> let pl2_props = get_pl_prop_of_color b x prop in
-    pl2_props := List.filter (fun x -> x = prop) !pl2_props;
-  prop.holder := some pl
-
-let get_prop_price p = p.cost
-
-let get_prop_name p = p.name
-
-let in_jail b pl_id =
-  let pl = get_player b pl_id in
-  !pl.in_jail
-
-let is_chance b pos =
-  let tile = List.nth b.tile_list pos in
-  match tile with
-  |Chance _ -> true
-  | _ -> false
-
-let is_chest b pos =
-  let tile = List.nth b.tile_list pos in
-  match tile with
-  |Chest _ -> true
-  | _ -> false
-
-let is_go_jail b pos =
-  let tile = List.nth b.tile_list pos in
-  match tile with
-  |Go_jail _ -> true
-  | _ -> false
 
 let get_player_property b pl_id =
   let pl = get_player b pl_id in
@@ -150,29 +127,60 @@ let get_pl_prop_of_color b pl_id prop =
   |Green ->pl.green
   |Blue  ->pl.blue
 
-let get_money b pl_id =
-  let pl = get_player b pl_id in
-  pl.money
+let move_property b pl_id pl_id2 prop =
+  let prop_list = get_pl_prop_of_color b pl_id prop in
+  prop_list:= prop :: !(prop_list);
+  match pl_id2 with
+  | None   -> ();
+  | Some x -> let pl2_props = get_pl_prop_of_color b x prop in
+    pl2_props := List.filter (fun x -> x = prop) !(pl2_props);
+  prop.holder := Some pl_id
 
-let get_tile b pos =
-  List.nth b.tile_list pos
+let get_prop_price p = p.cost
+
+let get_prop_name p = p.name
+
+let in_jail b pl_id =
+  let pl = get_player b pl_id in
+  !(pl.in_jail)
+
+let is_chance b pos =
+  let tile = get_tile b pos in
+  match tile with
+  |Chance -> true
+  | _ -> false
+
+let is_chest b pos =
+  let tile = get_tile b pos in
+  match tile with
+  |Chest -> true
+  | _ -> false
+
+let is_go_jail b pos =
+  let tile = get_tile b pos in
+  match tile with
+  |Go_jail -> true
+  | _ -> false
 
 let is_bankrupt b pl_id =
   let pl = get_player b pl_id in
-    !pl.bankrupt
+    !(pl.bankrupt)
 
 let others_bankrupt b pl_id =
   let filtered = List.filter (fun x -> x.id <> pl_id) b.player_list in
-  List.fold_left (fun x y -> (!y.bankrupt = true) && x) true filtered
+  List.fold_left (fun x y -> (!(y.bankrupt) = true) && x) true filtered
 
 let get_rent prop =
   prop.rent
 
 let get_holder prop =
-  !prop.holder
+  !(prop.holder)
 
 let get_tile b pos =
   List.nth b.tile_list pos
+
+let get_houses prop =
+  !(prop.houses)
 
 let move_to_jail b pl_id =
   let pl = get_player b pl_id in
@@ -181,7 +189,7 @@ let move_to_jail b pl_id =
   | Jail i -> pl.position := i; pl.in_jail := true
   | _ -> ()
 
-let print_player_properties b pl_id prop = raise TODO
+let print_players_properties b pl_id = raise TODO
 
 let can_buy_house b pl_id prop = raise TODO
 
