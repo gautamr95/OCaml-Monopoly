@@ -23,16 +23,36 @@ let ai_decision (b : board) (pl : player) : decision =
       curr_pos := get_pl_position b pl;
       let tile = (get_tile b curr_pos) in
       match tile with
-      | Prop p -> (*pay rent or buy*) asdf
-      | Chance i -> (*Do chance*) sdaf
-      | Chest i -> (*Do chest*) asdf
-      | Jail _ -> (*Do jail *) asdf
-      | Go _ -> (*get money*) asdf
-      | Go_jail _ -> move_to_jail b pl;
-      let rent = get_rent 
-      let hldr = get_holder  
-      change_money b 
-      )
+      | Prop p -> 
+          let property = match (get_property b p) with
+          | None -> failwith "this shouldn't happen"
+          | Some p -> p in
+
+          match (get_holder b property) with
+          | None -> 
+              let my_money = get_money b pl in 
+              if my_money > (get_prop_price p) then
+               (move_property b pl None p) 
+              else 
+                ()
+          | Some hl ->  
+              let rent = get_rent property in
+              (change_money b hl rent);
+              (change_money b pl (-rent))
+
+      | Chance _ -> 
+          let (s,i) = get_chance b in
+          let _ = Printf.printf "Player %i landed on Chance!\n
+          %s\n" pl s in
+          change_money b pl i
+      | Chest _ -> 
+          let (s,i) = get_chest b in 
+          let _ = Printf.printf "Player %i landed on Community Chest!\n
+          %s\n" pl s in
+          change_money b pl i
+      | Jail _ -> ()
+      | Go _ -> ()
+      | Go_jail _ -> move_to_jail b pl)
     else (
       if (get_holder prop = None && (get_money pl) > (get_prop_price prop )) then
         Buy prop
