@@ -93,7 +93,7 @@ let get_money b pl_id =
 let change_money b pl_id amt =
   let pl = get_player b pl_id in
   pl.money := !(pl.money) + amt;
-  if !(pl.money) < 0 then
+  if !(pl.money) <= 0 then
     pl.bankrupt:=true
   else ()
 
