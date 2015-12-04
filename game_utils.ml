@@ -221,7 +221,13 @@ let create_player_list ai_lst =
   let id_ref = ref(-1) in
   List.map (fun x -> id_ref := !id_ref + 1; create_player !id_ref x) ai_lst
 
-let create_prop_list () =
+
+let create_board ai_lst community_chest_list
+                 chance_list property_list tile_list =
+  let player_list = create_player_list ai_lst in
+  {player_list;community_chest_list;chance_list;property_list;tile_list}
+
+(*let create_prop_list () =
   (create_property 1 Brown 300 20 "baltic") ::
   (create_property 3 Brown 300 20 "blah") ::
   (create_property 4 Brown 300 20 "boom") ::
@@ -234,40 +240,10 @@ let create_tile_list prop_lst =
   Prop(List.nth prop_lst 2) :: Prop(List.nth prop_lst 3) :: Chest
   :: Prop(List.nth prop_lst 4) :: Prop(List.nth prop_lst 5) :: Jail(9) :: Go_jail :: []
 
-let create_board ai_lst =
-  let property_list = create_prop_list () in
-  let tile_list = create_tile_list property_list in
-  let player_list = create_player_list ai_lst in
-  let chance_list = [("boo", -50) ; ("shoo",30)] in
-  let community_chest_list =  [("foo", 100) ; ("dog",-300)] in
-  {player_list;community_chest_list;chance_list;property_list;tile_list}
-(*
-let create_board () =
-  let temp_player_list = ref [] in
-  let id_counter = ref 0 in
+let create_chance_list () =
+  [("boo", -50) ; ("shoo",30)]
 
-  for i = 1 to human_players do
-    let temp_player = { id= !id_counter; name= player_names.(!id_counter);
-                        token= token_names.(!id_counter); position= ref 0;
-                        properties= create_empty_prop_cont (); is_AI= false;
-                        in_jail= false
-                      } in
-    id_counter := !id_counter + 1;
-    temp_player_list := !temp_player_list@[temp_player]
-  done;
-
-  if human_players <> 4 then
-    for i = 1 to 4 - human_players do
-      let temp_player = { id= !id_counter; name= player_names.(!id_counter);
-                        token= token_names.(!id_counter); position= ref 0;
-                        properties= create_empty_prop_cont (); is_AI= false;
-                        in_jail= false
-                      } in
-      id_counter := !id_counter + 1;
-      temp_player_list := !temp_player_list@[temp_player]
-    done
-
-  {player_list= !temp_player_list; community_chest_list= ;
-  chance_list= ; property_list= }*)
+let create_community_chest_list () =
+  [("foo", 100) ; ("dog",-300)] *)
 
 

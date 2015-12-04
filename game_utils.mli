@@ -1,6 +1,6 @@
 
-type community_chest
-type chance
+type community_chest = string * int
+type chance = string * int
 type board
 type player
 type property
@@ -125,8 +125,7 @@ val create_board : int -> string array -> string list -> string -> board
 
 
 *)
-(*
 val create_player_list : bool list -> player list
-*)
 
-val create_board : bool list -> board
+val create_board : bool list -> community_chest list -> chance list ->
+                   property list -> tile list -> board
