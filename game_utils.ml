@@ -127,13 +127,14 @@ let get_pl_prop_of_color b pl_id prop =
   |Blue  ->pl.blue
 
 let move_property b pl_id pl_id2 prop =
+  prop.holder := Some pl_id;
   let prop_list = get_pl_prop_of_color b pl_id prop in
   prop_list:= prop :: !(prop_list);
   match pl_id2 with
-  | None   -> ();
+  | None   -> ()
   | Some x -> let pl2_props = get_pl_prop_of_color b x prop in
-    pl2_props := List.filter (fun x -> x = prop) !(pl2_props);
-  prop.holder := Some pl_id
+    pl2_props := List.filter (fun x -> x <> prop) !(pl2_props)
+
 
 let get_prop_price p = p.cost
 
@@ -158,7 +159,7 @@ let is_chest b pos =
 let is_go_jail b pos =
   let tile = get_tile b pos in
   match tile with
-  |Go_jail -> true
+  | Go_jail -> true
   | _ -> false
 
 let is_bankrupt b pl_id =

@@ -88,14 +88,39 @@ TEST_MODULE "board test" = struct
            &&
            (match get_holder i with
             | Some j -> j = 2
-            | None -> print_string "fuck"; false)
+            | None -> false)
           | None -> false
 
 TEST "holder correct" = let x = get_property_from_name board "boom" in
                         match x with
                         | Some j ->
                           (match get_holder j with
-                          | Some i -> print_string (string_of_int i); i = 2
-                          | None -> print_string "fuck"; false)
+                          | Some i -> i = 2
+                          | None -> false)
                         | None  -> false
+
+TEST "trade property" =
+  let x = get_property_from_name board "blah" in
+  let y = get_property_from_name board "boom" in
+  match y with
+  | Some q ->
+    (match x with
+    | Some i ->
+      (move_property board 0 None i);
+      (move_property board 2 (Some(0)) i);
+      (match get_holder i with
+        | Some j -> print_string "yay!";j = 2
+        | None -> print_string "a";false) &&
+       (!(get_pl_prop_of_color board 0 i) = []) &&
+       (!(get_pl_prop_of_color board 2 i) = [i;q])
+
+    | None -> print_string "b";false)
+  | None -> print_string "c";false
+
+TEST "others_bankrupt false" = not(others_bankrupt board 1)
+
+TEST "others_bankrupt true" =
+change_money board 0 (-2000);
+change_money board 3 (-2000);
+(others_bankrupt board 2)
 end
