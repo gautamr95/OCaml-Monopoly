@@ -8,6 +8,9 @@ let go_salary = 30
 let jail_fee = 30
 let tot_rounds = 50
 
+(* To create random seed. *)
+let _ = Random.self_init ()
+
 (* TODO Modify LATER *)
 let create_prop_list () =
     (create_property 1 Brown 300 20 "baltic") ::
@@ -17,11 +20,12 @@ let create_prop_list () =
     (create_property 7 Green 300 20 "atlantic") ::
     (create_property 8 Green 300 20 "pacific") :: []
 
+
 let create_tile_list prop_lst =
   Go :: Prop(List.nth prop_lst 0) :: Chance :: Prop(List.nth prop_lst 1) ::
   Prop(List.nth prop_lst 2) :: Prop(List.nth prop_lst 3) :: Chest
   :: Prop(List.nth prop_lst 4) :: Prop(List.nth prop_lst 5) :: Jail(9) ::
-  Go_jail :: []
+  Go_jail :: Chest :: Chest :: Chance :: []
 let create_chance_list () =
   [("boo", -50) ; ("shoo",30)]
 
@@ -33,7 +37,6 @@ let tile_list = create_tile_list property_list
 let chance_list = create_community_chest_list()
 let community_chest_list =  create_chance_list()
 (*      end             *)
-
 
 
 (* Give introductory message, need to press enter to continue *)
@@ -86,7 +89,7 @@ let game_board = create_board is_ai_list community_chest_list chance_list
                           property_list tile_list
 
 (* Returns a number between 1 and 12 inclusive, simulating two dice rolled. *)
-let roll_dice () : (int * int) = (Random.int 6, Random.int 6)
+let roll_dice () : (int * int) = (1 + Random.int 6, 1 + Random.int 6 )
 
 (* total turns (for each round)*)
 let rounds = ref 0
@@ -128,7 +131,7 @@ let property_prompt p_id p_position  =
 each player that plays the game. *)
 let rec game_loop () =
   turns := !turns + 1;
-  let _ = if !turns > 4 then (turns := 0; rounds := !rounds + 1) else () in
+  let _ = if !turns > 4 then (turns := 1; rounds := !rounds + 1) else () in
   if !rounds >= tot_rounds then ()
   else let curr_player_id = !turns - 1 in
   if others_bankrupt game_board curr_player_id then ()
@@ -136,14 +139,15 @@ let rec game_loop () =
       (Printf.printf "\nPlayer %d, you are bankrupt, so your turn will be skipped.\n" curr_player_id)
   else if is_ai game_board curr_player_id then
       (* TODO *)
-      (*ai_decision game_board player ()*) ()
+      (*ai_decision game_board player ()*) game_loop ()
   else
     (* REPL for the individual players and the actions they can perform. *)
-    let _ = Printf.printf "Player %d, it is your turn.\nPress any key to roll the dice -> " curr_player_id in
+    let _ = Printf.printf "__________________________________________________________" in
+    let _ = Printf.printf "\nPlayer %d, it is your turn.\nPress any key to roll the dice -> " curr_player_id in
     let _ = Pervasives.read_line () in
 
     let (d1, d2) = roll_dice () in
-    Printf.printf "\nYou have rolled a %d and %d, with a total move of %d." d1 d2 (d1+d2);
+    Printf.printf "\nYou have rolled a %d and %d, with a total move of %d.\n" d1 d2 (d1+d2);
 
     let prompt_buy_property = ref false in
     let bought_property     = ref false in
@@ -217,7 +221,7 @@ let rec game_loop () =
         Done - End turn" in
 
       let _ = if !prompt_buy_property then
-        (Printf.printf "Buy - Options for buying the current property")
+        (Printf.printf "\nBuy - Options for buying the current property")
       else () in
 
       Printf.printf "\n\nCommand -> ";
@@ -242,11 +246,12 @@ let rec game_loop () =
           mini_repl ()
       | _ -> ((Printf.printf "\nInvalid command."); mini_repl ()) in
 
-    (mini_repl ())
+    let _ = (mini_repl ()) in
+  game_loop ()
 
 let _ = game_loop ()
 
-let _ = Printf.printf "\n\nGame finished, yay!"
+let _ = Printf.printf "\n\nInvalidGame finished, yay!"
 
 (* Done *)
 
