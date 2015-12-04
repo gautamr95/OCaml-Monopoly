@@ -3,10 +3,9 @@ open Game_utils
 
 (* Game constants *)
 let total_players = 4
-let starting_money = 200
-let go_salary = 30
 let jail_fee = 30
 let tot_rounds = 50
+let house_cost = 50
 
 (* To create random seed. *)
 let _ = Random.self_init ()
@@ -19,7 +18,6 @@ let create_prop_list () =
     (create_property 5 Green 300 20 "park") ::
     (create_property 7 Green 300 20 "atlantic") ::
     (create_property 8 Green 300 20 "pacific") :: []
-
 
 let create_tile_list prop_lst =
   Go :: Prop(List.nth prop_lst 0) :: Chance :: Prop(List.nth prop_lst 1) ::
@@ -251,14 +249,26 @@ let rec game_loop () =
 
 let _ = game_loop ()
 
-let _ = Printf.printf "\n\nGame finished, yay!"
+(* Determine end state of game. *)
 
-(* Done *)
+(* We know that the game has ended, so there is a winner or winner(s).
+Either 3 of the 4 players became bankrupt or the total rounds were finished. *)
 
+(* Maximum value is determined by money held + value in property *)
+let winner_id = ref (0)
+let winner_value = ref min_int
 
+(* Loop through players and determine how much value they have *)
+let rec determine_winner id =
+  if id >= 4 then () else
+  let held_money = get_money game_board id in
+  let total_property_value = get_player_property_val game_board id in
+  let tot_value = held_money + total_property_value in
+  let _ = if (tot_value > !winner_value) then
+    (winner_id := id; winner_value := tot_value)
+  else () in
+  determine_winner (id+1)
 
+let _ = Printf.printf "\n\nThe game is finished! Thanks for playing!\n\n"
 
-
-
-
-
+(* Done with game script. *)

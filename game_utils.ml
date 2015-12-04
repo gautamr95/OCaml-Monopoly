@@ -1,8 +1,12 @@
 open Random
 Random.init 22;
-(* Constant values *)
+
 exception TODO
 (* Types used in the game *)
+
+(* Constant values *)
+let house_cost = 50
+
 type color = Brown|Grey|Pink|Orange|Red|Yellow|Green|Blue (*to do*)
 type property = { position: int;
                   color: color;
@@ -30,7 +34,6 @@ type player = { id: int;
                bankrupt:bool ref;
                money: int ref
              }
-
 
 type community_chest = string * int
 
@@ -113,6 +116,24 @@ let is_ai b pl_id =
 let get_player_property b pl_id =
   let pl = get_player b pl_id in
   pl.properties
+
+let get_player_property_val b pl_id =
+  let props = get_player_property b pl_id in
+  let tot_value = ref 0 in
+  let add_values lst_ref =
+    let prop_list = !lst_ref in
+    let add_func prop =
+      tot_value := !tot_value + prop.cost + house_cost * !(prop.houses) in
+    List.iter add_func prop_list in
+  (add_values props.brown);
+  (add_values props.grey);
+  (add_values props.pink);
+  (add_values props.orange);
+  (add_values props.red);
+  (add_values props.yellow);
+  (add_values props.green);
+  (add_values props.blue);
+  !tot_value
 
 let get_pl_prop_of_color b pl_id prop =
   let pl = get_player_property b pl_id in
