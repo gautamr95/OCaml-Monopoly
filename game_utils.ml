@@ -56,7 +56,7 @@ let get_player b pl_id =
 
 let get_property_from_name b p_name =
   let p_list = b.property_list in
-  try Some(List.find (fun x -> x.name = p_name) p_list) with
+  try Some(List.find (fun x -> x.name = String.lowercase(p_name)) p_list) with
   | Not_found -> None
 
 let get_tile b pos =
@@ -222,12 +222,12 @@ let create_player_list ai_lst =
   List.map (fun x -> id_ref := !id_ref + 1; create_player !id_ref x) ai_lst
 
 let create_prop_list () =
-  (create_property 1 Brown 300 20 "Baltic") ::
-  (create_property 3 Brown 300 20 "Blah") ::
-  (create_property 4 Brown 300 20 "Boom") ::
-  (create_property 5 Green 300 20 "Park") ::
-  (create_property 7 Green 300 20 "Atlantic") ::
-  (create_property 8 Green 300 20 "Pacific") :: []
+  (create_property 1 Brown 300 20 "baltic") ::
+  (create_property 3 Brown 300 20 "blah") ::
+  (create_property 4 Brown 300 20 "boom") ::
+  (create_property 5 Green 300 20 "park") ::
+  (create_property 7 Green 300 20 "atlantic") ::
+  (create_property 8 Green 300 20 "pacific") :: []
 
 let create_tile_list prop_lst =
   Go :: Prop(List.nth prop_lst 0) :: Chance :: Prop(List.nth prop_lst 1) ::
