@@ -23,7 +23,6 @@ type property_container = { brown: property list ref;
                            blue: property list ref;
                          }
 type player = { id: int;
-               token: string;
                position: int ref;
                properties: property_container;
                is_AI: bool;
@@ -189,6 +188,10 @@ let move_to_jail b pl_id =
   | Jail i -> pl.position := i; pl.in_jail := true
   | _ -> ()
 
+let leave_jail b pl_id =
+  let pl = get_player b pl_id in
+  pl.in_jail := false
+
 let print_players_properties b pl_id = raise TODO
 
 let can_buy_house b pl_id prop = raise TODO
@@ -198,14 +201,44 @@ let add_house b pl_id prop = raise TODO
 let is_property b prop_name =
   let prop_list = b.property_list in
   List.exists (fun x -> x.name = prop_name) prop_list
+*)
+
+let create_property position color cost rent name =
+  {position;color;cost;holder=ref(None);rent;name;houses=ref(0)}
 
 (* Creates an empty property container and returns it
    Inputs: None
-   Output: empty property_container *)
-let create_empty_prop_cont () : property_container =
-  {blue= ref []; green= ref []; yellow= ref []; orange= ref []; black= ref []}
+   Output: empty property_container*)
+let create_prop_cont () : property_container =
+  {brown= ref []; grey= ref []; pink= ref []; orange= ref []; red= ref [];
+   yellow= ref []; green= ref []; blue= ref []}
 
-let create_board human_players player_names =
+let create_player id ai =
+  {id; position = ref(0); properties = create_prop_cont(); is_AI = ai;
+   in_jail = ref(false); bankrupt = ref(false); money = ref(1500)}
+
+let create_player_list ai_lst =
+  let id_ref = ref(-1) in
+  List.map (fun x -> id_ref := !id_ref + 1; create_player !id_ref x) ai_lst
+
+let create_prop_list () =
+  (create_property 1 Brown 300 20 "Baltic") ::
+  (create_property 3 Brown 300 20 "Blah") ::
+  (create_property 4 Brown 300 20 "Boom") ::
+  (create_property 5 Green 300 20 "Park") ::
+  (create_property 7 Green 300 20 "Atlantic") ::
+  (create_property 8 Green 300 20 "Pacific") :: []
+
+let create_tile_list prop_lst =
+  Go :: Prop(List.nth prop_lst 0) :: Chance :: Prop(List.nth prop_lst 1) ::
+  Prop(List.nth prop_lst 2) :: Prop(List.nth prop_lst 3) :: Chest
+  :: Prop(List.nth prop_lst 4) :: Prop(List.nth prop_lst 5) :: Jail(9) :: Go_jail :: []
+
+let create_board ai_lst =
+  let prop_list = create_prop_list () in
+  let create_tile_list
+(*
+let create_board () =
   let temp_player_list = ref [] in
   let id_counter = ref 0 in
 
@@ -231,5 +264,6 @@ let create_board human_players player_names =
     done
 
   {player_list= !temp_player_list; community_chest_list= ;
-  chance_list= ; property_list= }
-*)
+  chance_list= ; property_list= }*)
+
+

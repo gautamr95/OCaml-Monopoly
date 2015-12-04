@@ -6,6 +6,7 @@ type player
 type property
 type property_container
 type tile
+type color
 
 (*get list of players*)
 val get_player_list : board -> player list
@@ -98,6 +99,9 @@ val get_tile : board -> int -> tile
   in_jail to true*)
 val move_to_jail : board -> int -> unit
 
+(*leave jail, reset player flag*)
+val leave_jail : board -> int -> unit
+
 (*print all of a players properties*)
 val print_players_properties : board -> int -> unit
 
@@ -107,9 +111,10 @@ val can_buy_house : board -> int -> property -> bool
 (*increments the number of houses for that property, for player designated by
   player id and reduces their money by $50*)
 val add_house : board -> int -> property -> unit
-
-
-
+(*
+(*pos, color, cost, rent name*)
+val create_property : int -> color -> int -> int -> string -> property
+*)
 
 (* Creates a board to be used in the beginning
   Inputs:
@@ -120,4 +125,7 @@ val add_house : board -> int -> property -> unit
 val create_board : int -> string array -> string list -> string -> board
 
 
+*)
+(*
+val create_player_list : bool list -> player list
 *)
