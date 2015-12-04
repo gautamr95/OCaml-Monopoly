@@ -1,13 +1,12 @@
 
-type community_chest
-type chance
+type community_chest = string * int
+type chance = string * int
 type board
 type player
 type property
 type property_container
-type tile
-type color
-
+type tile = Prop of property | Chance | Chest |Jail of int | Go | Go_jail
+type color = Brown|Grey|Pink|Orange|Red|Yellow|Green|Blue
 (*get list of players*)
 val get_player_list : board -> player list
 
@@ -111,10 +110,10 @@ val can_buy_house : board -> int -> property -> bool
 (*increments the number of houses for that property, for player designated by
   player id and reduces their money by $50*)
 val add_house : board -> int -> property -> unit
-(*
+
 (*pos, color, cost, rent name*)
 val create_property : int -> color -> int -> int -> string -> property
-*)
+
 
 (* Creates a board to be used in the beginning
   Inputs:
@@ -126,6 +125,7 @@ val create_board : int -> string array -> string list -> string -> board
 
 
 *)
-(*
 val create_player_list : bool list -> player list
-*)
+
+val create_board : bool list -> community_chest list -> chance list ->
+                   property list -> tile list -> board
