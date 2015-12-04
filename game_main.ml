@@ -119,7 +119,7 @@ let property_prompt p_id p_position  =
         ((Printf.printf "\nError. You do not have enough money for this transaction.");
         false)
       else
-        let _ = (Printf.printf "\nYou have bought the property!") in
+        let _ = (Printf.printf "\nYou have bought the property, %s!\n" prop_name) in
         let _ = (move_property game_board p_id None prop) in
         let _ = (change_money game_board p_id (-1 * prop_price)) in
         true)
@@ -142,6 +142,7 @@ let rec game_loop () =
       (*ai_decision game_board player ()*) game_loop ()
   else
     (* REPL for the individual players and the actions they can perform. *)
+    let _ = Printf.printf "__________________________________________________________\n" in
     let _ = Printf.printf "__________________________________________________________" in
     let _ = Printf.printf "\nPlayer %d, it is your turn.\nPress any key to roll the dice -> " curr_player_id in
     let _ = Pervasives.read_line () in
@@ -152,76 +153,75 @@ let rec game_loop () =
     let prompt_buy_property = ref false in
     let bought_property     = ref false in
 
-    let rec mini_repl () =
+    move_player game_board curr_player_id (d1+d2);
 
-      let _ = prompt_buy_property := false in
+    (* Not really implemented yet. *)
+    let _ =
+    if in_jail game_board curr_player_id then
+      (Printf.printf "\n\nYou are also currently in jail.";
+      if (d1=d2) then
+        (Printf.printf "\nSince you rolled a double, you can move out of jail at no cost!\n")
+      else
+        (Printf.printf "\nYou did not roll a double, so you will lose $%d and move out of jail.\n" jail_fee;
+        change_money game_board curr_player_id (-jail_fee)))
 
-      (* Not really implemented yet. *)
-      let _ =
-      if in_jail game_board curr_player_id then
-        (Printf.printf "\n\nYou are also currently in jail.";
-        if (d1=d2) then
-          (Printf.printf "\nSince you rolled a double, you can move out of jail at no cost!\n")
+      (*failwith "TODO"*)
+    else () in
+
+    let player_position = (get_pl_position game_board curr_player_id) in
+
+    let prop_option = (get_property game_board player_position) in
+
+    let _ = match prop_option with
+    | None ->
+      (if is_chance game_board player_position then
+        let card = get_chance game_board in
+        (Printf.printf "\n---------\nYou got a chance card!\n%s\n---------\n" (fst card);
+        change_money game_board curr_player_id (snd card))
+      else if is_chest game_board player_position then
+        let card = get_chest game_board in
+        (Printf.printf "\n---------\nYou got a community chest card!\n%s\n---------\n" (fst card);
+        change_money game_board curr_player_id (snd card))
+      else if is_go_jail game_board player_position then
+        (Printf.printf "\n---------\nYou are going to jail :(\n---------\n";
+        (*TODO*)()))
+    | Some prop ->
+      let holder = get_holder prop in
+      (match holder with
+      | None -> (* No one is holding the current property. *)
+        (* They will have an extra prompt to buy the property *)
+        if (not !bought_property) then (prompt_buy_property := true) else ()
+
+      | Some p_id -> (* id of player holding the property. *)
+        (* They will have a prompt that they lost money. *)
+
+        let num_houses = get_houses prop in
+        if p_id = curr_player_id then ()
         else
-          (Printf.printf "\nYou did not roll a double, so you will lose $%d and move out of jail.\n" jail_fee;
-          change_money game_board curr_player_id (-jail_fee)))
+          let rent_amt = get_rent prop in
 
-        (*failwith "TODO"*)
-      else () in
+          let int_pow a b = int_of_float ((float_of_int a) ** (float_of_int b)) in
 
-      move_player game_board curr_player_id (d1+d2);
+          let pay_amt = rent_amt * (int_pow 2 num_houses) in
+          (Printf.printf "\n---------\nYou have landed on player %d's property, and will pay a rent of %d.\n---------\n" p_id pay_amt;
+          change_money game_board curr_player_id (-1 * pay_amt);
+          change_money game_board p_id (pay_amt))) in
 
-      let player_position = (get_pl_position game_board curr_player_id) in
-
-      let prop_option = (get_property game_board player_position) in
-
-      let _ = match prop_option with
-      | None ->
-        (if is_chance game_board player_position then
-          let card = get_chance game_board in
-          (Printf.printf "\n%s\n" (fst card);
-          change_money game_board curr_player_id (snd card))
-        else if is_chest game_board player_position then
-          let card = get_chest game_board in
-          (Printf.printf "\n%s\n" (fst card);
-          change_money game_board curr_player_id (snd card))
-        else if is_go_jail game_board player_position then
-          (Printf.printf "\nYou are going to jail :(\n";
-          (*TODO*)()))
-      | Some prop ->
-        let holder = get_holder prop in
-        (match holder with
-        | None -> (* No one is holding the current property. *)
-          (* They will have an extra prompt to buy the property *)
-          if (not !bought_property) then (prompt_buy_property := true) else ()
-
-        | Some p_id -> (* id of player holding the property. *)
-          (* They will have a prompt that they lost money. *)
-
-          let num_houses = get_houses prop in
-          if p_id = curr_player_id then ()
-          else
-            let rent_amt = get_rent prop in
-
-            let int_pow a b = int_of_float ((float_of_int a) ** (float_of_int b)) in
-
-            let pay_amt = rent_amt * (int_pow 2 num_houses) in
-            (Printf.printf "\nYou have landed on player %d's property, and will pay a rent of %d.\n" p_id pay_amt;
-            change_money game_board curr_player_id (-1 * pay_amt);
-            change_money game_board p_id (pay_amt))) in
+    let rec mini_repl () =
 
       (* First print the relevant options. *)
       let _ = Printf.printf "\nYou have the following options:\n
-        Money - Displays how much money you currently have\n
-        Property - Displays what properties you own\n
-        Position - Displays your numeric position on the board\n
-        Trade - Initiates a trade, if possible\n
-        Upgrade - Upgrades a property with additional houses, if possible\n
-        House - Options for buying houses for a property\n
+        Money - Displays how much money you currently have
+        Property - Displays what properties you own
+        Position - Displays your numeric position on the board
+        Trade - Initiates a trade, if possible
+        Upgrade - Upgrades a property with additional houses, if possible
+        House - Options for buying houses for a property_list
         Done - End turn" in
 
       let _ = if !prompt_buy_property then
-        (Printf.printf "\nBuy - Options for buying the current property")
+        (Printf.printf
+        "\n\tBuy - Options for buying the current property")
       else () in
 
       Printf.printf "\n\nCommand -> ";
@@ -229,29 +229,29 @@ let rec game_loop () =
 
       match command with
       | "Money" ->
-        (Printf.printf "\nYou have $%d." (get_money game_board curr_player_id);
+        (Printf.printf "\n---------\nYou have $%d.\n---------" (get_money game_board curr_player_id);
         mini_repl ())
       | "Property" ->
         (print_players_properties game_board curr_player_id;
         mini_repl ())
-      | "Position" -> (Printf.printf "\nYou are currently on position %d." player_position; mini_repl ())
+      | "Position" -> (Printf.printf "\n---------\nYou are currently on position %d.\n---------" player_position; mini_repl ())
       (*| "Trade" -> (execute_trade (); mini_repl ()) TODO *)
       (*| "House" -> (buy_house (); mini_repl ()) TODO *)
       | "Done" -> ()
       | "Buy" -> (* Buying a new property. *)
-        if !prompt_buy_property then (Printf.printf "\nInvalid command.")
+        if not !prompt_buy_property then (Printf.printf "\n---------\nInvalid command.\n---------\n")
         else
           let transaction = property_prompt curr_player_id player_position in
-          let _ = if transaction then (bought_property := true) else () in
+          let _ = if transaction then (prompt_buy_property := false; bought_property := true) else () in
           mini_repl ()
-      | _ -> ((Printf.printf "\nInvalid command."); mini_repl ()) in
+      | _ -> ((Printf.printf "\n---------\nInvalid command.\n---------"); mini_repl ()) in
 
     let _ = (mini_repl ()) in
   game_loop ()
 
 let _ = game_loop ()
 
-let _ = Printf.printf "\n\nInvalidGame finished, yay!"
+let _ = Printf.printf "\n\nGame finished, yay!"
 
 (* Done *)
 
