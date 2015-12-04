@@ -1,8 +1,9 @@
 open GMain
 open GdkKeysyms
+open Async.Std
 
 (*USE THIS COMMAND TO BUILD THE GTK GUI*)
-(*ocamlfind ocamlc -g -package lablgtk2 -linkpkg gtktest.ml -o gtktest*)
+(*ocamlfind ocamlc -g -thread -package lablgtk2,async -linkpkg gtktest.ml -o gtktest*)
 
 exception Gui_error of string;;
 
@@ -239,6 +240,18 @@ let print_to_cmd str =
   scrollingtext#vadjustment#set_value
     (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size)
 
+(*Helper variables and functions for readline, which is a blocking function*)
+let is_waiting = ref (Ivar.create ())
+let cmd_input_str = ref ""
+
+let rec wait_for_input () =
+  if Ivar.is_empty (!is_waiting) then wait_for_input () else ()
+
+let readline () =
+  is_waiting := Ivar.create ();
+  wait_for_input ();
+  !cmd_input_str
+
 let main () =
   (*In main function, we connect the callback functions and finish setting up*)
   window#connect#destroy ~callback:Main.quit;
@@ -271,11 +284,9 @@ let main () =
 
   (* Command input and display*)
   commandinput#connect#activate ~callback: (
-    fun () -> commanddisplay#buffer#insert ~iter:commanddisplay#buffer#end_iter
-                                          (commandinput#text ^ "\n");
-      scrollingtext#vadjustment#set_value
-        (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size);
-      commandinput#set_text "");
+    fun () -> print_to_cmd (commandinput#text ^ "\n"); commandinput#set_text "";
+      cmd_input_str := commandinput#text;
+      if Ivar.is_empty (!is_waiting) then Ivar.fill (!is_waiting) true else ());
 
   (* Display the windows and enter Gtk+ main loop *)
   window#add_accel_group accel_group;
