@@ -117,6 +117,7 @@ let get_player_property b pl_id =
   let pl = get_player b pl_id in
   pl.properties
 
+(* TODO, not tested *)
 let get_player_property_val b pl_id =
   let props = get_player_property b pl_id in
   let tot_value = ref 0 in
