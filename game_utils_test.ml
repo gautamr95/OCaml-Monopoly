@@ -60,4 +60,42 @@ TEST_MODULE "board test" = struct
 
   TEST "collect 200" = move_player board 2 7; (get_pl_position board 2 = 0) &&
                                               (get_money board 2 = 1700)
+
+  TEST "lose all money" = change_money board 1 (-1500); get_money board 1 = 0
+
+  TEST "is_bankrupt" = (is_bankrupt board 1) && not(is_bankrupt board 2)
+
+  TEST "move pl 3" = move_player board 3 4; move_player board 3 7;
+                     (get_money board 3 = 1700) && (get_pl_position board 3 = 1)
+
+  TEST "get empty list from container" = !(get_pl_prop_of_color board 2
+                                         (create_property 4 Brown 300 20 "boom")) = []
+  TEST "get prop price and rent" = match (get_property board 4) with
+                                  |Some x ->
+                                   (get_prop_price x = 300)&& (get_rent x = 20)
+                                   && (get_prop_name x = "boom")
+                                  |None -> false
+
+ TEST "move to jail" = move_to_jail board 0; (get_pl_position board 0 = 9) &&
+                                             (in_jail board 0)
+ TEST "leave jail" = leave_jail board 0; not(in_jail board 0)
+
+ TEST "buy property" = let x = get_property_from_name board "boom" in
+          match x with
+          | Some i ->
+          (move_property board 2 None i;
+          !(get_pl_prop_of_color board 2 i) = [i])
+           &&
+           (match get_holder i with
+            | Some j -> j = 2
+            | None -> print_string "fuck"; false)
+          | None -> false
+
+TEST "holder correct" = let x = get_property_from_name board "boom" in
+                        match x with
+                        | Some j ->
+                          (match get_holder j with
+                          | Some i -> print_string (string_of_int i); i = 2
+                          | None -> print_string "fuck"; false)
+                        | None  -> false
 end
