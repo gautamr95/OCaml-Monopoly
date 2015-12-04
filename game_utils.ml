@@ -235,8 +235,12 @@ let create_tile_list prop_lst =
   :: Prop(List.nth prop_lst 4) :: Prop(List.nth prop_lst 5) :: Jail(9) :: Go_jail :: []
 
 let create_board ai_lst =
-  let prop_list = create_prop_list () in
-  let create_tile_list
+  let property_list = create_prop_list () in
+  let tile_list = create_tile_list property_list in
+  let player_list = create_player_list ai_lst in
+  let chance_list = [("boo", -50) ; ("shoo",30)] in
+  let community_chest_list =  [("foo", 100) ; ("dog",-300)] in
+  {player_list;community_chest_list;chance_list;property_list;tile_list}
 (*
 let create_board () =
   let temp_player_list = ref [] in
