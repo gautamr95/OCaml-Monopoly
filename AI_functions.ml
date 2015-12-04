@@ -1,11 +1,6 @@
 open Player_functions
 open Board_functions
 
-type decicion = 
-  | Trade of property * property
-  | Upgrade of property
-  | Buy of property
-  | End
  
 let property_eval (b : board) (pl : player) (prp : property): string =
   if (get_money pl) > (get_prop_price prp) then
@@ -19,6 +14,8 @@ let ai_decision (b : board) (pl : player) : decision =
   let rec inner_repl _ = 
     if not !rolled then
       (let (d1,d2) = roll_dice () in
+      let _ = Printf.printf "\nPlayer %i has rolled a %i and %i, with a total move of %i.\n" 
+                            pl d1 d2 (d1 + d2) in
       move_player b pl (d1+d2);
       curr_pos := get_pl_position b pl;
       let tile = (get_tile b curr_pos) in
@@ -27,16 +24,21 @@ let ai_decision (b : board) (pl : player) : decision =
           let property = match (get_property b p) with
           | None -> failwith "this shouldn't happen"
           | Some p -> p in
-
+          let name = get_prop_name p in
+          let _ = Printf.printf "Player %i landed on %s.\n" pl name in
           match (get_holder b property) with
           | None -> 
               let my_money = get_money b pl in 
-              if my_money > (get_prop_price p) then
+              let price = get_prop_price p in
+              if my_money > price then
+                let _ = Printf.printf "Player %i bought %s for %i\n" pl name price in
                (move_property b pl None p) 
               else 
                 ()
           | Some hl ->  
               let rent = get_rent property in
+              let _ = Printf.printf "Player %i paid Player %i %i in rent for %s\n"
+                pl hl rent name in
               (change_money b hl rent);
               (change_money b pl (-rent))
 
@@ -55,13 +57,15 @@ let ai_decision (b : board) (pl : player) : decision =
       | Go_jail _ -> move_to_jail b pl)
     else (
       if (get_holder prop = None && (get_money pl) > (get_prop_price prop )) then
-        Buy prop
       else if (upgrade_prop_dec b pl) then
         let uprop = choose_upgrade pl in
-        Upgrade uprop
       else if (trade_prop_dec b pl) then
         let (myprop,tprop) = choose_trade pl in
-        Trade (myprop, tprop)
+        (*Search through own props for if own two, if do then 
+          * offer trade with person who owns it
+          * offer 75% of cost 
+          * maybe if reject trade next round offer more/ include diff prop
+          * *)
       else 
         End)
 
