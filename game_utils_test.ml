@@ -33,6 +33,10 @@ TEST_MODULE "board test" = struct
                             = Some(create_property 8 Green 300 20 "pacific")
   TEST "get_prop_from_name_upper" = (get_property_from_name board "PacifIc")
                             = Some(create_property 8 Green 300 20 "pacific")
+
+  TEST "get_prop_from name invalid" = (get_property_from_name board "blue")
+                            = None
+
   TEST "get tile chance" = match get_tile board 2 with
                     | Chance -> true
                     |_ -> false
@@ -44,4 +48,16 @@ TEST_MODULE "board test" = struct
   TEST "get tile property" = match get_tile board 1 with
                     | Prop x -> x = (create_property 1 Brown 300 20 "baltic")
                     | _ -> false
+  TEST "get_property valid" = (get_property board 4)
+                               = Some(create_property 4 Brown 300 20 "boom")
+
+  TEST "get_property invalid" = (get_property board 2)
+                               = None
+
+  TEST "get pl start pos" = get_pl_position board 2  = 0
+
+  TEST "move pl 2" = move_player board 2 3; get_pl_position board 2 = 3
+
+  TEST "collect 200" = move_player board 2 7; (get_pl_position board 2 = 0) &&
+                                              (get_money board 2 = 1700)
 end
