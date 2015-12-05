@@ -17,6 +17,10 @@ val get_round : board -> int
 
 val incr_round : board -> unit
 
+val get_turn : board -> int
+
+val set_turn : board -> int -> unit
+
 (*take in player and return player id*)
 val get_player_id : player -> int
 
