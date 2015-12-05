@@ -364,7 +364,7 @@ let rec determine_winner id =
 
 let _ = determine_winner 0 in
 
-Gui.print_to_cmd (Printf.sprintf "\nCongratulations player %d! You have won the game with a total evaluation value of %d!\n" !winner_id !winner_value)
+Gui.print_to_cmd (Printf.sprintf "\nCongratulations player %d! You have won the game with a total evaluation value of %d!\n" !winner_id !winner_value);
 
 let _ = Gui.print_to_cmd "\n\nThe game is finished! Thanks for playing!\n\n" in ()
 
