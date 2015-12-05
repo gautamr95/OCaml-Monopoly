@@ -32,7 +32,8 @@ type player = { id: int;
                is_AI: bool;
                in_jail: bool ref;
                bankrupt:bool ref;
-               money: int ref
+               is_done: bool ref;
+               money: int ref;
              }
 
 type community_chest = string * int * int
@@ -65,7 +66,6 @@ let incr_round b =
 let get_player b pl_id =
   let pl_list = get_player_list b in
   List.nth pl_list (pl_id)
-
 
 let get_property_from_name b p_name =
   let p_list = b.property_list in
@@ -249,8 +249,6 @@ let print_players_properties b pl_id =
   "Blue:" ^ print_prop_of_color !(props.blue)^"\n" ^
   "---------------------------\n"
 
-
-
 let can_buy_house b pl_id prop =
   let prop_list = !(get_pl_prop_of_color b pl_id prop) in
   ((List.length prop_list) = 3) && (!(prop.houses) <> 4)
@@ -272,12 +270,11 @@ let create_prop_cont () : property_container =
 
 let create_player id ai =
   {id; position = ref(0); properties = create_prop_cont(); is_AI = ai;
-   in_jail = ref(false); bankrupt = ref(false); money = ref(1500)}
+   in_jail = ref(false); bankrupt = ref(false); money = ref(1500); is_done = ref false}
 
 let create_player_list ai_lst =
   let id_ref = ref(-1) in
   List.map (fun x -> id_ref := !id_ref + 1; create_player !id_ref x) ai_lst
-
 
 let create_board ai_lst community_chest_list
                  chance_list property_list tile_list =
@@ -313,5 +310,14 @@ let create_chance_list () =
 
 let create_community_chest_list () =
   [("foo", 100) ; ("dog",-300)] *)
+
+let get_done b pl_id =
+  let pl = get_player b pl_id in
+  !(pl.is_done)
+
+let set_done b pl_id =
+  let pl = get_player b pl_id in
+  let done_ref = pl.is_done in
+  done_ref := true
 
 
