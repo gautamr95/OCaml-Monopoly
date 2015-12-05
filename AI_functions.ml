@@ -12,6 +12,10 @@ let accept_trade b req off rm om pl tp =
   let can_afford = my_money > rm in
   let my_props_req = my_prop req in
   let own_triple = List.fold_left (fun a x -> a || (List.length x = 3)) false my_props_req in
+  let _ = Gui.print_to_cmd (Printf.sprintf "Gain Money : %b
+  Own triple : %b
+  Need prop : %b
+  Gain prop cost : %b" gain_money own_triple need_prop gain_prop_cost in
   let trade =
     if not can_afford then false
     else if own_triple then false
