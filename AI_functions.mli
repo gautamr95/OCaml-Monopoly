@@ -18,4 +18,4 @@ val make_trade : player list -> player -> string
 (*if you recieve a trade, take in the property that is offered and the price
   and determine if you will buy*)
 val receive_trade : int -> property -> string*)
-val accept_trade : board -> property list -> property list -> int -> int -> int -> int -> string
+val accept_trade : board -> property list -> property list -> int -> int -> int -> int -> bool
