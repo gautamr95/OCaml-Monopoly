@@ -136,9 +136,9 @@ let get_player_property_val b pl_id =
   (add_values props.blue);
   !tot_value
 
-let get_pl_prop_of_color b pl_id prop =
+let get_pl_prop_from_color b pl_id col =
   let pl = get_player_property b pl_id in
-  match prop.color with
+  match col with
   |Brown ->pl.brown
   |Grey  ->pl.grey
   |Pink  ->pl.pink
@@ -147,6 +147,9 @@ let get_pl_prop_of_color b pl_id prop =
   |Yellow->pl.yellow
   |Green ->pl.green
   |Blue  ->pl.blue
+
+let get_pl_prop_of_color b pl_id prop =
+  get_pl_prop_from_color b pl_id prop.color
 
 let move_property b pl_id pl_id2 prop =
   prop.holder := Some pl_id;
