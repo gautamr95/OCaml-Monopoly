@@ -127,6 +127,7 @@ let rec buy_house p_id =
     Upgrade - Options to buy a house
     Properties - View your properties
     Quit - Go back to the main game options");
+  Gui.updateboard game_board;
   let command = get_input () in
   match String.lowercase (command) with
   | "upgrade" ->
@@ -147,7 +148,7 @@ let rec buy_house p_id =
         else
           (Gui.print_to_cmd "\nYou do not have enough money to buy this house.";
           buy_house p_id)
-      | false -> ( Gui.print_to_cmd "\nInvalid move. You can not buy the house because you either do not own the property or you don't have a monopoly.");
+      | false -> ( Gui.print_to_cmd "\nInvalid move. You can not buy the house because you either do not own the property, you don't have a monopoly, or you already have 4 houses on this property.");
         buy_house p_id
       end
     end
@@ -155,12 +156,30 @@ let rec buy_house p_id =
   | "quit" -> ()
   | _ -> (Gui.print_to_cmd "\nInvalid command."; buy_house p_id) in
 
+
+(* Helper function to prompt users in case they are bankrupt.
+Inputs: p_id - the int id of the player that is bankrupt *)
+let prompt_bankrupt p_id =
+  if not (is_bankrupt game_board p_id) then () else
+  Gui.print_to_cmd (Printf.sprint "Player %d, you are currently bankrupt. You have the following options:\n" p_id);
+  Gui.print_to_cmd ("Trade - Attempt to get money through trading
+    Done - Finish transactions");
+  let command = get_input () in
+  match command with
+  | "Trade" ->
+    trade_prompt game_board p_id; prompt_bankrupt
+  | "Done" ->
+    let still_bankrupt = is_bankrupt game_board p_id in
+    if still_bankrupt then
+      Gui.print_to_cmd "\nWarning: You are still bankrupt. Ending your turn while still bankrupt will cause you to drop out of the game."
+    else ()
+
 (* Loop through game states, and update game state. This loop is taken for
 each player that plays the game. *)
 let rec game_loop () =
   Gui.updateboard game_board;
   turns := !turns + 1;
-  let _ = if !turns > 4 then (turns := 1; rounds := !rounds + 1) else () in
+  let _ = if !turns > 4 then (turns := 1; rounds := !rounds + 1; incr_round game_board) else () in
   if !rounds >= tot_rounds then ()
   else let curr_player_id = !turns - 1 in
   if others_bankrupt game_board curr_player_id then ()
@@ -242,7 +261,14 @@ let rec game_loop () =
           let pay_amt = rent_amt * rent_multiplier in
           ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou have landed on player %d's property, and will pay a rent of %d.\n---------------------------\n" p_id pay_amt));
           change_money game_board curr_player_id (-1 * pay_amt);
-          change_money game_board p_id (pay_amt))) in
+          change_money game_board p_id (pay_amt));
+
+          if is_bankrupt game_board curr_player_id then
+            prompt_bankrupt curr_player_id else ()
+
+        )
+
+          in
 
     Gui.updateboard game_board;
 
@@ -274,13 +300,14 @@ let rec game_loop () =
         (Gui.print_to_cmd (print_players_properties game_board curr_player_id);
         mini_repl ())
       | "position" -> ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou are currently on position %d.\n---------------------------" player_position)); mini_repl ())
-      | "trade" -> (trade_prompt game_board curr_player_id; mini_repl ())
-      | "house" -> (buy_house curr_player_id; mini_repl ()); Gui.updateboard game_board
-      | "done" -> ()
+      | "trade" -> (trade_prompt game_board curr_player_id; Gui.updateboard game_board; mini_repl ())
+      | "house" -> (buy_house curr_player_id; Gui.updateboard game_board; mini_repl ())
+      | "done" -> Gui.updateboard game_board
       | "buy" -> (* Buying a new property. *)
         if not !prompt_buy_property then ((Gui.print_to_cmd "\n---------------------------\nInvalid command.\n---------------------------\n"); mini_repl ())
         else
           let transaction = property_prompt curr_player_id player_position in
+          Gui.updateboard game_board;
           let _ = if transaction then (prompt_buy_property := false; bought_property := true) else () in
           mini_repl ()
       | _ -> ((Gui.print_to_cmd "\n---------------------------\nInvalid command.\n---------------------------"); mini_repl ()) in
