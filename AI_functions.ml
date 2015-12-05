@@ -9,7 +9,6 @@ let upgrade_a_prop b pl =
   let yellow_prop = !(get_pl_prop_from_color b pl Yellow) in
   let green_prop = !(get_pl_prop_from_color b pl Green) in
   let blue_prop = !(get_pl_prop_from_color b pl Blue) in
-  let len = List.length in
   let can_buy_houses = List.fold_left (fun a x -> a || can_buy_house b pl x) false in
   let rec house_to_buy plst =
     match plst with 
@@ -72,12 +71,14 @@ let ai_decision (b : board) ( pl : int ) : unit =
           let (s,mm,tm) = get_chance b in
           let _ = Printf.printf "Player %i landed on Chance!\n
           %s\n" pl s in
-          change_money b pl i
+          change_money b pl mm;
+          change_others_money b pl tm
       | Chest -> 
           let (s,mm,tm) = get_chest b in 
           let _ = Printf.printf "Player %i landed on Community Chest!\n
           %s\n" pl s in
-          change_money b pl i
+          change_money b pl mm;
+          change_others_money b pl tm
       | Jail _ -> ()
       | Go -> ()
       | Go_jail  -> move_to_jail b pl)
