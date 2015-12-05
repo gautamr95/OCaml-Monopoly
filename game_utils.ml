@@ -323,4 +323,9 @@ let set_done b pl_id =
   let done_ref = pl.is_done in
   done_ref := true
 
+let return_pl_props b pl_id =
+  List.iter (fun x ->
+    match !(x.holder) with
+    | None -> ()
+    | Some i -> if i = pl_id then x.holder := None else ()) b.property_list
 

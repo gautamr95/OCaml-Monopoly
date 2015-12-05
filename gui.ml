@@ -96,9 +96,11 @@ let controls = GPack.box `VERTICAL ~width:400
                                    ~packing:game_area#add ()
 
 let infoarea = GPack.box `VERTICAL ~packing:controls#add ()
+                                  ~border_width:2
                                   ~height:200
 
 let commandarea = GPack.box `VERTICAL ~packing:controls#add ()
+                                      ~border_width:2
                                       ~height:600
 
 let scrollingtext = GBin.scrolled_window  ~hpolicy:`NEVER
@@ -135,9 +137,7 @@ let house_pixbuf = GdkPixbuf.from_file "assets/black_house.png"
                             ~packing:buttons#add ()*)
 
 (* Information display area *)
-let infodisplay = GText.view ~editable:false
-                              ~cursor_visible:false
-                              ~wrap_mode:`CHAR
+let infodisplay = GMisc.label ~selectable:false
                               ~show:true
                               ~packing:infoarea#add ()
 
@@ -283,7 +283,7 @@ let update_money curboard =
 let update_info_area curboard =
   let round_info = Printf.sprintf "Round: %d\n" (get_round curboard) in
   let money_info = update_money curboard in
-  infodisplay#buffer#set_text (round_info ^ money_info)
+  infodisplay#set_text (round_info ^ money_info)
 
 (*Callback function for updating the board pixbuf and drawing it in the GUI*)
 let updateboard curboard =
