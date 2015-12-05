@@ -28,7 +28,7 @@ it kicks you out of trading and repeat the main repl, once its taken all your in
 the trade, if they say yes, then the trade carries out with the function make_trade
 which manipupates the players money and property list based on this, it is a function who returns
 unit, this function will be done once we get the board figured out more*)
-let trade_prompt pl b : unit=
+let trade_prompt b pl : unit=
   let rec trade_player_prompt () =
     print_string "Who do you want to trade with?\n";
     try (int_of_string (read_line ())) with
@@ -57,7 +57,7 @@ let trade_prompt pl b : unit=
     if money > (get_money b trade_player) then Printf.printf "They cannot afford this\n" else
       print_string "What properties will you offer?";
       let offer = String.lowercase(read_line ()) in
-      let offer_list = split (regexp " ") requests in
+      let offer_list = split (regexp " ") offer in
       if not (valid offer_list) then Printf.printf "Invalid entry"
       else
         let offer_p = List.map (get_property_from_name b) offer_list in

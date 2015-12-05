@@ -3,6 +3,7 @@ open Game_utils
 open AI_functions
 open Board_gen
 open Async.Std
+open Trading
 
 (* Game constants *)
 let total_players = 4
@@ -273,7 +274,7 @@ let rec game_loop () =
         (Gui.print_to_cmd (print_players_properties game_board curr_player_id);
         mini_repl ())
       | "position" -> ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou are currently on position %d.\n---------------------------" player_position)); mini_repl ())
-      (*| "trade" -> (execute_trade (); mini_repl ()) TODO *)
+      | "trade" -> (trade_prompt game_board curr_player_id; mini_repl ())
       | "house" -> (buy_house curr_player_id; mini_repl ()); Gui.updateboard game_board
       | "done" -> ()
       | "buy" -> (* Buying a new property. *)
