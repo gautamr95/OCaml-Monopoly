@@ -220,7 +220,7 @@ let rec game_loop () =
       Printf.printf "\n\nCommand -> ";
       let command = Pervasives.read_line () in
 
-      match command with
+      match String.lowercase command with
       | "Money" ->
         (Printf.printf "\n---------------------------\nYou have $%d.\n---------------------------" (get_money game_board curr_player_id);
         mini_repl ())
