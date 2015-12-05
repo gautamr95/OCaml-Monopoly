@@ -150,7 +150,7 @@ let rec buy_house p_id =
         buy_house p_id
       end
     end
-  | "properties" -> Gui.print_to_cmd (print_players_properties game_board p_id; buy_house p_id)
+  | "properties" -> Gui.print_to_cmd (print_players_properties game_board p_id); buy_house p_id
   | "quit" -> ()
   | _ -> (Gui.print_to_cmd "\nInvalid command."; buy_house p_id) in
 
