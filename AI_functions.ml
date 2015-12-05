@@ -1,5 +1,5 @@
 open Game_utils
-open Trade_offers
+open Trade_offer
 
 let accept_trade b req off rm om pl tp =
   let gain_money = om - rm > 0 in
@@ -18,7 +18,7 @@ let accept_trade b req off rm om pl tp =
     else if need_prop then true
     else if gain_money && gain_prop_cost then true
     else false in
-  if trade then "y" else "n"
+  trade
 
 let upgrade_a_prop b pl =
   let brown_prop = !(get_pl_prop_from_color b pl Brown) in
@@ -34,7 +34,10 @@ let upgrade_a_prop b pl =
     match plst with
     | [] -> ()
     | h::t ->
-        if (can_buy_house b pl h) then add_house b pl h
+        if (can_buy_house b pl h) then (
+          Gui.print_to_cmd (Printf.sprintf "Player %i bought a house for %s\n" 
+          pl (get_prop_name h));
+          add_house b pl h)
         else house_to_buy t in
   if (can_buy_houses brown_prop) then
    (house_to_buy brown_prop; true)
@@ -75,9 +78,9 @@ let trade_a_prop b pl =
           let num_houses = get_houses h in
           let offer = int_of_float (0.75 *. (float_of_int cost)) in
           let can_afford = (get_money b pl) > offer in
-          let trade_fn = if (is_ai b player) then accept_trade else trade_offer in
-          let will_trade = if (can_afford && num_houses = 0) then 
-            (trade_fn [(get_prop_name h)] [] 0 offer pl player)
+          let trade_fn = if (is_ai b player) then accept_trade b else trade_offer in
+          let will_trade = if (can_afford && num_houses = 0) then
+            (trade_fn [h] [] 0 offer pl player)
           else false in
           if will_trade then(
             let _ = move_property b player (Some pl) h in
@@ -167,7 +170,7 @@ let ai_decision (b : board) ( pl : int ) : unit =
           change_others_money b pl tm
       | Chest ->
           let (s,mm,tm) = get_chest b in
-          let _ = Gui.print_to_cmd (Printf.printf "Player %i landed on Community Chest!\n
+          let _ = Gui.print_to_cmd (Printf.sprintf "Player %i landed on Community Chest!\n
           %s\n" pl s) in
           change_money b pl mm;
           change_others_money b pl tm

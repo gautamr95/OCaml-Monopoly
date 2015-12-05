@@ -160,3 +160,6 @@ val get_done : board -> int -> bool
 
 (* sets a player's state to be marked as done *)
 val set_done : board -> int -> unit
+
+(*remove all of players items*)
+val return_pl_props : board -> int -> unit

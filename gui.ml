@@ -96,9 +96,11 @@ let controls = GPack.box `VERTICAL ~width:400
                                    ~packing:game_area#add ()
 
 let infoarea = GPack.box `VERTICAL ~packing:controls#add ()
+                                  ~border_width:2
                                   ~height:200
 
 let commandarea = GPack.box `VERTICAL ~packing:controls#add ()
+                                      ~border_width:2
                                       ~height:600
 
 let scrollingtext = GBin.scrolled_window  ~hpolicy:`NEVER
@@ -106,7 +108,7 @@ let scrollingtext = GBin.scrolled_window  ~hpolicy:`NEVER
                                       ~height:550
                                       ~packing:commandarea#add ()
 
-let board_pixbuf = GdkPixbuf.from_file "assets/monopoly.jpg"
+let board_pixbuf = GdkPixbuf.from_file "assets/monopoly_shopped.png"
 (*scaled_board_pixbuf is the static and constant board picture pixbuf*)
 (*it's used as the base image to overlay stuff onto; houses, players, etc*)
 let scaled_board_pixbuf = GdkPixbuf.create ~width:800
@@ -135,9 +137,7 @@ let house_pixbuf = GdkPixbuf.from_file "assets/black_house.png"
                             ~packing:buttons#add ()*)
 
 (* Information display area *)
-let moneydisplay = GText.view ~editable:false
-                              ~cursor_visible:false
-                              ~wrap_mode:`CHAR
+let infodisplay = GMisc.label ~selectable:false
                               ~show:true
                               ~packing:infoarea#add ()
 
@@ -273,13 +273,17 @@ let draw_properties propertylst dest_pixbuf =
     | _ -> () in
   draw_prop_list tilelocation propertylst 0
 
-
 let update_money curboard =
   let obama_mon = Printf.sprintf "Obama: $%d\n" (get_money curboard 0) in
   let cena_mon = Printf.sprintf "John Cena: $%d\n" (get_money curboard 1) in
   let sanders_mon = Printf.sprintf "Sanders: $%d\n" (get_money curboard 2) in
   let gaben_mon = Printf.sprintf "Gaben: $%d\n" (get_money curboard 3) in
-  moneydisplay#buffer#set_text (obama_mon ^ cena_mon ^ sanders_mon ^ gaben_mon)
+  (obama_mon ^ cena_mon ^ sanders_mon ^ gaben_mon)
+
+let update_info_area curboard =
+  let round_info = Printf.sprintf "Round: %d\n" (get_round curboard) in
+  let money_info = update_money curboard in
+  infodisplay#set_text (round_info ^ money_info)
 
 (*Callback function for updating the board pixbuf and drawing it in the GUI*)
 let updateboard curboard =
@@ -294,7 +298,7 @@ let updateboard curboard =
       draw_player_helper (curpos + 1) tl
     | [] -> () in
   (draw_player_helper 0 tilelocation); board_image#set_pixbuf out_pixbuf;
-  update_money curboard
+  update_info_area curboard
 
 (*-----------------END OF HELPER FUNCTIONS FOR UPDATING BOARD-----------------*)
 

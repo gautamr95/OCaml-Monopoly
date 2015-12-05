@@ -1,25 +1,18 @@
 open Str
 open Game_utils
+open Trade_offer
+open Async.Std
 
-(* req = requested prop
- * off = offered prop
- * rm = requested money
- * om = offered money
- * pl = the requester
- * tp = the one pl wants to trade with
- * Starts a trade request with the specified parameters*)
-let rec trade_offer req off rm om pl tp : bool =
-  Gui.print_to_cmd (Printf.sprintf "Player %i's trade request:\n" tp);
-  Gui.print_to_cmd (Printf.sprintf "Player %i wants:\n" pl);
-  List.iter (fun x -> Gui.print_to_cmd ("\n" ^ x)) req;
-  Gui.print_to_cmd (Printf.sprintf "$%i" rm);
-  Gui.print_to_cmd "In exchange for:";
-  List.iter (fun x -> Gui.print_to_cmd ("\n" ^ x)) off;
-  Gui.print_to_cmd (Printf.sprintf "$%i" om);
-  Gui.print_to_cmd "will you accept? (y/n):";
-  let input = String.lowercase(read_line ()) in
-  if input = "y" then true else if input = "n" then false else (print_endline "Invalid";
-    trade_offer req off rm om pl tp)
+let wait_lock = ref (Mutex.create ()) 
+let cmd_input_str = ref "" 
+
+(* Mutex based function to get inputs *)
+let get_input () : string=
+  Mutex.unlock (!wait_lock);
+  Gui.readline wait_lock cmd_input_str;
+  Mutex.lock (!wait_lock);
+  Mutex.unlock (!wait_lock);
+  !cmd_input_str
 
 (*call this function given the above event, if the player says they want to trade,
 this function steps them through the prompts to make a trade request, if the any input is valid
@@ -31,13 +24,16 @@ unit, this function will be done once we get the board figured out more*)
 let trade_prompt b pl : unit=
 
   let rec trade_player_prompt () =
-    print_string "Who do you want to trade with?\n";
-    try (int_of_string (read_line ())) with
-    | Failure s -> print_string "Invalid entry\n"; trade_player_prompt () in
+    Gui.print_to_cmd "Who do you want to trade with?\n";
+    try (int_of_string (get_input())) with
+    | Failure s -> Gui.print_to_cmd "Invalid entry\n"; trade_player_prompt () in
 
   let trade_player = trade_player_prompt () in
-  print_string "What properties do you want? None for just money \n";
-  let requests = String.lowercase(read_line ()) in
+  let is_done = get_done b trade_player in
+  if is_done then Gui.print_to_cmd "That player is no longer in the game\n"
+  else(
+  Gui.print_to_cmd "What properties do you want? None for just money \n";
+  let requests = String.lowercase(get_input ()) in
   let req_list = if requests = "none" then []
                  else split (regexp ", ") requests in
 
@@ -45,15 +41,16 @@ let trade_prompt b pl : unit=
     match (get_property_from_name b x) with
     | None -> -1
     | Some prop -> (
-      if get_houses prop = 0 then
-      match get_holder prop with
-      | None -> -1
-      | Some i -> i
+      if (get_houses prop = 0)  then
+        (match get_holder prop with
+        | None -> -1
+        | Some i -> if (List.fold_left (fun x y -> x && (get_houses y = 0)) true
+                    !(get_pl_prop_of_color b i prop)) then i else -1)
       else -1) in
 
   let valid pl lst = List.fold_left (fun a x -> a && ((correct_holder x) = pl)) true lst in
 
-  if (not (valid trade_player req_list)) then Printf.printf "Invalid entries\n"
+  if (not (valid trade_player req_list)) then Gui.print_to_cmd "Invalid entries\n"
   else
     let req_p = List.map (get_property_from_name b) req_list in
     let req_props = List.fold_left
@@ -62,33 +59,33 @@ let trade_prompt b pl : unit=
                   |None -> x) [] req_p in
 
     let rec request_prompt () =
-      Printf.printf "How much money do you want?\n";
-      try (int_of_string (read_line ())) with
+      Gui.print_to_cmd "How much money do you want?\n";
+      try (int_of_string (get_input())) with
       | Failure s -> request_prompt () in
 
     let money = request_prompt () in
-    if money > (get_money b trade_player) then Printf.printf "They cannot afford this\n" else
-      print_string "What properties will you offer?\n";
-      let offer = String.lowercase(read_line ()) in
+    if money > (get_money b trade_player) then Gui.print_to_cmd "They cannot afford this\n" else
+      Gui.print_to_cmd "What properties will you offer?\n";
+      let offer = String.lowercase(get_input ()) in
       let offer_list = if offer = "none" then []
                        else split (regexp ", ") offer in
-      if not (valid pl offer_list) then Printf.printf "Invalid entry\n"
+      if not (valid pl offer_list) then Gui.print_to_cmd "Invalid entry\n"
       else
         let offer_p = List.map (get_property_from_name b) offer_list in
         let offer_props = List.fold_left (fun x y -> match y with
                                                      |Some(a) -> a::x
                                                      |None -> x) [] offer_p in
         let rec offer_prompt () =
-          Printf.printf "How much Money will you offer?\n";
-          try (int_of_string (read_line ())) with
+          Gui.print_to_cmd "How much Money will you offer?\n";
+          try (int_of_string (get_input ())) with
           | Failure s -> offer_prompt () in
         let offer = offer_prompt () in
-        if offer > (get_money b pl) then Printf.printf "You cannot afford this\n" else
+        if offer > (get_money b pl) then Gui.print_to_cmd "You cannot afford this\n" else
           let trade_accept =
           (if is_ai b trade_player then
-            AI_functions.accept_trade
+            AI_functions.accept_trade b
           else
-            trade_offer) req_list offer_list money offer pl trade_player in
+            trade_offer) req_props offer_props money offer pl trade_player in
 
           if trade_accept then
             let _ = List.iter (move_property b pl (Some trade_player)) req_props in
@@ -96,8 +93,8 @@ let trade_prompt b pl : unit=
             let _ = change_money b pl (-offer) in
             let _ = change_money b trade_player (offer) in
             let _ = change_money b pl (money) in
-            let _ = change_money b pl (-money) in
-            print_string "Trade accepted!"
+            let _ = change_money b trade_player (-money) in
+            Gui.print_to_cmd "Trade accepted!\n"
           else
-            print_string "Trade denied!"
+            Gui.print_to_cmd "Trade denied!\n")
 
