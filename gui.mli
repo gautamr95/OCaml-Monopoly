@@ -7,7 +7,7 @@ val updateboard : board -> unit
 (* print_to_cmd [str] prints the [str] to the command display inside the GUI
   preconditions: None
   postconditions: None*)
-val print_to_cmd : ('a, unit, string) format -> unit
+val print_to_cmd : string -> unit
 
 (* readline [ref lock] [ref str] will set the [ref str] to the user's command
   input after the user enters a command. the function will also lock the Mutex

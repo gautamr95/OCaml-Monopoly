@@ -134,9 +134,9 @@ let properties_at_pos pos (proplst:property list) =
      if get_prop_position a = pos then a::acc else acc) [] proplst
 
 (*Helper function for getting list of player at the given board pos*)
-let players_at_pos pos playerlst =
+let players_at_pos b pos playerlst =
   List.fold_left
-    (fun acc a -> if get_pl_position a = pos then a::acc else acc) [] playerlst
+    (fun acc a -> if get_pl_position b (get_player_id a) = pos then a::acc else acc) [] playerlst
 
 (*Helper function for drawing a list of players at a given physical pos*)
 let draw_players physpos playerlst dest_pixbuf =
@@ -153,10 +153,10 @@ let draw_players physpos playerlst dest_pixbuf =
               ~scale_y:0.5
               ~width:30
               ~height:30
-              (if p.id = 0 then obama_pixbuf
-                else if p.id = 1 then cena_pixbuf
-                else if p.id = 2 then sanders_pixbuf
-                else if p.id = 3 then sanders_pixbuf
+              (if get_player_id p= 0 then obama_pixbuf
+                else if get_player_id p= 1 then cena_pixbuf
+                else if get_player_id p= 2 then sanders_pixbuf
+                else if get_player_id p= 3 then sanders_pixbuf
                 else raise (Gui_error "Invalid player ID"))) playerlst
 
 (*Helper function for drawing a list of properties at a given physical pos*)
@@ -204,7 +204,7 @@ let updateboard curboard =
   let rec drawhelper curpos poslist=
     match poslist with
     | hd::tl->
-      let players = players_at_pos curpos (get_player_list curboard) in
+      let players = players_at_pos curboard curpos (get_player_list curboard) in
       let props = properties_at_pos curpos (get_property_list curboard) in
       (if players = [] then () else draw_players hd players out_pixbuf);
       (if props = [] then () else draw_properties hd props out_pixbuf);
