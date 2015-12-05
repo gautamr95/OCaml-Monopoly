@@ -1,44 +1,11 @@
-type color = Brown|Grey|Pink|Orange|Red|Yellow|Green|Blue (*to do*)
-type property = { position: int;
-                  color: color;
-                  cost: int;
-                  holder: int option ref;
-                  rent: int;
-                  name: string;
-                  houses: int ref
-                }
-
-type property_container = { brown: property list ref;
-                           grey: property list ref;
-                           pink: property list ref;
-                           orange: property list ref;
-                           red: property list ref;
-                           yellow: property list ref;
-                           green: property list ref;
-                           blue: property list ref;
-                         }
-type player = { id: int;
-               position: int ref;
-               properties: property_container;
-               is_AI: bool;
-               in_jail: bool ref;
-               bankrupt:bool ref;
-               money: int ref
-             }
-
+type board
 type community_chest = string * int * int
-
 type chance = string * int * int
-
+type player
+type property
+type property_container
 type tile = Prop of property | Chance | Chest |Jail of int | Go | Go_jail
-
-type board = { player_list: player list;
-               community_chest_list: community_chest list;
-               chance_list: chance list;
-               property_list: property list;
-               tile_list : tile list;
-             }
-
+type color = Brown|Grey|Pink|Orange|Red|Yellow|Green|Blue
 (*get list of players*)
 val get_player_list : board -> player list
 
@@ -49,6 +16,9 @@ val get_player : board -> int -> player
 (*get property from name of it, none if it doesnt exist*)
 val get_property_from_name : board -> string -> property option
 
+(*get property list*)
+val get_property_list : board -> property list
+
 (*takes in position and returns its tile*)
 val get_tile : board -> int -> tile
 
@@ -57,10 +27,10 @@ val get_property : board -> int -> property option
 
 (*get the integer position a player is at take in board and player id*)
 val get_pl_position : board -> int -> int
-(*
+
 (*get the integer position a property is at take in board and property*)
 val get_prop_position : property -> int
-*)
+
 (*get a random chest card*)
 val get_chest : board -> community_chest
 
