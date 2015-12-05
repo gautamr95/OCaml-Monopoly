@@ -48,6 +48,7 @@ type board = { player_list: player list;
                property_list: property list;
                tile_list : tile list;
                round : int ref;
+               turn : int ref
              }
 
 
@@ -282,7 +283,7 @@ let create_board ai_lst community_chest_list
                  chance_list property_list tile_list =
   let player_list = create_player_list ai_lst in
   {player_list;community_chest_list;chance_list;property_list;
-  tile_list;round = ref(1)}
+  tile_list;round = ref(1);turn = ref(0)}
 
 (* Returns a number between 1 and 12 inclusive, simulating two dice rolled. *)
 let roll_dice () : (int * int) = (1 + Random.int 6 , 1 + Random.int 6 )
@@ -328,4 +329,9 @@ let return_pl_props b pl_id =
     match !(x.holder) with
     | None -> ()
     | Some i -> if i = pl_id then x.holder := None else ()) b.property_list
+
+let get_turn b = !(b.turn)
+
+let set_turn b tn = b.turn := tn
+
 

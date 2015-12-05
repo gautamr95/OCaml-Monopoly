@@ -177,10 +177,15 @@ let rec game_loop () =
 
   (* Adds turns for each player, and then updates the round if necessary *)
   turns := !turns + 1;
+  set_turn game_board (!turns - 1);
   let _ = if !turns > 4
-    then (turns := 1; rounds := !rounds + 1; incr_round game_board) else () in
+    then
+      (turns := 1; set_turn game_board 0;
+      rounds := !rounds + 1; incr_round game_board) else () in
   if !rounds >= tot_rounds then ()
   else let curr_player_id = !turns - 1 in
+
+  Gui.updateboard game_board;
 
   (* If all other players are bankrupt, the game is done *)
   if others_bankrupt game_board curr_player_id then ()
@@ -194,7 +199,10 @@ let rec game_loop () =
 
   (* Calls the corresponding AI functions *)
   else if is_ai game_board curr_player_id then
-      (ai_decision game_board curr_player_id; game_loop ())
+      (ai_decision game_board curr_player_id;
+      let _ = (if is_bankrupt game_board curr_player_id
+        then set_done game_board curr_player_id else ()) in
+        game_loop ())
   else
     (* REPL for the individual players and the actions they can perform. *)
 
@@ -331,11 +339,12 @@ let rec game_loop () =
 
     (* Starts off the mini_repl, which gets input from the human player *)
     let _ = (mini_repl ()) in
+
     let _ = (if is_bankrupt game_board curr_player_id
       then set_done game_board curr_player_id else ()) in
 
-  (* Recursively gets the game started again *)
-  game_loop () in
+    (* Recursively gets the game started again *)
+    game_loop () in
 
 (* Starts off the game initially *)
 let _ = game_loop () in
