@@ -140,8 +140,9 @@ TEST "get value with houses" =
   | Some prop ->
   (move_property board 2 None prop;
   if (can_buy_house board 2 prop) then
-    add_house board 2 prop;add_house board 2 prop
+    let _ = add_house board 2 prop in
+    add_house board 2 prop
   else ();
-  (get_player_property_val board 2) = 950)
+  (get_player_property_val board 2) = 1000)
   | None -> false
 end
