@@ -84,6 +84,9 @@ let is_ai_list = make_ai_list [] num_players 1 in
 
 let game_board = create_board is_ai_list community_chest_list chance_list
                           property_list tile_list in
+move_property game_board 0 None (match get_property_from_name game_board "virginia" with |Some x -> x | None -> failwith "fuck");
+move_property game_board 0 None (match get_property_from_name game_board "states" with |Some x -> x | None -> failwith "fuck");
+move_property game_board 0 None (match get_property_from_name game_board "St.Charles" with |Some x -> x | None -> failwith "fuck");
 Gui.updateboard game_board;
 
 (* total turns (for each round)*)
