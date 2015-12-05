@@ -28,10 +28,10 @@ let get_input () : string=
 (* To create random seed. *)
 let _ = Random.self_init () in
 
-let property_list = create_prop_list () in
-let tile_list = create_tile_list property_list in
-let chance_list = create_community_chest_list() in
-let community_chest_list =  create_chance_list() in
+let property_list = Board_gen.create_prop_list () in
+let tile_list = Board_gen.create_tile_list property_list in
+let chance_list = Board_gen.create_community_chest_list() in
+let community_chest_list =  Board_gen.create_chance_list() in
 
 (*      end         *)
 
@@ -150,7 +150,7 @@ let rec buy_house p_id =
         buy_house p_id
       end
     end
-  | "properties" -> (print_players_properties game_board p_id; buy_house p_id)
+  | "properties" -> Gui.print_to_cmd (print_players_properties game_board p_id; buy_house p_id)
   | "quit" -> ()
   | _ -> (Gui.print_to_cmd "\nInvalid command."; buy_house p_id) in
 
@@ -180,7 +180,14 @@ let rec game_loop () =
     let prompt_buy_property = ref false in
     let bought_property     = ref false in
 
+    let old_position = (get_pl_position game_board curr_player_id) in
+
     move_player game_board curr_player_id (d1+d2);
+
+    let player_position = (get_pl_position game_board curr_player_id) in
+
+    let _ = if (old_position > player_position)
+      then Gui.print_to_cmd ("\nYou get $200 for passing go!") else () in
 
     Gui.updateboard game_board;
 
@@ -195,7 +202,6 @@ let rec game_loop () =
         change_money game_board curr_player_id (-1 * jail_fee)))
     else () in
 
-    let player_position = (get_pl_position game_board curr_player_id) in
 
     let prop_option = (get_property game_board player_position) in
 
@@ -264,7 +270,7 @@ let rec game_loop () =
         (Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou have $%d.\n---------------------------" (get_money game_board curr_player_id));
         mini_repl ())
       | "property" ->
-        (print_players_properties game_board curr_player_id;
+        (Gui.print_to_cmd (print_players_properties game_board curr_player_id);
         mini_repl ())
       | "position" -> ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou are currently on position %d.\n---------------------------" player_position)); mini_repl ())
       (*| "trade" -> (execute_trade (); mini_repl ()) TODO *)
