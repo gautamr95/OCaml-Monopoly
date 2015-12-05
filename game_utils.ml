@@ -35,9 +35,9 @@ type player = { id: int;
                money: int ref
              }
 
-type community_chest = string * int
+type community_chest = string * int * int * int
 
-type chance = string * int
+type chance = string * int * int * int
 
 type tile = Prop of property | Chance | Chest |Jail of int | Go | Go_jail
 
@@ -278,6 +278,10 @@ let create_board ai_lst community_chest_list
 
 (* Returns a number between 1 and 12 inclusive, simulating two dice rolled. *)
 let roll_dice () : (int * int) = (1 + Random.int 6, 1 + Random.int 6 )
+
+let move_to_position b pl_id pos =
+  let pl = get_player b pl_id in
+  pl.position := pos
 
 (*let create_prop_list () =
   (create_property 1 Brown 300 20 "baltic") ::

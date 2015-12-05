@@ -15,10 +15,10 @@ TEST_MODULE "board test" = struct
     :: Prop(List.nth prop_lst 4) :: Prop(List.nth prop_lst 5) :: Jail(9) ::
     Go_jail :: []
   let create_chance_list () =
-    [("boo", -50) ; ("shoo",30)]
+    [("boo", -50,0,0) ; ("shoo",30,0,0)]
 
   let create_community_chest_list () =
-    [("foo", 100) ; ("dog",-300)]
+    [("foo", 100,0,0) ; ("dog",-300,0,0)]
 
   let property_list = create_prop_list ()
   let tile_list = create_tile_list property_list

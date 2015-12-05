@@ -26,10 +26,10 @@ let create_tile_list prop_lst =
   :: Prop(List.nth prop_lst 4) :: Prop(List.nth prop_lst 5) :: Jail(9) ::
   Go_jail :: Chest :: Chest :: Chance :: []
 let create_chance_list () =
-  [("boo", -50) ; ("shoo",30)]
+  [("boo", -50,0,2) ; ("shoo",30,-10,0)]
 
 let create_community_chest_list () =
-  [("foo", 100) ; ("dog",-300)]
+  [("foo", 100,0,4) ; ("dog",-300,10,0)]
 
 let property_list = create_prop_list ()
 let tile_list = create_tile_list property_list
