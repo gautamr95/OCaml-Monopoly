@@ -256,10 +256,10 @@ let draw_properties propertylst dest_pixbuf =
   draw_prop_list tilelocation propertylst 0
 
 let update_money curboard =
-  let obama_mon = Printf.sprintf "Obama: $%d\n" (get_money curboard 0) in
-  let cena_mon = Printf.sprintf "John Cena: $%d\n" (get_money curboard 1) in
-  let sanders_mon = Printf.sprintf "Sanders: $%d\n" (get_money curboard 2) in
-  let gaben_mon = Printf.sprintf "Gaben: $%d\n" (get_money curboard 3) in
+  let obama_mon = Printf.sprintf "Player 0 - Obama: $%d\n" (get_money curboard 0) in
+  let cena_mon = Printf.sprintf "Player 1 - John Cena: $%d\n" (get_money curboard 1) in
+  let sanders_mon = Printf.sprintf "Player 2 - Sanders: $%d\n" (get_money curboard 2) in
+  let gaben_mon = Printf.sprintf "Player 3 - Gaben: $%d\n" (get_money curboard 3) in
   (obama_mon ^ cena_mon ^ sanders_mon ^ gaben_mon)
 
 let update_info_area curboard =
