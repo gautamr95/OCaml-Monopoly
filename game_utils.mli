@@ -1,6 +1,6 @@
 type board
-type community_chest = string * int * int * int
-type chance = string * int * int * int
+type community_chest = string * int * int
+type chance = string * int * int
 type player
 type property
 type property_container
