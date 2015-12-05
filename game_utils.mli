@@ -1,11 +1,44 @@
-type board
+type color = Brown|Grey|Pink|Orange|Red|Yellow|Green|Blue (*to do*)
+type property = { position: int;
+                  color: color;
+                  cost: int;
+                  holder: int option ref;
+                  rent: int;
+                  name: string;
+                  houses: int ref
+                }
+
+type property_container = { brown: property list ref;
+                           grey: property list ref;
+                           pink: property list ref;
+                           orange: property list ref;
+                           red: property list ref;
+                           yellow: property list ref;
+                           green: property list ref;
+                           blue: property list ref;
+                         }
+type player = { id: int;
+               position: int ref;
+               properties: property_container;
+               is_AI: bool;
+               in_jail: bool ref;
+               bankrupt:bool ref;
+               money: int ref
+             }
+
 type community_chest = string * int * int
+
 type chance = string * int * int
-type player
-type property
-type property_container
+
 type tile = Prop of property | Chance | Chest |Jail of int | Go | Go_jail
-type color = Brown|Grey|Pink|Orange|Red|Yellow|Green|Blue
+
+type board = { player_list: player list;
+               community_chest_list: community_chest list;
+               chance_list: chance list;
+               property_list: property list;
+               tile_list : tile list;
+             }
+
 (*get list of players*)
 val get_player_list : board -> player list
 
