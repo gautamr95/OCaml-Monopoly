@@ -69,6 +69,9 @@ let get_property_from_name b p_name =
 let get_tile b pos =
   List.nth b.tile_list pos
 
+let get_player_id pl =
+  pl.id
+
 let get_property b pos =
   match get_tile b pos with
   |Prop x-> Some x

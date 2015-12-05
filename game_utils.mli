@@ -13,6 +13,9 @@ val get_player_list : board -> player list
 int is always less than or equal to number of players*)
 val get_player : board -> int -> player
 
+(*take in player and return player id*)
+val get_player_id : player -> int
+
 (*get property from name of it, none if it doesnt exist*)
 val get_property_from_name : board -> string -> property option
 
