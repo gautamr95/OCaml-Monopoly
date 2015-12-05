@@ -53,9 +53,10 @@ let trade_a_prop b pl =
       | None -> prop_to_req t
       | Some player ->
           let cost = get_prop_price h in
+          let num_houses = get_houses h in
           let offer = int_of_float (0.75 *. (float_of_int cost)) in
           let can_afford = (get_money b pl) > offer in
-          let will_trade = if can_afford then (trade_offer [get_prop_name h] [] 0 offer pl player)
+          let will_trade = if (can_afford && num_houses = 0) then (trade_offer [get_prop_name h] [] 0 offer pl player)
           else false in
           if will_trade then(
             let _ = move_property b player (Some pl) h in
