@@ -182,7 +182,7 @@ let ai_decision (b : board) ( pl : int ) : unit =
           change_others_money b pl tm
       | Jail _ -> ()
       | Go -> ()
-      | Go_jail  -> move_to_jail b pl)); inner_repl ()
+      | Go_jail  -> move_to_jail b pl); inner_repl ())
     else (
       if (upgrade_a_prop b pl && !upgraded < 2) then (upgraded := !upgraded + 1;
               inner_repl ())
