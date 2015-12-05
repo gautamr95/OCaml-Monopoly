@@ -35,8 +35,7 @@ let property_list = create_prop_list ()
 let tile_list = create_tile_list property_list
 let chance_list = create_community_chest_list()
 let community_chest_list =  create_chance_list()
-(*      end             *)
-
+(*      end         *)
 
 (* Give introductory message, need to press enter to continue *)
 let _ = (Printf.printf "\n\n\nWelcome to OCaml Monopoly! This game has been developed by
@@ -48,7 +47,7 @@ let _ = Pervasives.read_line ()
 a boolean based on the user input.
   Input - Unit
   Output - bool of whether or not the input was valid *)
-let is_correct () : bool =
+let is_correct (  ) : bool =
   Printf.printf "Is this value correct? (y/n) -> ";
   (* Checks for any input errors *)
   let correct = try Some (Pervasives.read_line ()) with
@@ -57,7 +56,7 @@ let is_correct () : bool =
   let correction = match correct with
   | None -> false
   | Some a ->
-    if a = "y" then true else false in
+    if a = "y" || a = "Y" then true else false in
   correction
 
 (* Gets total players through user input
@@ -66,13 +65,13 @@ let is_correct () : bool =
 let rec get_players () : int =
 
   let rec get_players_prompt () =
-    Printf.printf "\nPlease enter the number of human players -> ";
+    Printf.printf "\nPlease enter the number of human players (1-4) -> ";
     try (int_of_string (Pervasives.read_line ())) with
     | Failure s -> get_players_prompt () in
 
   let num_players = get_players_prompt () in
 
-  let correct = is_correct () in if correct then num_players else get_players ()
+  if 1 <= num_players && num_players <= 4 && (is_correct ()) then num_players else get_players ()
 
 let num_players = get_players ()
 
