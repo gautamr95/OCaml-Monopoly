@@ -253,7 +253,6 @@ let rec game_loop () =
         Property - Displays what properties you own
         Position - Displays your numeric position on the board
         Trade - Initiates a trade, if possible
-        Upgrade - Upgrades a property with additional houses, if possible
         House - Options for buying houses for a property
         Done - End turn" in
 
