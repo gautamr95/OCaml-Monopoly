@@ -107,7 +107,7 @@ let change_money b pl_id amt =
 
 let move_player b pl_id i =
   let pl = get_player b pl_id in
-  let new_pos = ((!(pl.position) + i) mod ((List.length b.tile_list) - 1)) in
+  let new_pos = ((!(pl.position) + i) mod ((List.length b.tile_list))) in
   if new_pos < !(pl.position) then
     change_money b pl_id 200
   else ();
@@ -224,7 +224,7 @@ let leave_jail b pl_id =
 
 let print_prop_of_color p_list =
   let list_length = List.length p_list in
-  if list_length = 0 then " None\n"
+  if list_length = 0 then " None"
   else
     List.fold_left (fun x y -> x^(Printf.sprintf " %s(Houses:%i) " y.name !(y.houses)))
                    "" p_list
@@ -232,14 +232,14 @@ let print_prop_of_color p_list =
 let print_players_properties b pl_id =
   let props = get_player_property b pl_id in
   "\n---------------------------\n"^
-  print_prop_of_color !(props.brown)^
-  print_prop_of_color !(props.grey)^
-  print_prop_of_color !(props.pink)^
-  print_prop_of_color !(props.orange)^
-  print_prop_of_color !(props.red)^
-  print_prop_of_color !(props.yellow)^
-  print_prop_of_color !(props.green)^
-  print_prop_of_color !(props.blue)^
+  "Brown:" ^ print_prop_of_color !(props.brown)^ "\n" ^
+  "Grey:" ^ print_prop_of_color !(props.grey)^"\n" ^
+  "Pink:" ^ print_prop_of_color !(props.pink)^"\n" ^
+  "Orange:" ^ print_prop_of_color !(props.orange)^"\n" ^
+  "Red:" ^ print_prop_of_color !(props.red)^"\n" ^
+  "Yellow:" ^ print_prop_of_color !(props.yellow)^"\n" ^
+  "Green:" ^ print_prop_of_color !(props.green)^"\n" ^
+  "Blue:" ^ print_prop_of_color !(props.blue)^"\n" ^
   "---------------------------\n"
 
 
@@ -278,7 +278,7 @@ let create_board ai_lst community_chest_list
   {player_list;community_chest_list;chance_list;property_list;tile_list}
 
 (* Returns a number between 1 and 12 inclusive, simulating two dice rolled. *)
-let roll_dice () : (int * int) = (1 + Random.int 6, 1 + Random.int 6 )
+let roll_dice () : (int * int) = (6 ,7 )
 
 let move_to_position b pl_id pos =
   let pl = get_player b pl_id in

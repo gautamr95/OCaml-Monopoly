@@ -61,14 +61,14 @@ TEST_MODULE "board test" = struct
 
   TEST "move pl 2" = move_player board 2 3; get_pl_position board 2 = 3
 
-  TEST "collect 200" = move_player board 2 7; (get_pl_position board 2 = 0) &&
+  TEST "collect 200" = move_player board 2 8; (get_pl_position board 2 = 0) &&
                                               (get_money board 2 = 1700)
 
   TEST "lose all money" = change_money board 1 (-1500); get_money board 1 = 0
 
   TEST "is_bankrupt" = (is_bankrupt board 1) && not(is_bankrupt board 2)
 
-  TEST "move pl 3" = move_player board 3 4; move_player board 3 7;
+  TEST "move pl 3" = move_player board 3 4; move_player board 3 8;
                      (get_money board 3 = 1700) && (get_pl_position board 3 = 1)
 
   TEST "get empty list from container" =
