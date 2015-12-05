@@ -13,6 +13,10 @@ val get_player_list : board -> player list
 int is always less than or equal to number of players*)
 val get_player : board -> int -> player
 
+val get_round : board -> int
+
+val incr_round : board -> unit
+
 (*take in player and return player id*)
 val get_player_id : player -> int
 
