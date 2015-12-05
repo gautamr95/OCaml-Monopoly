@@ -78,7 +78,7 @@ let get_pl_position b pl_id =
   let pl = get_player b pl_id in
   !(pl.position)
 
-let get_prop_position prop =
+let get_prop_position (prop:property) =
   prop.position
 
 let get_chest b =
