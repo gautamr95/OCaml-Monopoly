@@ -236,9 +236,10 @@ let rec game_loop () =
         else
           let rent_amt = get_rent prop in
 
-          let int_pow a b = int_of_float ((float_of_int a) ** (float_of_int b)) in
+          let rent_multiplier = match num_houses with
+          | 1 -> 5 | 2 -> 15 | 3 -> 45 | 4 -> 60 | _ -> 1 in
 
-          let pay_amt = rent_amt * (int_pow 2 num_houses) in
+          let pay_amt = rent_amt * rent_multiplier in
           ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou have landed on player %d's property, and will pay a rent of %d.\n---------------------------\n" p_id pay_amt));
           change_money game_board curr_player_id (-1 * pay_amt);
           change_money game_board p_id (pay_amt))) in
@@ -307,9 +308,12 @@ let rec determine_winner id =
   let tot_value = held_money + total_property_value in
   let _ = if (tot_value > !winner_value) then
     (winner_id := id; winner_value := tot_value)
-  else () in
-  determine_winner (id+1) in
+  else () in determine_winner (id+1) in
+
 let _ = determine_winner 0 in
+
+Gui.print_to_cmd (Printf.sprintf "\nCongratulations player %d! You have won the game with a total evaluation value of %d!\n" !winner_id !winner_value)
+
 let _ = Gui.print_to_cmd "\n\nThe game is finished! Thanks for playing!\n\n" in ()
 
 (* Done with game script. *)
