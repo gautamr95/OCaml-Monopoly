@@ -1,6 +1,7 @@
 open Str
 open Game_utils
 open AI_functions
+open Board_gen
 
 (* Game constants *)
 let total_players = 4
@@ -10,26 +11,6 @@ let house_cost = 50
 
 (* To create random seed. *)
 let _ = Random.self_init ()
-
-(* TODO Modify LATER *)
-let create_prop_list () =
-    (create_property 1 Brown 300 20 "baltic") ::
-    (create_property 3 Brown 300 20 "blah") ::
-    (create_property 4 Brown 300 20 "boom") ::
-    (create_property 5 Green 300 20 "park") ::
-    (create_property 7 Green 300 20 "atlantic") ::
-    (create_property 8 Green 300 20 "pacific") :: []
-
-let create_tile_list prop_lst =
-  Go :: Prop(List.nth prop_lst 0) :: Chance :: Prop(List.nth prop_lst 1) ::
-  Prop(List.nth prop_lst 2) :: Prop(List.nth prop_lst 3) :: Chest
-  :: Prop(List.nth prop_lst 4) :: Prop(List.nth prop_lst 5) :: Jail(9) ::
-  Go_jail :: Chest :: Chest :: Chance :: []
-let create_chance_list () =
-  [("boo", -50,0) ; ("shoo",30,-10)]
-
-let create_community_chest_list () =
-  [("foo", 100,0) ; ("dog",-300,10)]
 
 let property_list = create_prop_list ()
 let tile_list = create_tile_list property_list
