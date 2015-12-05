@@ -224,8 +224,9 @@ let print_prop_of_color p_list =
   if list_length = 0 then print_string " None\n"
   else
     for x = 0 to (list_length - 1) do
-      if x = list_length - 1 then (Printf.printf " %s\n" (List.nth p_list x).name) else
-      Printf.printf " %s," (List.nth p_list x).name
+      let i = (List.nth p_list x) in
+      if x = list_length - 1 then (Printf.printf " %s(%i)\n" i.name !(i.houses)) else
+      Printf.printf " %s(%i)," i.name !(i.houses)
     done
 
 let print_players_properties b pl_id =
@@ -282,6 +283,10 @@ let roll_dice () : (int * int) = (1 + Random.int 6, 1 + Random.int 6 )
 let move_to_position b pl_id pos =
   let pl = get_player b pl_id in
   pl.position := pos
+
+let change_others_money b pl_id amt =
+  let pl_list = List.filter (fun x -> x <> pl_id) [0;1;2;3] in
+  List.fold_left (fun _ x -> change_money b x amt) () pl_list
 
 (*let create_prop_list () =
   (create_property 1 Brown 300 20 "baltic") ::

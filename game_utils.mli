@@ -141,3 +141,6 @@ val get_pl_prop_from_color : board -> int -> color -> property list ref
 
 (*takes in board player id and position to go to and moves player there*)
 val move_to_position : board -> int -> int -> unit
+
+(*changes money of every other player except for the player of pl_id*)
+val change_others_money : board -> int -> int -> unit
