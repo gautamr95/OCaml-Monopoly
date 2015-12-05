@@ -15,14 +15,14 @@ let run_game_main () =
 (* Mutex based function *)
 
 let wait_lock = ref (Mutex.create ()) in
-let cmd_input_str = ref "fuck" in
+let cmd_input_str = ref "" in
 
 let get_input () : string=
   Mutex.unlock (!wait_lock);
-  let input = Gtktest.readline wait_lock cmd_input_str in
+  Gui.readline wait_lock cmd_input_str;
   Mutex.lock (!wait_lock);
   Mutex.unlock (!wait_lock);
-  input in
+  !cmd_input_str in
 
 (* To create random seed. *)
 let _ = Random.self_init () in
@@ -57,7 +57,7 @@ let community_chest_list =  create_chance_list() in
 let _ = (Gui.print_to_cmd "\n\n\nWelcome to OCaml Monopoly! This game has been developed by
   \nSacheth Hegde\nGautam Ramaswamy\nGaurab Bhattacharya\nTian Yao\n\nPlease press enter to start: ") in
 
-let _ = Pervasives.read_line () in
+let _ = get_input () in
 
 (* Function that asks for correct values (confirmation), and returns
 a boolean based on the user input.
@@ -66,7 +66,7 @@ a boolean based on the user input.
 let is_correct (  ) : bool =
   Gui.print_to_cmd "Is this value correct? (y/n) -> ";
   (* Checks for any input errors *)
-  let correct = try Some (Pervasives.read_line ()) with
+  let correct = try Some (get_input ()) with
     | Failure s -> None in
 
   let correction = match correct with
@@ -82,7 +82,7 @@ let rec get_players () : int =
 
   let rec get_players_prompt () =
     Gui.print_to_cmd "\nPlease enter the number of human players (1-4) -> ";
-    try (int_of_string (Pervasives.read_line ())) with
+    try (int_of_string (get_input ())) with
     | Failure s -> get_players_prompt () in
 
   let num_players = get_players_prompt () in
@@ -120,8 +120,8 @@ let property_prompt p_id p_position  =
   | Some prop ->
     (let prop_name = get_prop_name prop in
     let prop_price = get_prop_price prop in
-    (Gui.print_to_cmd "\nWould you like to purchase %s, for a cost of %d? (y/n) -> " prop_name prop_price);
-    let answer = Pervasives.read_line () in
+    (Gui.print_to_cmd (Printf.sprintf "\nWould you like to purchase %s, for a cost of %d? (y/n) -> " prop_name prop_price));
+    let answer = get_input () in
     match String.lowercase (answer) with
     | "y" ->
       (let tot_money = get_money game_board p_id in
@@ -129,7 +129,7 @@ let property_prompt p_id p_position  =
         ((Gui.print_to_cmd "\nError. You do not have enough money for this transaction.");
         false)
       else
-        let _ = (Gui.print_to_cmd "\nYou have bought the property, %s!\n" prop_name) in
+        let _ = (Gui.print_to_cmd (Printf.sprintf "\nYou have bought the property, %s!\n" prop_name)) in
         let _ = (move_property game_board p_id None prop) in
         let _ = (change_money game_board p_id (-1 * prop_price)) in
         true)
@@ -143,11 +143,11 @@ let rec buy_house p_id =
     Upgrade - Options to buy a house
     Properties - View your properties
     Quit - Go back to the main game options");
-  let command = Pervasives.read_line () in
+  let command = get_input () in
   match String.lowercase (command) with
   | "upgrade" ->
     (Gui.print_to_cmd "\nPlease enter the name of the property you would like to buy a house for -> ");
-    let house_prop = Pervasives.read_line () in
+    let house_prop = get_input () in
     let prop_obj_option = get_property_from_name game_board house_prop in
     begin match prop_obj_option with
     | None ->
@@ -180,18 +180,18 @@ let rec game_loop () =
   else let curr_player_id = !turns - 1 in
   if others_bankrupt game_board curr_player_id then ()
   else if is_bankrupt game_board curr_player_id then
-      (Gui.print_to_cmd "\nPlayer %d, you are bankrupt, so your turn will be skipped.\n" curr_player_id)
+      (Gui.print_to_cmd (Printf.sprintf "\nPlayer %d, you are bankrupt, so your turn will be skipped.\n" curr_player_id))
   else if is_ai game_board curr_player_id then
       (ai_decision game_board curr_player_id; game_loop ())
   else
     (* REPL for the individual players and the actions they can perform. *)
     let _ = Gui.print_to_cmd "__________________________________________________________\n" in
     let _ = Gui.print_to_cmd "__________________________________________________________" in
-    let _ = (Gui.print_to_cmd "\nPlayer %d, it is your turn.\nPress enter to roll the dice -> " curr_player_id) in
-    let _ = Pervasives.read_line () in
+    let _ = (Gui.print_to_cmd (Printf.sprintf "\nPlayer %d, it is your turn.\nPress enter to roll the dice -> " curr_player_id)) in
+    let _ = get_input () in
 
     let (d1, d2) = roll_dice () in
-    (Gui.print_to_cmd "\nYou have rolled a %d and %d, with a total move of %d.\n" d1 d2 (d1+d2));
+    (Gui.print_to_cmd (Printf.sprintf "\nYou have rolled a %d and %d, with a total move of %d.\n" d1 d2 (d1+d2)));
 
     let prompt_buy_property = ref false in
     let bought_property     = ref false in
@@ -205,7 +205,7 @@ let rec game_loop () =
       if (d1=d2) then
         (Gui.print_to_cmd "\nSince you rolled a double, though, you can move out of jail at no cost!\n")
       else
-        ((Gui.print_to_cmd "\nYou did not roll a double, though, so you will lose $%d and move out of jail.\n" jail_fee);
+        ((Gui.print_to_cmd (Printf.sprintf "\nYou did not roll a double, though, so you will lose $%d and move out of jail.\n" jail_fee));
         change_money game_board curr_player_id (-1 * jail_fee)))
     else () in
 
@@ -217,13 +217,13 @@ let rec game_loop () =
     | None ->
       (if is_chance game_board player_position then
         let (message, money_change, other_money_change) = get_chance game_board in
-        ((Gui.print_to_cmd "\n---------------------------\nYou got a chance card!\n%s\n---------------------------\n" (message));
+        ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou got a chance card!\n%s\n---------------------------\n" (message)));
         change_money game_board curr_player_id money_change;
         change_others_money game_board curr_player_id other_money_change)
         (*move_to_position game_board curr_player_id move_space*)
       else if is_chest game_board player_position then
         let (message, money_change, other_money_change) = get_chest game_board in
-        ((Gui.print_to_cmd "\n---------------------------\nYou got a community chest card!\n%s\n---------------------------\n" (message));
+        ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou got a community chest card!\n%s\n---------------------------\n" (message)));
         change_money game_board curr_player_id (money_change));
         change_others_money game_board curr_player_id other_money_change
         (*move_to_position game_board curr_player_id move_space*)
@@ -246,7 +246,7 @@ let rec game_loop () =
           let int_pow a b = int_of_float ((float_of_int a) ** (float_of_int b)) in
 
           let pay_amt = rent_amt * (int_pow 2 num_houses) in
-          ((Gui.print_to_cmd "\n---------------------------\nYou have landed on player %d's property, and will pay a rent of %d.\n---------------------------\n" p_id pay_amt);
+          ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou have landed on player %d's property, and will pay a rent of %d.\n---------------------------\n" p_id pay_amt));
           change_money game_board curr_player_id (-1 * pay_amt);
           change_money game_board p_id (pay_amt))) in
 
@@ -268,16 +268,16 @@ let rec game_loop () =
       else () in
 
       Gui.print_to_cmd "\n\nCommand -> ";
-      let command = Pervasives.read_line () in
+      let command = get_input () in
 
       match String.lowercase command with
       | "money" ->
-        (Gui.print_to_cmd "\n---------------------------\nYou have $%d.\n---------------------------" (get_money game_board curr_player_id);
+        (Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou have $%d.\n---------------------------" (get_money game_board curr_player_id));
         mini_repl ())
       | "property" ->
         (print_players_properties game_board curr_player_id;
         mini_repl ())
-      | "position" -> ((Gui.print_to_cmd "\n---------------------------\nYou are currently on position %d.\n---------------------------" player_position); mini_repl ())
+      | "position" -> ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou are currently on position %d.\n---------------------------" player_position)); mini_repl ())
       (*| "trade" -> (execute_trade (); mini_repl ()) TODO *)
       | "house" -> (buy_house curr_player_id; mini_repl ())
       | "done" -> ()
@@ -313,7 +313,7 @@ let rec determine_winner id =
     (winner_id := id; winner_value := tot_value)
   else () in
   determine_winner (id+1) in
-
+let _ = determine_winner 0 in
 let _ = Gui.print_to_cmd "\n\nThe game is finished! Thanks for playing!\n\n" in ()
 
 (* Done with game script. *)
