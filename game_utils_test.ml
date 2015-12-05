@@ -15,10 +15,10 @@ TEST_MODULE "board test" = struct
     :: Prop(List.nth prop_lst 4) :: Prop(List.nth prop_lst 5) :: Jail(9) ::
     Go_jail :: []
   let create_chance_list () =
-    [("boo", -50) ; ("shoo",30)]
+    [("boo", -50,0) ; ("shoo",30,0)]
 
   let create_community_chest_list () =
-    [("foo", 100) ; ("dog",-300)]
+    [("foo", 100,0) ; ("dog",-300,0)]
 
   let property_list = create_prop_list ()
   let tile_list = create_tile_list property_list
@@ -116,7 +116,7 @@ TEST "trade property" =
       (move_property board 0 None i);
       (move_property board 2 (Some(0)) i);
       (match get_holder i with
-        | Some j -> print_string "yay!";j = 2
+        | Some j -> j = 2
         | None -> print_string "a";false) &&
        (!(get_pl_prop_of_color board 0 i) = []) &&
        (!(get_pl_prop_of_color board 2 i) = [i;q])
@@ -127,7 +127,21 @@ TEST "trade property" =
 TEST "others_bankrupt false" = not(others_bankrupt board 1)
 
 TEST "others_bankrupt true" =
-change_money board 0 (-2000);
-change_money board 3 (-2000);
-(others_bankrupt board 2)
+  change_money board 0 (-2000);
+  change_money board 3 (-2000);
+  (others_bankrupt board 2)
+
+TEST "get_property_values" = Printf.printf "%i" (get_player_property_val board 2);
+(get_player_property_val board 2) = 600
+
+TEST "get value with houses" =
+  let p = (get_property_from_name board "BalTic") in
+  match p with
+  | Some prop ->
+  (move_property board 2 None prop;
+  if (can_buy_house board 2 prop) then
+    add_house board 2 prop;add_house board 2 prop
+  else ();
+  (get_player_property_val board 2) = 950)
+  | None -> false
 end

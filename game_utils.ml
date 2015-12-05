@@ -35,9 +35,9 @@ type player = { id: int;
                money: int ref
              }
 
-type community_chest = string * int
+type community_chest = string * int * int
 
-type chance = string * int
+type chance = string * int * int
 
 type tile = Prop of property | Chance | Chest |Jail of int | Go | Go_jail
 
@@ -59,7 +59,8 @@ let get_player b pl_id =
 
 let get_property_from_name b p_name =
   let p_list = b.property_list in
-  try Some(List.find (fun x -> x.name = String.lowercase(p_name)) p_list) with
+  try Some(List.find (fun x -> (String.lowercase x.name) =
+                     String.lowercase(p_name)) p_list) with
   | Not_found -> None
 
 let get_tile b pos =
@@ -218,16 +219,39 @@ let leave_jail b pl_id =
   let pl = get_player b pl_id in
   pl.in_jail := false
 
-let print_players_properties b pl_id = raise TODO
+let print_prop_of_color p_list =
+  let list_length = List.length p_list in
+  if list_length = 0 then print_string " None\n"
+  else
+    for x = 0 to (list_length - 1) do
+      let i = (List.nth p_list x) in
+      if x = list_length - 1 then (Printf.printf " %s(%i)\n" i.name !(i.houses)) else
+      Printf.printf " %s(%i)," i.name !(i.houses)
+    done
 
-let can_buy_house b pl_id prop = raise TODO
+let print_players_properties b pl_id =
+  let props = get_player_property b pl_id in
+  print_string "---------------------------\n";
+  print_string "Brown:"; print_prop_of_color !(props.brown);
+  print_string "Grey:"; print_prop_of_color !(props.grey);
+  print_string "Pink:"; print_prop_of_color !(props.pink);
+  print_string "Orange:"; print_prop_of_color !(props.orange);
+  print_string "Red:"; print_prop_of_color !(props.red);
+  print_string "Yellow:"; print_prop_of_color !(props.yellow);
+  print_string "Green:"; print_prop_of_color !(props.green);
+  print_string "Blue:"; print_prop_of_color !(props.blue);
+  print_string "---------------------------\n";
+  ()
 
-let add_house b pl_id prop = raise TODO
-(*
-let is_property b prop_name =
-  let prop_list = b.property_list in
-  List.exists (fun x -> x.name = prop_name) prop_list
-*)
+
+let can_buy_house b pl_id prop =
+  let prop_list = !(get_pl_prop_of_color b pl_id prop) in
+  ((List.length prop_list) = 3) && (!(prop.houses) <> 4)
+
+let add_house b pl_id prop =
+  prop.houses := !(prop.houses) + 1;
+  change_money b pl_id house_cost
+
 
 let create_property position color cost rent name =
   {position;color;cost;holder=ref(None);rent;name;houses=ref(0)}
@@ -255,6 +279,14 @@ let create_board ai_lst community_chest_list
 
 (* Returns a number between 1 and 12 inclusive, simulating two dice rolled. *)
 let roll_dice () : (int * int) = (1 + Random.int 6, 1 + Random.int 6 )
+
+let move_to_position b pl_id pos =
+  let pl = get_player b pl_id in
+  pl.position := pos
+
+let change_others_money b pl_id amt =
+  let pl_list = List.filter (fun x -> x <> pl_id) [0;1;2;3] in
+  List.fold_left (fun _ x -> change_money b x amt) () pl_list
 
 (*let create_prop_list () =
   (create_property 1 Brown 300 20 "baltic") ::

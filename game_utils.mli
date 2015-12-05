@@ -1,7 +1,6 @@
-
-type community_chest = string * int
-type chance = string * int
 type board
+type community_chest = string * int * int * int
+type chance = string * int * int * int
 type player
 type property
 type property_container
@@ -135,3 +134,13 @@ val create_board : bool list -> community_chest list -> chance list ->
 
 (* Simulates a dice roll and returns a pair of random ints between 1 and 6 inclusive *)
 val roll_dice  : unit -> int * int
+
+(*takes in board player and a color and returns the property list of that player
+ with that color*)
+val get_pl_prop_from_color : board -> int -> color -> property list ref
+
+(*takes in board player id and position to go to and moves player there*)
+val move_to_position : board -> int -> int -> unit
+
+(*changes money of every other player except for the player of pl_id*)
+val change_others_money : board -> int -> int -> unit
