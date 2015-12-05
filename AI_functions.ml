@@ -101,11 +101,12 @@ let ai_decision (b : board) ( pl : int ) : unit =
   let rec inner_repl _ =
     if not !rolled then
       (let (d1,d2) = roll_dice () in
-      let _ = Printf.printf "\nPlayer %i has rolled a %i and %i, with a total move of %i.\n"
-                            pl d1 d2 (d1 + d2) in
+      let _ = Gui.print_to_cmd (Printf.sprintf "\nPlayer %i has rolled a %i and %i, with a total move of %i.\n"
+                            pl d1 d2 (d1 + d2)) in
       move_player b pl (d1+d2);
       let new_pos = get_pl_position b pl in
-      let _ = if new_pos < (!curr_pos) then Printf.printf "Player %i collected $200 for passing GO!" pl
+      let _ = if new_pos < (!curr_pos) then 
+        Gui.print_to_cmd (Printf.sprintf "Player %i collected $200 for passing GO!" pl)
               else () in
       curr_pos := new_pos;
       rolled := true;
@@ -113,13 +114,13 @@ let ai_decision (b : board) ( pl : int ) : unit =
       match tile with
       | Prop property ->
           let name = get_prop_name property in
-          let _ = Printf.printf "Player %i landed on %s.\n" pl name in
+          let _ = Gui.print_to_cmd (Printf.sprintf "Player %i landed on %s.\n" pl name) in
           (match (get_holder property) with
           | None ->
               let my_money = get_money b pl in
               let price = get_prop_price property in
               if my_money > price then
-                let _ = Printf.printf "Player %i bought %s for %i\n" pl name price in
+                let _ = Gui.print_to_cmd (Printf.sprintf "Player %i bought %s for %i\n" pl name pric)e in
                (move_property b pl None property)
               else
                 ()
@@ -132,21 +133,21 @@ let ai_decision (b : board) ( pl : int ) : unit =
               | 3 -> rent * 45
               | 4 -> rent * 60
               | _ -> rent in
-              let _ = Printf.printf "Player %i paid Player %i %i in rent for %s\n"
-                pl hl updated_rent name in
+              let _ = Gui.print_to_cmd (Printf.sprintf "Player %i paid Player %i %i in rent for %s\n"
+                pl hl updated_rent name) in
               (change_money b hl updated_rent);
               (change_money b pl (-updated_rent)))
 
       | Chance ->
           let (s,mm,tm) = get_chance b in
-          let _ = Printf.printf "Player %i landed on Chance!\n
-          %s\n" pl s in
+          let _ = Gui.print_to_cmd (Printf.sprintf "Player %i landed on Chance!\n
+          %s\n" pl s) in
           change_money b pl mm;
           change_others_money b pl tm
       | Chest ->
           let (s,mm,tm) = get_chest b in
-          let _ = Printf.printf "Player %i landed on Community Chest!\n
-          %s\n" pl s in
+          let _ = Gui.print_to_cmd (Printf.printf "Player %i landed on Community Chest!\n
+          %s\n" pl s) in
           change_money b pl mm;
           change_others_money b pl tm
       | Jail _ -> ()
