@@ -278,7 +278,7 @@ let create_board ai_lst community_chest_list
   {player_list;community_chest_list;chance_list;property_list;tile_list}
 
 (* Returns a number between 1 and 12 inclusive, simulating two dice rolled. *)
-let roll_dice () : (int * int) = (6 ,7 )
+let roll_dice () : (int * int) = (1 + Random.int 6 , 1 + Random.int 6 )
 
 let move_to_position b pl_id pos =
   let pl = get_player b pl_id in
