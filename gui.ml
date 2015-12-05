@@ -106,7 +106,7 @@ let scrollingtext = GBin.scrolled_window  ~hpolicy:`NEVER
                                       ~height:550
                                       ~packing:commandarea#add ()
 
-let board_pixbuf = GdkPixbuf.from_file "assets/monopoly.jpg"
+let board_pixbuf = GdkPixbuf.from_file "assets/monopoly_shopped.png"
 (*scaled_board_pixbuf is the static and constant board picture pixbuf*)
 (*it's used as the base image to overlay stuff onto; houses, players, etc*)
 let scaled_board_pixbuf = GdkPixbuf.create ~width:800
