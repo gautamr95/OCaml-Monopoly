@@ -8,7 +8,7 @@ open Trading
 (* Game constants *)
 let total_players = 4
 let jail_fee = 30
-let tot_rounds = 50
+let tot_rounds = 10000
 let house_cost = 50
 
 (* Embed everything in a function to be run through the GUI. *)
@@ -70,7 +70,7 @@ let rec get_players () : int =
 
   let num_players = get_players_prompt () in
 
-  if 1 <= num_players && num_players <= 4 && (is_correct ()) then num_players else get_players () in
+  if 0 <= num_players && num_players <= 4 && (is_correct ()) then num_players else get_players () in
 
 let num_players = get_players () in
 
