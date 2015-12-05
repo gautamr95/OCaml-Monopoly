@@ -145,8 +145,9 @@ let commandinput = GEdit.entry ~editable:true
 
 let print_to_cmd str =
   commanddisplay#buffer#insert ~iter:commanddisplay#buffer#end_iter str;
-  scrollingtext#vadjustment#set_value
-    (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size)
+  (*scrollingtext#vadjustment#set_value
+      (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size)*)
+  commanddisplay#scroll_to_iter (commanddisplay#buffer#end_iter)
 
 (*Helper variables and functions for readline, which is a blocking function*)
 let waiting = ref (ref (Mutex.create ()))
@@ -259,8 +260,7 @@ let draw_properties propertylst dest_pixbuf =
         (*Check if the current property is owned by anyone*)
         (match get_holder p_hd with
         | None -> draw_prop_list l_tl p_tl (tile_num + 1)
-        | Some pid -> print_to_cmd (Printf.sprintf "%d\n" tile_num);
-          drawhelper l_hd pid (get_houses p_hd);
+        | Some pid -> drawhelper l_hd pid (get_houses p_hd);
           draw_prop_list l_tl p_tl (tile_num + 1))
     | _ -> () in
   draw_prop_list tilelocation propertylst 0
