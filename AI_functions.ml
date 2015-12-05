@@ -1,4 +1,5 @@
 open Game_utils
+open Trading
  
 let upgrade_a_prop b pl =
   let brown_prop = !(get_pl_prop_from_color b pl Brown) in
@@ -34,9 +35,37 @@ let upgrade_a_prop b pl =
     (house_to_buy blue_prop; true)
   else false
 
+let trade_a_prop b pl = 
+  let brown_prop = !(get_pl_prop_from_color b pl Brown) in
+  let grey_prop = !(get_pl_prop_from_color b pl Grey) in
+  let pink_prop = !(get_pl_prop_from_color b pl Pink) in
+  let orange_prop = !(get_pl_prop_from_color b pl Orange) in
+  let red_prop = !(get_pl_prop_from_color b pl Red) in
+  let yellow_prop = !(get_pl_prop_from_color b pl Yellow) in
+  let green_prop = !(get_pl_prop_from_color b pl Green) in
+  let blue_prop = !(get_pl_prop_from_color b pl Blue) in
+  let want_to_trade lst = List.length lst = 2 in
+  let rec prop_to_req plst  =
+    match plst with
+    | [] -> ()
+    | h::t ->(
+      match get_holder h with
+      | None -> ()
+      | Some player -> 
+          let cost = get_prop_price h in 
+          let offer = int_of_float (0.75 *. (float_of_int cost)) in
+          let can_afford = (get_money b pl) > offer in
+          let will_trade = if can_afford then trade_offer [h] [] 0 pl player
+          else false in
+          if will_trade then(
+            make_trade [h] [] 0 pl player;)
+          else (Printf.printf "Trade denied \n"); false)
+          
 
 let ai_decision (b : board) ( pl : int ) : unit =
   let rolled = ref false in
+  let upgraded = ref 0 in
+  let traded = ref false in
   let curr_pos = ref (get_pl_position b pl) in
   let rec inner_repl _ = 
     if not !rolled then
@@ -44,7 +73,10 @@ let ai_decision (b : board) ( pl : int ) : unit =
       let _ = Printf.printf "\nPlayer %i has rolled a %i and %i, with a total move of %i.\n" 
                             pl d1 d2 (d1 + d2) in
       move_player b pl (d1+d2);
-      curr_pos := get_pl_position b pl;
+      let new_pos = get_pl_position b pl in
+      let _ = if new_pos < curr_pos then Printf.printf "Player %i collected $200 for passing GO!" pl
+              else () in 
+      curr_pos := new_pos;
       rolled := true;
       let tile = (get_tile b (!curr_pos)) in
       match tile with
@@ -62,6 +94,7 @@ let ai_decision (b : board) ( pl : int ) : unit =
                 ()
           | Some hl ->  
               let rent = get_rent property in
+              let num_houses = TODO
               let _ = Printf.printf "Player %i paid Player %i %i in rent for %s\n"
                 pl hl rent name in
               (change_money b hl rent);
@@ -82,7 +115,13 @@ let ai_decision (b : board) ( pl : int ) : unit =
       | Jail _ -> ()
       | Go -> ()
       | Go_jail  -> move_to_jail b pl)
-    else () in
+    else (
+      if (upgrade_a_prop b pl && !upgraded < 2) then (upgraded := !upgraded + 1;
+              inner_repl ())
+      else if (not (!traded)) then 
+        (if trade_a_prop b pl then (traded:= true; inner_repl ())
+        else (traded:=true; inner_repl ()))
+      else ()) in
   inner_repl ()
 
         (*Search through own props for if own two, if do then 
