@@ -171,7 +171,6 @@ let move_property b pl_id pl_id2 prop =
   | Some x -> let pl2_props = get_pl_prop_of_color b x prop in
     pl2_props := List.filter (fun x -> x <> prop) !(pl2_props)
 
-
 let get_prop_price p = p.cost
 
 let get_prop_name p = p.name
@@ -220,7 +219,8 @@ let get_houses prop =
 
 let move_to_jail b pl_id =
   let pl = get_player b pl_id in
-  let jail = List.find (fun x -> match x with | Jail _ -> true |_ -> false) b.tile_list in
+  let jail =
+    List.find (fun x -> match x with |Jail _ -> true |_ -> false) b.tile_list in
   match jail with
   | Jail i -> pl.position := i; pl.in_jail := true
   | _ -> ()
@@ -233,7 +233,8 @@ let print_prop_of_color p_list =
   let list_length = List.length p_list in
   if list_length = 0 then " None"
   else
-    List.fold_left (fun x y -> x^(Printf.sprintf " %s(Houses:%i) " y.name !(y.houses)))
+    List.fold_left
+      (fun x y -> x^(Printf.sprintf " %s(Houses:%i) " y.name !(y.houses)))
                    "" p_list
 
 let print_players_properties b pl_id =
@@ -270,7 +271,8 @@ let create_prop_cont () : property_container =
 
 let create_player id ai =
   {id; position = ref(0); properties = create_prop_cont(); is_AI = ai;
-   in_jail = ref(false); bankrupt = ref(false); money = ref(1500); is_done = ref false}
+   in_jail = ref(false); bankrupt = ref(false); money = ref(1500);
+   is_done = ref false}
 
 let create_player_list ai_lst =
   let id_ref = ref(-1) in
@@ -279,7 +281,8 @@ let create_player_list ai_lst =
 let create_board ai_lst community_chest_list
                  chance_list property_list tile_list =
   let player_list = create_player_list ai_lst in
-  {player_list;community_chest_list;chance_list;property_list;tile_list;round = ref(1)}
+  {player_list;community_chest_list;chance_list;property_list;
+  tile_list;round = ref(1)}
 
 (* Returns a number between 1 and 12 inclusive, simulating two dice rolled. *)
 let roll_dice () : (int * int) = (1 + Random.int 6 , 1 + Random.int 6 )
