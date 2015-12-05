@@ -35,9 +35,9 @@ type player = { id: int;
                money: int ref
              }
 
-type community_chest = string * int * int * int
+type community_chest = string * int * int
 
-type chance = string * int * int * int
+type chance = string * int * int
 
 type tile = Prop of property | Chance | Chest |Jail of int | Go | Go_jail
 
