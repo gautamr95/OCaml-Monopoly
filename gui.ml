@@ -8,16 +8,6 @@ open Game_utils
 
 exception Gui_error of string;;
 
-(*type property = { position: int;
-                }
-type player = { id: int;
-               position: int ref;
-             }
-
-type board = { player_list: player list;
-               property_list: property list;
-             }*)
-
 let locale = GtkMain.Main.init ()
 
 let tilelocation = [(720,720);
@@ -60,14 +50,6 @@ let tilelocation = [(720,720);
                     (720,500);
                     (720,565);
                     (720,630);]
-
-(*let board_state = {
-  player_list = [{id = 0; position = ref 5};{id = 1; position = ref 6};{id = 2; position = ref 7}];
-  property_list = [{position = 8};{position = 8};{position = 8};{position = 8};
-                {position = 13};{position = 13};{position = 13};{position = 13};
-                {position = 26};{position = 26};{position = 26};{position = 26};
-                {position = 37};{position = 37};{position = 37};{position = 37}];
-}*)
 
 (*--------------------------BEGINNING GUI FUNCTIONS---------------------------*)
 
@@ -155,7 +137,7 @@ let commandinput = GEdit.entry ~editable:true
 let print_to_cmd str =
   commanddisplay#buffer#insert ~iter:commanddisplay#buffer#end_iter str;
   scrollingtext#vadjustment#set_value
-        (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size +. 100.)
+        (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size +. 500.)
 
 (*Helper variables and functions for readline, which is a blocking function*)
 let waiting = ref (ref (Mutex.create ()))
@@ -282,8 +264,9 @@ let update_money curboard =
 
 let update_info_area curboard =
   let round_info = Printf.sprintf "Round: %d\n" (get_round curboard) in
+  let turn_info = Printf.sprintf "It is Player %d's turn.\n" (get_turn curboard) in
   let money_info = update_money curboard in
-  infodisplay#set_text (round_info ^ money_info)
+  infodisplay#set_text (round_info ^ turn_info ^ money_info)
 
 (*Callback function for updating the board pixbuf and drawing it in the GUI*)
 let updateboard curboard =
@@ -304,10 +287,11 @@ let updateboard curboard =
 
 let main () =
   (*In main function, we connect the callback functions and finish setting up*)
-  let _ = window#connect#destroy ~callback:Main.quit in
+  let _ = window#connect#destroy ~callback: (fun () -> Pervasives.exit 0) in
 
   (* Game menu set up*)
-  let _ = factory#add_item "Quit" ~key:_Q ~callback: Main.quit in
+  let _ = factory#add_item "Quit" ~key:_Q
+                                  ~callback: (fun () -> Pervasives.exit 0) in
   let _ = factory#add_item "Restart" ~key:_R ~callback: Main.quit in
 
   (*Create and scale the board image*)
