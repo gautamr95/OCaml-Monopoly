@@ -79,7 +79,7 @@ let trade_prompt b pl : unit=
             let _ = change_money b pl (-offer) in
             let _ = change_money b trade_player (offer) in
             let _ = change_money b pl (money) in
-            let _ = change_money b pl (-money) in
+            let _ = change_money b trade_player (-money) in
             print_string "Trade accepted!"
           else
             print_string "Trade denied!"
