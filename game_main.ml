@@ -1,6 +1,7 @@
 open Str
 open Game_utils
 open AI_functions
+open Board_gen
 open Async.Std
 
 (* Game constants *)
@@ -27,30 +28,11 @@ let get_input () : string=
 (* To create random seed. *)
 let _ = Random.self_init () in
 
-(* TODO Modify LATER *)
-let create_prop_list () =
-    (create_property 1 Brown 300 20 "baltic") ::
-    (create_property 3 Brown 300 20 "blah") ::
-    (create_property 4 Brown 300 20 "boom") ::
-    (create_property 5 Green 300 20 "park") ::
-    (create_property 7 Green 300 20 "atlantic") ::
-    (create_property 8 Green 300 20 "pacific") :: [] in
-
-let create_tile_list prop_lst =
-  Go :: Prop(List.nth prop_lst 0) :: Chance :: Prop(List.nth prop_lst 1) ::
-  Prop(List.nth prop_lst 2) :: Prop(List.nth prop_lst 3) :: Chest
-  :: Prop(List.nth prop_lst 4) :: Prop(List.nth prop_lst 5) :: Jail(9) ::
-  Go_jail :: Chest :: Chest :: Chance :: [] in
-let create_chance_list () =
-  [("boo", -50,0) ; ("shoo",30,-10)] in
-
-let create_community_chest_list () =
-  [("foo", 100,0) ; ("dog",-300,10)] in
-
 let property_list = create_prop_list () in
 let tile_list = create_tile_list property_list in
 let chance_list = create_community_chest_list() in
 let community_chest_list =  create_chance_list() in
+
 (*      end         *)
 
 (* Give introductory message, need to press enter to continue *)
