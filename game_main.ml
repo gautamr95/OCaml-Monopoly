@@ -101,6 +101,7 @@ let is_ai_list = make_ai_list [] num_players 1 in
 
 let game_board = create_board is_ai_list community_chest_list chance_list
                           property_list tile_list in
+Gui.updateboard game_board;
 
 (* total turns (for each round)*)
 let rounds = ref 0 in
@@ -174,6 +175,7 @@ let rec buy_house p_id =
 (* Loop through game states, and update game state. This loop is taken for
 each player that plays the game. *)
 let rec game_loop () =
+  Gui.updateboard game_board;
   turns := !turns + 1;
   let _ = if !turns > 4 then (turns := 1; rounds := !rounds + 1) else () in
   if !rounds >= tot_rounds then ()
@@ -197,6 +199,8 @@ let rec game_loop () =
     let bought_property     = ref false in
 
     move_player game_board curr_player_id (d1+d2);
+
+    Gui.updateboard game_board;
 
     let _ =
     if in_jail game_board curr_player_id then
@@ -250,7 +254,10 @@ let rec game_loop () =
           change_money game_board curr_player_id (-1 * pay_amt);
           change_money game_board p_id (pay_amt))) in
 
+    Gui.updateboard game_board;
+
     let rec mini_repl () =
+      Gui.updateboard game_board;
 
       (* First print the relevant options. *)
       let _ = Gui.print_to_cmd "\nYou have the following options:\n
@@ -270,7 +277,7 @@ let rec game_loop () =
       Gui.print_to_cmd "\n\nCommand -> ";
       let command = get_input () in
 
-      match String.lowercase command with
+      let _ = match String.lowercase command with
       | "money" ->
         (Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou have $%d.\n---------------------------" (get_money game_board curr_player_id));
         mini_repl ())
@@ -279,7 +286,7 @@ let rec game_loop () =
         mini_repl ())
       | "position" -> ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou are currently on position %d.\n---------------------------" player_position)); mini_repl ())
       (*| "trade" -> (execute_trade (); mini_repl ()) TODO *)
-      | "house" -> (buy_house curr_player_id; mini_repl ())
+      | "house" -> (buy_house curr_player_id; mini_repl ()); Gui.updateboard game_board
       | "done" -> ()
       | "buy" -> (* Buying a new property. *)
         if not !prompt_buy_property then ((Gui.print_to_cmd "\n---------------------------\nInvalid command.\n---------------------------\n"); mini_repl ())
@@ -288,6 +295,7 @@ let rec game_loop () =
           let _ = if transaction then (prompt_buy_property := false; bought_property := true) else () in
           mini_repl ()
       | _ -> ((Gui.print_to_cmd "\n---------------------------\nInvalid command.\n---------------------------"); mini_repl ()) in
+      Gui.updateboard game_board in
 
     let _ = (mini_repl ()) in
   game_loop () in

@@ -244,7 +244,6 @@ let waiting = ref (ref (Mutex.create ()))
 let input_str = ref (ref "")
 
 let readline waiting_ref string_ref =
-  print_to_cmd "gui locking\n";
   Mutex.lock (!waiting_ref);
   waiting := waiting_ref;
   input_str := string_ref
