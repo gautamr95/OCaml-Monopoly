@@ -38,35 +38,35 @@ let create_tile_list prop_lst =
   Prop(List.nth prop_lst 4) ::
   Prop(List.nth prop_lst 5) ::
   Jail(10) ::
-  Prop(List.nth prop_lst 5) ::
+  Prop(List.nth prop_lst 6) ::
   Chance ::
-  Prop(List.nth prop_lst 5) ::
-  Prop(List.nth prop_lst 5) ::
+  Prop(List.nth prop_lst 7) ::
+  Prop(List.nth prop_lst 8) ::
   Chest ::
-  Prop(List.nth prop_lst 5) ::
+  Prop(List.nth prop_lst 9) ::
   Chest ::
-  Prop(List.nth prop_lst 5) ::
-  Prop(List.nth prop_lst 5) ::
+  Prop(List.nth prop_lst 10) ::
+  Prop(List.nth prop_lst 11) ::
   Go_jail ::
-  Prop(List.nth prop_lst 5) ::
+  Prop(List.nth prop_lst 12) ::
   Chance ::
-  Prop(List.nth prop_lst 5) ::
-  Prop(List.nth prop_lst 5) ::
+  Prop(List.nth prop_lst 13) ::
+  Prop(List.nth prop_lst 14) ::
   Chance ::
-  Prop(List.nth prop_lst 5) ::
-  Prop(List.nth prop_lst 5) ::
+  Prop(List.nth prop_lst 15) ::
+  Prop(List.nth prop_lst 16) ::
   Chest ::
-  Prop(List.nth prop_lst 5) ::
+  Prop(List.nth prop_lst 17) ::
   Go_jail ::
-  Prop(List.nth prop_lst 5) ::
-  Prop(List.nth prop_lst 5) ::
+  Prop(List.nth prop_lst 18) ::
+  Prop(List.nth prop_lst 19) ::
   Chest ::
-  Prop(List.nth prop_lst 5) ::
+  Prop(List.nth prop_lst 20) ::
   Chest ::
   Chance ::
-  Prop(List.nth prop_lst 5) ::
-  Prop(List.nth prop_lst 5) ::
-  Prop(List.nth prop_lst 5) ::
+  Prop(List.nth prop_lst 21) ::
+  Prop(List.nth prop_lst 22) ::
+  Prop(List.nth prop_lst 23) ::
   []
 let create_chance_list () =
   [("boo", -50,0) ; ("shoo",30,-10)]
