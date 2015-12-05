@@ -1,8 +1,39 @@
 open Game_utils
  
-(*let upgrade_prop_dec b pl =
-  let my_props = get_player_property b pl in
-  let color = *)
+let upgrade_a_prop b pl =
+  let brown_prop = !(get_pl_prop_from_color b pl Brown) in
+  let grey_prop = !(get_pl_prop_from_color b pl Grey) in
+  let pink_prop = !(get_pl_prop_from_color b pl Pink) in
+  let orange_prop = !(get_pl_prop_from_color b pl Orange) in
+  let red_prop = !(get_pl_prop_from_color b pl Red) in
+  let yellow_prop = !(get_pl_prop_from_color b pl Yellow) in
+  let green_prop = !(get_pl_prop_from_color b pl Green) in
+  let blue_prop = !(get_pl_prop_from_color b pl Blue) in
+  let len = List.length in
+  let can_buy_houses = List.fold_left (fun a x -> a || can_buy_house b pl x) false in
+  let rec house_to_buy plst =
+    match plst with 
+    | [] -> ()
+    | h::t -> 
+        if (can_buy_house b pl h) then add_house b pl h
+        else house_to_buy t in
+  if (can_buy_houses brown_prop) then 
+   (house_to_buy brown_prop; true)
+  else if (can_buy_houses grey_prop) then
+    (house_to_buy brown_prop; true)
+  else if (can_buy_houses pink_prop) then 
+    (house_to_buy pink_prop; true)
+  else if (can_buy_houses orange_prop) then
+    (house_to_buy orange_prop; true)
+  else if (can_buy_houses red_prop) then
+    (house_to_buy red_prop; true)
+  else if (can_buy_houses yellow_prop) then
+    (house_to_buy yellow_prop; true)
+  else if (can_buy_houses green_prop) then
+    (house_to_buy green_prop; true)
+  else if (can_buy_houses blue_prop ) then
+    (house_to_buy blue_prop; true)
+  else false
 
 
 let ai_decision (b : board) ( pl : int ) : unit =
@@ -38,12 +69,12 @@ let ai_decision (b : board) ( pl : int ) : unit =
               (change_money b pl (-rent)))
 
       | Chance -> 
-          let (s,i) = get_chance b in
+          let (s,mm,tm) = get_chance b in
           let _ = Printf.printf "Player %i landed on Chance!\n
           %s\n" pl s in
           change_money b pl i
       | Chest -> 
-          let (s,i) = get_chest b in 
+          let (s,mm,tm) = get_chest b in 
           let _ = Printf.printf "Player %i landed on Community Chest!\n
           %s\n" pl s in
           change_money b pl i

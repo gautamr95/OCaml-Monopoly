@@ -1,7 +1,10 @@
 open Game_utils   
 
-(*generates string to roll dice, called by top level if player is ai*)
+(*Runs the AI's turn and makes decisions, returns a unit when AI finishes turn*)
 val ai_decision: board -> int -> unit
+
+(*AI determines which properties to upgrade with houses if it is allowed to*)
+val upgrade_a_prop : board -> int -> unit
 
 (*take in property that ai is on, take in list of properties from game board,
   take list of players in the game, take in you player info structure
