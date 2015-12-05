@@ -72,7 +72,7 @@ let tilelocation = [(720,720);
 (*--------------------------BEGINNING GUI FUNCTIONS---------------------------*)
 
 let window = GWindow.window ~width:1200 ~height:830
-                              ~title:"Simple lablgtk program" ()
+                              ~title:"Monopoly" ()
 
 let main_container = GPack.box `VERTICAL ~packing:window#add ()
 
@@ -127,12 +127,6 @@ let sanders_pixbuf = GdkPixbuf.from_file "assets/sanders.png"
 let house_pixbuf = GdkPixbuf.from_file "assets/black_house.png"
 
 (*--------------------HELPER FUNCTIONS FOR UPDATING BOARD---------------------*)
-(*Helper function for getting list of properties at the given board pos*)
-let properties_at_pos pos (proplst:property list) =
-  List.fold_left
-    (fun acc (a:property) ->
-     if get_prop_position a = pos then a::acc else acc) [] proplst
-
 (*Helper function for getting list of player at the given board pos*)
 let players_at_pos b pos playerlst =
   List.fold_left
@@ -153,74 +147,111 @@ let draw_players physpos playerlst dest_pixbuf =
               ~scale_y:0.5
               ~width:30
               ~height:30
-              (if get_player_id p= 0 then obama_pixbuf
-                else if get_player_id p= 1 then cena_pixbuf
-                else if get_player_id p= 2 then sanders_pixbuf
-                else if get_player_id p= 3 then sanders_pixbuf
+              (if get_player_id p = 0 then obama_pixbuf
+                else if get_player_id p = 1 then cena_pixbuf
+                else if get_player_id p = 2 then sanders_pixbuf
+                else if get_player_id p = 3 then sanders_pixbuf
                 else raise (Gui_error "Invalid player ID"))) playerlst
 
 (*Helper function for drawing a list of properties at a given physical pos*)
-let draw_properties physpos proplst dest_pixbuf =
-  (*A pair that contains a physical pos pair and pos adjustment pair*)
-  (*The pos adjustment pair is how much change in x and y position for
-   *for each property added*)
-  let physpos_and_adj =
-    match physpos with
-    | (x, y) when y = 720 -> ((x, y-20),(15,0))
-    | (x, y) when x = 0   -> ((x+85, y),(0,15))
-    | (x, y) when y = 0   -> ((x, y+85),(15,0))
-    | (x, y) when x = 720 -> ((x-20, y),(0,15))
-    | _ -> raise (Gui_error "draw property fail") in
-  let x  = fst (fst physpos_and_adj) in
-  let y  = snd (fst physpos_and_adj) in
-  let dx = fst (snd physpos_and_adj) in
-  let dy = snd (snd physpos_and_adj) in
-  let rec propdraw_helper pnum plst =
-    match plst with
-    | [] -> ()
-    | hd::tl ->
-      (*Calculate the adjusted x and y positions*)
-      let xadj = x + pnum*dx in
-      let yadj = y + pnum*dy in
-      (*Draw the properties onto the pixbuf*)
-      (GdkPixbuf.composite ~dest:dest_pixbuf ~alpha:255
-                                            ~ofs_x: (float_of_int xadj)
-                                            ~ofs_y: (float_of_int yadj)
-                                            ~dest_x:xadj
-                                            ~dest_y:yadj
-                                            ~interp:`BILINEAR
-                                            ~scale_x:0.25
-                                            ~scale_y:0.25
-                                            ~width:15
-                                            ~height:15
-                                            house_pixbuf);
-      propdraw_helper (pnum + 1) tl in
-  propdraw_helper 0 proplst
+let draw_properties propertylst dest_pixbuf =
+  (*Helper function to draw num_of_houses of houses at location physpos*)
+  let drawhelper physpos owner_id num_of_houses =
+    (*A pair that contains a physical pos pair and pos adjustment pair*)
+    (*The pos adjustment pair is how much change in x and y position for
+     *for each property added*)
+    let physpos_and_adj =
+      match physpos with
+      | (x, y) when y = 720 -> ((x, y-20),(15,0))
+      | (x, y) when x = 0   -> ((x+85, y),(0,15))
+      | (x, y) when y = 0   -> ((x, y+85),(15,0))
+      | (x, y) when x = 720 -> ((x-20, y),(0,15))
+      | _ -> raise (Gui_error "draw property fail") in
+    let prop_holder_pos =
+      match physpos with
+      | (x, y) when y = 720 -> (0,-20)
+      | (x, y) when x = 0   -> (20, 0)
+      | (x, y) when y = 0   -> (0, 20)
+      | (x, y) when x = 720 -> (-20,0)
+      | _ -> raise (Gui_error "draw property fail") in
+    let x  = fst (fst physpos_and_adj) in
+    let y  = snd (fst physpos_and_adj) in
+    let dx = fst (snd physpos_and_adj) in
+    let dy = snd (snd physpos_and_adj) in
+    let xavatar = xhouse + (fst prop_holder_pos) in
+    let yavatar = yhouse + (snd prop_holder_pos) in
+    (GdkPixbuf.composite ~dest:dest_pixbuf
+                ~alpha:200
+                ~ofs_x: (float_of_int xavatar)
+                ~ofs_y: (float_of_int yavatar)
+                ~dest_x:xavatar
+                ~dest_y:yavatar
+                ~interp:`BILINEAR
+                ~scale_x:0.25
+                ~scale_y:0.25
+                ~width:15
+                ~height:15
+                (if owner_id = 0 then obama_pixbuf
+                  else if owner_id = 1 then cena_pixbuf
+                  else if owner_id = 2 then sanders_pixbuf
+                  else if owner_id = 3 then sanders_pixbuf
+                  else raise (Gui_error "Invalid player ID")));
+    let rec draw_houses pnum =
+      (*Draw the houses*)
+      if pnum = 0 then ()
+      else
+        (*Calculate the adjusted x and y positions*)
+        let xhouse = x + pnum*dx in
+        let yhouse = y + pnum*dy in
+        (*Draw the properties onto the pixbuf*)
+        (GdkPixbuf.composite ~dest:dest_pixbuf ~alpha:255
+                                              ~ofs_x: (float_of_int xhouse)
+                                              ~ofs_y: (float_of_int yhouse)
+                                              ~dest_x:xhouse
+                                              ~dest_y:yhouse
+                                              ~interp:`BILINEAR
+                                              ~scale_x:0.25
+                                              ~scale_y:0.25
+                                              ~width:15
+                                              ~height:15
+                                              house_pixbuf);
+        draw_houses (pnum - 1) in
+    draw_houses num_of_houses in
+
+  let rec draw_prop_list tileloc proplst tile_num =
+    match (tileloc, proplst) with
+    | (l_hd::l_tl, p_hd::p_tl) ->
+      (*Check if the current tile is a property*)
+      if not (get_prop_position p_hd = tile_num) then
+        draw_prop_list l_tl proplst (tile_num + 1)
+      else
+        (*Check if the current property is owned by anyone*)
+        (match get_holder p_hd with
+        | None -> draw_prop_list l_tl p_tl (tile_num + 1)
+        | Some pid -> drawhelper l_hd pid (get_houses p_hd);
+          draw_prop_list l_tl p_tl (tile_num + 1))
+    | _ -> () in
+  draw_prop_list tilelocation propertylst 0
+
 
 (*Callback function for updating the board pixbuf and drawing it in the GUI*)
 let updateboard curboard =
   (*The pixbuf of the updated board*)
   let out_pixbuf = GdkPixbuf.copy scaled_board_pixbuf in
-  let rec drawhelper curpos poslist=
+  draw_properties (get_property_list curboard) out_pixbuf;
+  let rec draw_player_helper curpos poslist=
     match poslist with
     | hd::tl->
       let players = players_at_pos curboard curpos (get_player_list curboard) in
-      let props = properties_at_pos curpos (get_property_list curboard) in
       (if players = [] then () else draw_players hd players out_pixbuf);
-      (if props = [] then () else draw_properties hd props out_pixbuf);
-      drawhelper (curpos + 1) tl
+      draw_player_helper (curpos + 1) tl
     | [] -> () in
-  (drawhelper 0 tilelocation); board_image#set_pixbuf out_pixbuf
+  (draw_player_helper 0 tilelocation); board_image#set_pixbuf out_pixbuf
+
 (*-----------------END OF HELPER FUNCTIONS FOR UPDATING BOARD-----------------*)
 
 (* Buttons *)
 let button = GButton.button ~label:"Push me!"
-                            ~packing:buttons#add ()
-
-let button2 = GButton.button ~label:"Push me2!"
-                            ~packing:buttons#add ()
-
-let button3 = GButton.button ~label:"Push me3!"
                             ~packing:buttons#add ()
 
 (* Command input and display*)
@@ -268,13 +299,6 @@ let main () =
   (* Button *)
   let _ = button#connect#clicked ~callback: (
     fun () -> board_image#set_pixbuf scaled_board_pixbuf) in
-
-  (* Button2 *)
-  let _ = button2#connect#clicked ~callback: (
-    fun () -> (*updateboard board_state*) ()) in
-
-  (* Toggle Button *)
-  let _ = button3#connect#clicked ~callback: (fun () -> ()) in
 
   (* Command input and display*)
   let _ = commandinput#connect#activate ~callback: (
