@@ -17,6 +17,7 @@ let accept_trade b req off rm om pl tp =
     else if own_triple then false
     else if need_prop then true
     else if gain_money && gain_prop_cost then true
+    else if gain_money then true
     else false in
   trade
 
