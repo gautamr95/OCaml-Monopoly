@@ -10,7 +10,7 @@ let upgrade_a_prop b pl =
   let yellow_prop = !(get_pl_prop_from_color b pl Yellow) in
   let green_prop = !(get_pl_prop_from_color b pl Green) in
   let blue_prop = !(get_pl_prop_from_color b pl Blue) in
-  let can_buy_houses = List.fold_left (fun a x -> a || can_buy_house b pl x) false in
+  let can_buy_houses = List.fold_left (fun a x -> a || (can_buy_house b pl x)) false in
   let rec house_to_buy plst =
     match plst with
     | [] -> ()
@@ -34,7 +34,7 @@ let upgrade_a_prop b pl =
   else if (can_buy_houses blue_prop ) then
     (house_to_buy blue_prop; true)
   else false
-(*
+
 let trade_a_prop b pl =
   let brown_prop = !(get_pl_prop_from_color b pl Brown) in
   let grey_prop = !(get_pl_prop_from_color b pl Grey) in
@@ -50,22 +50,52 @@ let trade_a_prop b pl =
     | [] -> ()
     | h::t ->(
       match get_holder h with
-      | None -> ()
+      | None -> prop_to_req t
       | Some player ->
           let cost = get_prop_price h in
           let offer = int_of_float (0.75 *. (float_of_int cost)) in
           let can_afford = (get_money b pl) > offer in
-          let will_trade = if can_afford then trade_offer [h] [] 0 pl player
+          let will_trade = if can_afford then (trade_offer [get_prop_name h] [] 0 offer pl player)
           else false in
           if will_trade then(
-            make_trade [h] [] 0 pl player;)
-          else (Printf.printf "Trade denied \n"); false)*)
+            let _ = move_property b player (Some pl) h in
+            let _ = change_money b pl (-offer) in
+            let _ = change_money b player (offer) in
+            Printf.printf "Trade accepted\n")
+          else (Printf.printf "Trade denied \n")) in
+  let can_trade = ref true in
+  if( !can_trade && want_to_trade brown_prop) then (
+    can_trade := false;
+    prop_to_req brown_prop)
+  else if (!can_trade && want_to_trade grey_prop) then (
+    can_trade := false;
+    prop_to_req grey_prop)
+  else if (!can_trade && want_to_trade pink_prop) then (
+    can_trade :=false;
+    prop_to_req pink_prop)
+  else if (!can_trade && want_to_trade orange_prop) then (
+    can_trade := false;
+    prop_to_req orange_prop)
+  else if (!can_trade && want_to_trade red_prop) then (
+    can_trade :=false;
+    prop_to_req red_prop )
+  else if (!can_trade && want_to_trade yellow_prop) then (
+    can_trade := false;
+    prop_to_req yellow_prop )
+  else if (!can_trade && want_to_trade green_prop) then (
+    can_trade := false;
+    prop_to_req green_prop )
+  else if (!can_trade && want_to_trade blue_prop) then (
+    can_trade := false;
+    prop_to_req blue_prop)
+  else 
+    can_trade := false
 
 
 let ai_decision (b : board) ( pl : int ) : unit =
   let rolled = ref false in
   let upgraded = ref 0 in
-  (*let traded = ref false in*)
+  let traded = ref false in
   let curr_pos = ref (get_pl_position b pl) in
   let rec inner_repl _ =
     if not !rolled then
@@ -94,11 +124,17 @@ let ai_decision (b : board) ( pl : int ) : unit =
                 ()
           | Some hl ->
               let rent = get_rent property in
-              (* let num_houses = TODO *)
+              let num_houses = get_houses property in
+              let updated_rent = match num_houses with
+              | 1 -> rent * 5
+              | 2 -> rent * 15 
+              | 3 -> rent * 45
+              | 4 -> rent * 60
+              | _ -> rent in
               let _ = Printf.printf "Player %i paid Player %i %i in rent for %s\n"
-                pl hl rent name in
-              (change_money b hl rent);
-              (change_money b pl (-rent)))
+                pl hl updated_rent name in
+              (change_money b hl updated_rent);
+              (change_money b pl (-updated_rent)))
 
       | Chance ->
           let (s,mm,tm) = get_chance b in
@@ -118,9 +154,10 @@ let ai_decision (b : board) ( pl : int ) : unit =
     else (
       if (upgrade_a_prop b pl && !upgraded < 2) then (upgraded := !upgraded + 1;
               inner_repl ())
-      (*else if (not (!traded)) then
-        (if trade_a_prop b pl then (traded:= true; inner_repl ())
-        else (traded:=true; inner_repl ()))*)
+      else if (not (!traded)) then
+        let _ = trade_a_prop b pl in
+        traded:=true;
+        inner_repl ()
       else ()) in
   inner_repl ()
 
