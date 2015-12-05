@@ -110,7 +110,7 @@ val move_to_jail : board -> int -> unit
 val leave_jail : board -> int -> unit
 
 (*print all of a players properties*)
-val print_players_properties : board -> int -> unit
+val print_players_properties : board -> int -> string
 
 (*returns true if a player can buy a house for a specified property*)
 val can_buy_house : board -> int -> property -> bool

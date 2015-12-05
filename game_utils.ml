@@ -109,7 +109,6 @@ let move_player b pl_id i =
   let pl = get_player b pl_id in
   let new_pos = ((!(pl.position) + i) mod ((List.length b.tile_list) - 1)) in
   if new_pos < !(pl.position) then
-    let () = print_endline "Collected $200 for passing go" in
     change_money b pl_id 200
   else ();
   pl.position := new_pos
@@ -225,27 +224,24 @@ let leave_jail b pl_id =
 
 let print_prop_of_color p_list =
   let list_length = List.length p_list in
-  if list_length = 0 then print_string " None\n"
+  if list_length = 0 then " None\n"
   else
-    for x = 0 to (list_length - 1) do
-      let i = (List.nth p_list x) in
-      if x = list_length - 1 then (Printf.printf " %s(%i)\n" i.name !(i.houses)) else
-      Printf.printf " %s(%i)," i.name !(i.houses)
-    done
+    List.fold_left (fun x y -> x^(Printf.sprintf " %s(%i) " y.name !(y.houses)))
+                   "" p_list
 
 let print_players_properties b pl_id =
   let props = get_player_property b pl_id in
-  print_string "---------------------------\n";
-  print_string "Brown:"; print_prop_of_color !(props.brown);
-  print_string "Grey:"; print_prop_of_color !(props.grey);
-  print_string "Pink:"; print_prop_of_color !(props.pink);
-  print_string "Orange:"; print_prop_of_color !(props.orange);
-  print_string "Red:"; print_prop_of_color !(props.red);
-  print_string "Yellow:"; print_prop_of_color !(props.yellow);
-  print_string "Green:"; print_prop_of_color !(props.green);
-  print_string "Blue:"; print_prop_of_color !(props.blue);
-  print_string "---------------------------\n";
-  ()
+  "\n---------------------------\n"^
+  print_prop_of_color !(props.brown)^
+  print_prop_of_color !(props.grey)^
+  print_prop_of_color !(props.pink)^
+  print_prop_of_color !(props.orange)^
+  print_prop_of_color !(props.red)^
+  print_prop_of_color !(props.yellow)^
+  print_prop_of_color !(props.green)^
+  print_prop_of_color !(props.blue)^
+  "---------------------------\n"
+
 
 
 let can_buy_house b pl_id prop =
