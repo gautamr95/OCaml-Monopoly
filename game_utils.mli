@@ -135,3 +135,5 @@ val create_board : bool list -> community_chest list -> chance list ->
 
 (* Simulates a dice roll and returns a pair of random ints between 1 and 6 inclusive *)
 val roll_dice  : unit -> int * int
+
+val get_pl_prop_from_color : board -> int -> color -> property list ref

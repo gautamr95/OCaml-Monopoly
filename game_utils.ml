@@ -218,7 +218,29 @@ let leave_jail b pl_id =
   let pl = get_player b pl_id in
   pl.in_jail := false
 
-let print_players_properties b pl_id = raise TODO
+let print_prop_of_color p_list =
+  let list_length = List.length p_list in
+  if list_length = 0 then print_string " none\n"
+  else
+    for x = 0 to (list_length - 1) do
+      if x = list_length - 1 then (Printf.printf " %s\n" (List.nth p_list x).name) else
+      Printf.printf " %s," (List.nth p_list x).name
+    done
+
+let print_players_properties b pl_id =
+  let props = get_player_property b pl_id in
+  print_string "---------------------------\n";
+  print_string "Brown:"; print_prop_of_color !(props.brown);
+  print_string "Grey:"; print_prop_of_color !(props.grey);
+  print_string "Pink:"; print_prop_of_color !(props.pink);
+  print_string "Orange:"; print_prop_of_color !(props.orange);
+  print_string "Red:"; print_prop_of_color !(props.red);
+  print_string "Yellow:"; print_prop_of_color !(props.yellow);
+  print_string "Green:"; print_prop_of_color !(props.green);
+  print_string "Blue:"; print_prop_of_color !(props.blue);
+  print_string "---------------------------\n";
+  ()
+
 
 let can_buy_house b pl_id prop = raise TODO
 
