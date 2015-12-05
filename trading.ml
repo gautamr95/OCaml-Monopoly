@@ -94,7 +94,7 @@ let trade_prompt b pl : unit=
             let _ = change_money b trade_player (offer) in
             let _ = change_money b pl (money) in
             let _ = change_money b trade_player (-money) in
-            Gui.print_to_cmd "Trade accepted!"
+            Gui.print_to_cmd "Trade accepted!\n"
           else
-            Gui.print_to_cmd "Trade denied!")
+            Gui.print_to_cmd "Trade denied!\n")
 
