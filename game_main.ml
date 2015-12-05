@@ -56,7 +56,7 @@ let is_correct (  ) : bool =
   let correction = match correct with
   | None -> false
   | Some a ->
-    if a = "y" then true else false in
+    if a = "y" || a = "Y" then true else false in
   correction
 
 (* Gets total players through user input
