@@ -46,6 +46,7 @@ type board = { player_list: player list;
                chance_list: chance list;
                property_list: property list;
                tile_list : tile list;
+               round : int ref;
              }
 
 
@@ -54,6 +55,12 @@ let get_player_list b =
 
 let get_property_list b =
   b.property_list
+
+let get_round b =
+  !(b.round)
+
+let incr_round b =
+  b.round := !(b.round) + 1
 
 let get_player b pl_id =
   let pl_list = get_player_list b in
@@ -275,10 +282,10 @@ let create_player_list ai_lst =
 let create_board ai_lst community_chest_list
                  chance_list property_list tile_list =
   let player_list = create_player_list ai_lst in
-  {player_list;community_chest_list;chance_list;property_list;tile_list}
+  {player_list;community_chest_list;chance_list;property_list;tile_list;round = ref(1)}
 
 (* Returns a number between 1 and 12 inclusive, simulating two dice rolled. *)
-let roll_dice () : (int * int) = (6 ,7 )
+let roll_dice () : (int * int) = (1 + Random.int 6 , 1 + Random.int 6 )
 
 let move_to_position b pl_id pos =
   let pl = get_player b pl_id in

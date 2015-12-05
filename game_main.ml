@@ -8,7 +8,7 @@ open Trading
 (* Game constants *)
 let total_players = 4
 let jail_fee = 30
-let tot_rounds = 10000
+let tot_rounds = 30
 let house_cost = 50
 
 (* Embed everything in a function to be run through the GUI. *)

@@ -95,7 +95,7 @@ let board = GPack.box `VERTICAL ~width:800
 let controls = GPack.box `VERTICAL ~width:400
                                    ~packing:game_area#add ()
 
-let buttons = GPack.box `VERTICAL ~packing:controls#add ()
+let infoarea = GPack.box `VERTICAL ~packing:controls#add ()
                                   ~height:200
 
 let commandarea = GPack.box `VERTICAL ~packing:controls#add ()
@@ -131,8 +131,15 @@ let gaben_pixbuf = GdkPixbuf.from_file "assets/gaben.png"
 let house_pixbuf = GdkPixbuf.from_file "assets/black_house.png"
 
 (* Buttons *)
-let button = GButton.button ~label:"Push me!"
-                            ~packing:buttons#add ()
+(*let button = GButton.button ~label:"Push me!"
+                            ~packing:buttons#add ()*)
+
+(* Information display area *)
+let moneydisplay = GText.view ~editable:false
+                              ~cursor_visible:false
+                              ~wrap_mode:`CHAR
+                              ~show:true
+                              ~packing:infoarea#add ()
 
 (* Command input and display*)
 let commanddisplay = GText.view ~editable:false
@@ -267,6 +274,13 @@ let draw_properties propertylst dest_pixbuf =
   draw_prop_list tilelocation propertylst 0
 
 
+let update_money curboard =
+  let obama_mon = Printf.sprintf "Obama: $%d\n" (get_money curboard 0) in
+  let cena_mon = Printf.sprintf "John Cena: $%d\n" (get_money curboard 1) in
+  let sanders_mon = Printf.sprintf "Sanders: $%d\n" (get_money curboard 2) in
+  let gaben_mon = Printf.sprintf "Gaben: $%d\n" (get_money curboard 3) in
+  moneydisplay#buffer#set_text (obama_mon ^ cena_mon ^ sanders_mon ^ gaben_mon)
+
 (*Callback function for updating the board pixbuf and drawing it in the GUI*)
 let updateboard curboard =
   (*The pixbuf of the updated board*)
@@ -279,7 +293,8 @@ let updateboard curboard =
       (if players = [] then () else draw_players hd players out_pixbuf);
       draw_player_helper (curpos + 1) tl
     | [] -> () in
-  (draw_player_helper 0 tilelocation); board_image#set_pixbuf out_pixbuf
+  (draw_player_helper 0 tilelocation); board_image#set_pixbuf out_pixbuf;
+  update_money curboard
 
 (*-----------------END OF HELPER FUNCTIONS FOR UPDATING BOARD-----------------*)
 
@@ -301,8 +316,8 @@ let main () =
   let _ = board_image#set_pixbuf scaled_board_pixbuf in
 
   (* Button *)
-  let _ = button#connect#clicked ~callback: (
-    fun () -> board_image#set_pixbuf scaled_board_pixbuf) in
+  (*let _ = button#connect#clicked ~callback: (
+      fun () -> board_image#set_pixbuf scaled_board_pixbuf) in*)
 
   (* Command input and display*)
   let _ = commandinput#connect#activate ~callback: (
