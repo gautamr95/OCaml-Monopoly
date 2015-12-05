@@ -29,39 +29,55 @@ the trade, if they say yes, then the trade carries out with the function make_tr
 which manipupates the players money and property list based on this, it is a function who returns
 unit, this function will be done once we get the board figured out more*)
 let trade_prompt b pl : unit=
+
   let rec trade_player_prompt () =
     print_string "Who do you want to trade with?\n";
     try (int_of_string (read_line ())) with
-    | Failure s -> trade_player_prompt () in
+    | Failure s -> print_string "Invalid entry\n"; trade_player_prompt () in
+
   let trade_player = trade_player_prompt () in
-  print_string "What properties do you want? None for just money";
+  print_string "What properties do you want? None for just money \n";
   let requests = String.lowercase(read_line ()) in
-  let req_list = split (regexp " ") requests in
+  let req_list = if requests = "none" then []
+                 else split (regexp ", ") requests in
+
   let correct_holder x =
     match (get_property_from_name b x) with
     | None -> -1
     | Some prop -> (
+      if get_houses prop = 0 then
       match get_holder prop with
       | None -> -1
-      | Some i -> i) in
-  let valid = List.fold_left (fun a x -> a && (correct_holder x) = trade_player) true in
-  if (not (valid req_list)) then Printf.printf "Invalid entry"
+      | Some i -> i
+      else -1) in
+
+  let valid pl lst = List.fold_left (fun a x -> a && ((correct_holder x) = pl)) true lst in
+
+  if (not (valid trade_player req_list)) then Printf.printf "Invalid entries\n"
   else
     let req_p = List.map (get_property_from_name b) req_list in
-    let req_props = List.fold_left (fun x y -> match y with |Some(a) -> a::x|None -> x) [] req_p in
+    let req_props = List.fold_left
+      (fun x y -> match y with
+                  |Some(a) -> a::x
+                  |None -> x) [] req_p in
+
     let rec request_prompt () =
       Printf.printf "How much money do you want?\n";
       try (int_of_string (read_line ())) with
       | Failure s -> request_prompt () in
+
     let money = request_prompt () in
     if money > (get_money b trade_player) then Printf.printf "They cannot afford this\n" else
-      print_string "What properties will you offer?";
+      print_string "What properties will you offer?\n";
       let offer = String.lowercase(read_line ()) in
-      let offer_list = split (regexp " ") offer in
-      if not (valid offer_list) then Printf.printf "Invalid entry"
+      let offer_list = if offer = "none" then []
+                       else split (regexp ", ") offer in
+      if not (valid pl offer_list) then Printf.printf "Invalid entry\n"
       else
         let offer_p = List.map (get_property_from_name b) offer_list in
-        let offer_props = List.fold_left (fun x y -> match y with |Some(a) -> a::x|None -> x) [] offer_p in
+        let offer_props = List.fold_left (fun x y -> match y with
+                                                     |Some(a) -> a::x
+                                                     |None -> x) [] offer_p in
         let rec offer_prompt () =
           Printf.printf "How much Money will you offer?\n";
           try (int_of_string (read_line ())) with

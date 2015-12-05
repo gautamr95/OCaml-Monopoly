@@ -13,6 +13,10 @@ val get_player_list : board -> player list
 int is always less than or equal to number of players*)
 val get_player : board -> int -> player
 
+val get_round : board -> int
+
+val incr_round : board -> unit
+
 (*take in player and return player id*)
 val get_player_id : player -> int
 
@@ -150,3 +154,9 @@ val move_to_position : board -> int -> int -> unit
 
 (*changes money of every other player except for the player of pl_id*)
 val change_others_money : board -> int -> int -> unit
+
+(* checks to see whether a player is finished playing (after they went bankrupt) *)
+val get_done : board -> int -> bool
+
+(* sets a player's state to be marked as done *)
+val set_done : board -> int -> unit
