@@ -133,8 +133,7 @@ let rec game_loop () =
   else if is_bankrupt game_board curr_player_id then
       (Printf.printf "\nPlayer %d, you are bankrupt, so your turn will be skipped.\n" curr_player_id)
   else if is_ai game_board curr_player_id then
-      (* TODO *)
-      (*ai_decision game_board player ()*) game_loop ()
+      (ai_decision game_board curr_player_id; game_loop ())
   else
     (* REPL for the individual players and the actions they can perform. *)
     let _ = Printf.printf "__________________________________________________________\n" in
