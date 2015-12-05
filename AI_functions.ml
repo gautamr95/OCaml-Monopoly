@@ -34,7 +34,10 @@ let upgrade_a_prop b pl =
     match plst with
     | [] -> ()
     | h::t ->
-        if (can_buy_house b pl h) then add_house b pl h
+        if (can_buy_house b pl h) then (
+          Gui.print_to_cmd (Printf.sprintf "Player %i bought a house for %s\n" 
+          pl (get_prop_name h));
+          add_house b pl h)
         else house_to_buy t in
   if (can_buy_houses brown_prop) then
    (house_to_buy brown_prop; true)
