@@ -1,5 +1,6 @@
 open Str
 open Game_utils
+open AI_functions
 
 (* Game constants *)
 let total_players = 4
@@ -232,7 +233,7 @@ let rec game_loop () =
       (*| "house" -> (buy_house (); mini_repl ()) TODO *)
       | "done" -> ()
       | "buy" -> (* Buying a new property. *)
-        if not !prompt_buy_property then (Printf.printf "\n---------------------------\nInvalid command.\n---------------------------\n")
+        if not !prompt_buy_property then (Printf.printf "\n---------------------------\nInvalid command.\n---------------------------\n"; mini_repl ())
         else
           let transaction = property_prompt curr_player_id player_position in
           let _ = if transaction then (prompt_buy_property := false; bought_property := true) else () in
