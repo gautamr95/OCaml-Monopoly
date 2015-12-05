@@ -226,7 +226,7 @@ let print_prop_of_color p_list =
   let list_length = List.length p_list in
   if list_length = 0 then " None\n"
   else
-    List.fold_left (fun x y -> x^(Printf.sprintf " %s(%i) " y.name !(y.houses)))
+    List.fold_left (fun x y -> x^(Printf.sprintf " %s(Houses:%i) " y.name !(y.houses)))
                    "" p_list
 
 let print_players_properties b pl_id =
