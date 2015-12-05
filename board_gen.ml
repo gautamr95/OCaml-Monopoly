@@ -69,7 +69,17 @@ let create_tile_list prop_lst =
   Prop(List.nth prop_lst 23) ::
   []
 let create_chance_list () =
-  [("boo", -50,0) ; ("shoo",30,-10)]
+  [("What a terrible post! You just got mad downvotes", -50,0);
+  ("You just did a dank 1v3 clutch. GG",30,-10);
+  ("You just made the front page!",100,0);
+  ("You wasted 5 hours browsing dank memes",-20,0);
+  ("Senpai noticed your dank meme",50,0);
+  ("You made a dank subreddit and everyone joined",100,20);
+  ("There are no brakes on the feel train",-20,-20);]
 
 let create_community_chest_list () =
-  [("foo", 100,0) ; ("dog",-300,10)]
+  [("U WOT M8", -300,50);
+  ("You got 10000 upvotes. Wow!",300,0);
+  ("Dank fuel can't melt jet memes",150,50);
+  ("Ayy lmao",200,0);
+  ("You have surpassed 1337 link karma",200,0);]
