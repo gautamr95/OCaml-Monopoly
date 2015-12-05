@@ -2,9 +2,10 @@ open Game_utils
 open Trade_offer
 
 let accept_trade b req off rm om pl tp =
-  let gain_money = om - rm > 0 in
   let get_cost_from_list = List.fold_left (fun a x -> a + get_prop_price x) 0 in
-  let gain_prop_cost = (get_cost_from_list off) - (get_cost_from_list req) > 0 in
+  let off_total = (get_cost_from_list off) + om in
+  let req_total = (get_cost_from_list req) + rm in
+  let gain_money = off_total > req_total in
   let my_prop = List.fold_left (fun a x -> !(get_pl_prop_of_color b tp x)::a) []  in
   let my_props_off = my_prop off in
   let need_prop =  List.fold_left (fun a x -> a || x <> []) false my_props_off in
@@ -12,20 +13,20 @@ let accept_trade b req off rm om pl tp =
   let can_afford = my_money > rm in
   let my_props_req = my_prop req in
   let own_triple = List.fold_left (fun a x -> a || (List.length x = 3)) false my_props_req in
-  let _ = Gui.print_to_cmd (Printf.sprintf "Gain Money : %b
+  let _ = Gui.print_to_cmd (Printf.sprintf 
+  "Gain Money : %b
   Own triple : %b
-  Need prop : %b
-  Gain prop cost : %b" gain_money own_triple need_prop gain_prop_cost in
+  Need prop : %b\n" gain_money own_triple need_prop ) in
   let trade =
     if not can_afford then false
     else if own_triple then false
     else if need_prop then true
-    else if gain_money && gain_prop_cost then true
     else if gain_money then true
     else false in
   trade
 
 let upgrade_a_prop b pl =
+  let _ = Gui.print_to_cmd "In upgrading\n" in
   let brown_prop = !(get_pl_prop_from_color b pl Brown) in
   let grey_prop = !(get_pl_prop_from_color b pl Grey) in
   let pink_prop = !(get_pl_prop_from_color b pl Pink) in
@@ -140,7 +141,7 @@ let ai_decision (b : board) ( pl : int ) : unit =
       curr_pos := new_pos;
       rolled := true;
       let tile = (get_tile b (!curr_pos)) in
-      match tile with
+      (match tile with
       | Prop property ->
           let name = get_prop_name property in
           let _ = Gui.print_to_cmd (Printf.sprintf "Player %i landed on %s.\n" pl name) in
@@ -181,7 +182,7 @@ let ai_decision (b : board) ( pl : int ) : unit =
           change_others_money b pl tm
       | Jail _ -> ()
       | Go -> ()
-      | Go_jail  -> move_to_jail b pl)
+      | Go_jail  -> move_to_jail b pl)); inner_repl ()
     else (
       if (upgrade_a_prop b pl && !upgraded < 2) then (upgraded := !upgraded + 1;
               inner_repl ())
