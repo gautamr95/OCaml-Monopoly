@@ -103,6 +103,7 @@ let commandarea = GPack.box `VERTICAL ~packing:controls#add ()
 
 let scrollingtext = GBin.scrolled_window  ~hpolicy:`NEVER
                                       ~vpolicy:`AUTOMATIC
+                                      ~height:550
                                       ~packing:commandarea#add ()
 
 let board_pixbuf = GdkPixbuf.from_file "assets/monopoly.jpg"
@@ -145,9 +146,10 @@ let commandinput = GEdit.entry ~editable:true
 
 let print_to_cmd str =
   commanddisplay#buffer#insert ~iter:commanddisplay#buffer#end_iter str;
-  (*scrollingtext#vadjustment#set_value
-      (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size)*)
-  commanddisplay#scroll_to_iter (commanddisplay#buffer#end_iter)
+  (*let a = commanddisplay#scroll_to_iter (commanddisplay#buffer#end_iter) in
+    if a then () else ();*)
+  scrollingtext#vadjustment#set_value
+        (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size +. 100.)
 
 (*Helper variables and functions for readline, which is a blocking function*)
 let waiting = ref (ref (Mutex.create ()))
