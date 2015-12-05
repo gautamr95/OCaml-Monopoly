@@ -84,7 +84,11 @@ let trade_prompt b pl : unit=
           | Failure s -> offer_prompt () in
         let offer = offer_prompt () in
         if offer > (get_money b pl) then Printf.printf "You cannot afford this\n" else
-          let trade_accept = trade_offer req_list offer_list money offer pl trade_player in
+          let trade_accept =
+          (if is_ai b trade_player then
+            AI_functions.accept_trade
+          else
+            trade_offer) req_list offer_list money offer pl trade_player in
 
           if trade_accept then
             let _ = List.iter (move_property b pl (Some trade_player)) req_props in

@@ -154,3 +154,9 @@ val move_to_position : board -> int -> int -> unit
 
 (*changes money of every other player except for the player of pl_id*)
 val change_others_money : board -> int -> int -> unit
+
+(* checks to see whether a player is finished playing (after they went bankrupt) *)
+val get_done : board -> int -> bool
+
+(* sets a player's state to be marked as done *)
+val set_done : board -> int -> unit

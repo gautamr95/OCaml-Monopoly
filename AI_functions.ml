@@ -1,5 +1,5 @@
 open Game_utils
-open Trading
+open Trade_offers
 
 let accept_trade b req off rm om pl tp =
   let gain_money = om - rm > 0 in
@@ -110,7 +110,7 @@ let trade_a_prop b pl =
   else if (!can_trade && want_to_trade blue_prop) then (
     can_trade := false;
     prop_to_req blue_prop)
-  else 
+  else
     can_trade := false
 
 
@@ -126,7 +126,7 @@ let ai_decision (b : board) ( pl : int ) : unit =
                             pl d1 d2 (d1 + d2)) in
       move_player b pl (d1+d2);
       let new_pos = get_pl_position b pl in
-      let _ = if new_pos < (!curr_pos) then 
+      let _ = if new_pos < (!curr_pos) then
         Gui.print_to_cmd (Printf.sprintf "Player %i collected $200 for passing GO!" pl)
               else () in
       curr_pos := new_pos;
@@ -150,7 +150,7 @@ let ai_decision (b : board) ( pl : int ) : unit =
               let num_houses = get_houses property in
               let updated_rent = match num_houses with
               | 1 -> rent * 5
-              | 2 -> rent * 15 
+              | 2 -> rent * 15
               | 3 -> rent * 45
               | 4 -> rent * 60
               | _ -> rent in

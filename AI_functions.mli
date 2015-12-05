@@ -1,4 +1,4 @@
-open Game_utils   
+open Game_utils
 
 (*Runs the AI's turn and makes decisions, returns a unit when AI finishes turn*)
 val ai_decision: board -> int -> unit
@@ -18,3 +18,4 @@ val make_trade : player list -> player -> string
 (*if you recieve a trade, take in the property that is offered and the price
   and determine if you will buy*)
 val receive_trade : int -> property -> string*)
+val accept_trade : board -> property list -> property list -> int -> int -> int -> int -> string
