@@ -125,6 +125,7 @@ let board_image = GMisc.image ~pixbuf:drawn_board_pixbuf
 let obama_pixbuf = GdkPixbuf.from_file "assets/obama.png"
 let cena_pixbuf = GdkPixbuf.from_file "assets/cena.png"
 let sanders_pixbuf = GdkPixbuf.from_file "assets/sanders.png"
+let gaben_pixbuf = GdkPixbuf.from_file "assets/gaben.png"
 
 (*Load up the property pictures*)
 let house_pixbuf = GdkPixbuf.from_file "assets/black_house.png"
@@ -146,8 +147,6 @@ let commandinput = GEdit.entry ~editable:true
 
 let print_to_cmd str =
   commanddisplay#buffer#insert ~iter:commanddisplay#buffer#end_iter str;
-  (*let a = commanddisplay#scroll_to_iter (commanddisplay#buffer#end_iter) in
-    if a then () else ();*)
   scrollingtext#vadjustment#set_value
         (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size +. 100.)
 
@@ -184,7 +183,7 @@ let draw_players physpos playerlst dest_pixbuf =
               (if get_player_id p = 0 then obama_pixbuf
                 else if get_player_id p = 1 then cena_pixbuf
                 else if get_player_id p = 2 then sanders_pixbuf
-                else if get_player_id p = 3 then sanders_pixbuf
+                else if get_player_id p = 3 then gaben_pixbuf
                 else raise (Gui_error "Invalid player ID"))) playerlst
 
 (*Helper function for drawing a list of properties at a given physical pos*)
@@ -228,7 +227,7 @@ let draw_properties propertylst dest_pixbuf =
                 (if owner_id = 0 then obama_pixbuf
                   else if owner_id = 1 then cena_pixbuf
                   else if owner_id = 2 then sanders_pixbuf
-                  else if owner_id = 3 then sanders_pixbuf
+                  else if owner_id = 3 then gaben_pixbuf
                   else raise (Gui_error "Invalid player ID")));
     let rec draw_houses pnum =
       (*Draw the houses*)
