@@ -221,17 +221,17 @@ let rec game_loop () =
       let command = Pervasives.read_line () in
 
       match String.lowercase command with
-      | "Money" ->
+      | "money" ->
         (Printf.printf "\n---------------------------\nYou have $%d.\n---------------------------" (get_money game_board curr_player_id);
         mini_repl ())
-      | "Property" ->
+      | "property" ->
         (print_players_properties game_board curr_player_id;
         mini_repl ())
-      | "Position" -> (Printf.printf "\n---------------------------\nYou are currently on position %d.\n---------------------------" player_position; mini_repl ())
-      (*| "Trade" -> (execute_trade (); mini_repl ()) TODO *)
-      (*| "House" -> (buy_house (); mini_repl ()) TODO *)
-      | "Done" -> ()
-      | "Buy" -> (* Buying a new property. *)
+      | "position" -> (Printf.printf "\n---------------------------\nYou are currently on position %d.\n---------------------------" player_position; mini_repl ())
+      (*| "trade" -> (execute_trade (); mini_repl ()) TODO *)
+      (*| "house" -> (buy_house (); mini_repl ()) TODO *)
+      | "done" -> ()
+      | "buy" -> (* Buying a new property. *)
         if not !prompt_buy_property then (Printf.printf "\n---------------------------\nInvalid command.\n---------------------------\n")
         else
           let transaction = property_prompt curr_player_id player_position in
