@@ -62,8 +62,8 @@ let trade_a_prop b pl =
             let _ = move_property b player (Some pl) h in
             let _ = change_money b pl (-offer) in
             let _ = change_money b player (offer) in
-            Printf.printf "Trade accepted\n")
-          else (Printf.printf "Trade denied \n")) in
+           Gui.print_to_cmd"Trade accepted\n")
+          else Gui.print_to_cmd "Trade denied \n") in
   let can_trade = ref true in
   if( !can_trade && want_to_trade brown_prop) then (
     can_trade := false;
