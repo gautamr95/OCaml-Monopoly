@@ -59,7 +59,8 @@ let get_player b pl_id =
 
 let get_property_from_name b p_name =
   let p_list = b.property_list in
-  try Some(List.find (fun x -> x.name = String.lowercase(p_name)) p_list) with
+  try Some(List.find (fun x -> (String.lowercase x.name) =
+                     String.lowercase(p_name)) p_list) with
   | Not_found -> None
 
 let get_tile b pos =
@@ -220,7 +221,7 @@ let leave_jail b pl_id =
 
 let print_prop_of_color p_list =
   let list_length = List.length p_list in
-  if list_length = 0 then print_string " none\n"
+  if list_length = 0 then print_string " None\n"
   else
     for x = 0 to (list_length - 1) do
       if x = list_length - 1 then (Printf.printf " %s\n" (List.nth p_list x).name) else
@@ -242,14 +243,14 @@ let print_players_properties b pl_id =
   ()
 
 
-let can_buy_house b pl_id prop = raise TODO
+let can_buy_house b pl_id prop =
+  let prop_list = !(get_pl_prop_of_color b pl_id prop) in
+  ((List.length prop_list) = 3) && (!(prop.houses) <> 4)
 
-let add_house b pl_id prop = raise TODO
-(*
-let is_property b prop_name =
-  let prop_list = b.property_list in
-  List.exists (fun x -> x.name = prop_name) prop_list
-*)
+let add_house b pl_id prop =
+  prop.houses := !(prop.houses) + 1;
+  change_money b pl_id house_cost
+
 
 let create_property position color cost rent name =
   {position;color;cost;holder=ref(None);rent;name;houses=ref(0)}
