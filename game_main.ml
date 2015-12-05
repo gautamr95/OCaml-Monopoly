@@ -195,7 +195,7 @@ let rec game_loop () =
   else if
     (is_bankrupt game_board curr_player_id)
       && (get_done game_board curr_player_id) then
-      (Gui.print_to_cmd (Printf.sprintf "\nPlayer %d, you are bankrupt, so your turn will be skipped.\n" curr_player_id))
+      (Gui.print_to_cmd (Printf.sprintf "\nPlayer %d, you are bankrupt, so your turn will be skipped.\n" curr_player_id); game_loop ())
 
   (* Calls the corresponding AI functions *)
   else if is_ai game_board curr_player_id then
