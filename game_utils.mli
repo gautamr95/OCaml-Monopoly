@@ -16,6 +16,9 @@ val get_player : board -> int -> player
 (*get property from name of it, none if it doesnt exist*)
 val get_property_from_name : board -> string -> property option
 
+(*get property list*)
+val get_property_list : board -> property list
+
 (*takes in position and returns its tile*)
 val get_tile : board -> int -> tile
 
@@ -24,10 +27,10 @@ val get_property : board -> int -> property option
 
 (*get the integer position a player is at take in board and player id*)
 val get_pl_position : board -> int -> int
-(*
+
 (*get the integer position a property is at take in board and property*)
 val get_prop_position : property -> int
-*)
+
 (*get a random chest card*)
 val get_chest : board -> community_chest
 

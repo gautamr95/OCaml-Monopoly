@@ -52,6 +52,9 @@ type board = { player_list: player list;
 let get_player_list b =
   b.player_list
 
+let get_property_list b =
+  b.property_list
+
 let get_player b pl_id =
   let pl_list = get_player_list b in
   List.nth pl_list (pl_id)
@@ -75,10 +78,8 @@ let get_pl_position b pl_id =
   let pl = get_player b pl_id in
   !(pl.position)
 
-(*
-let get_prop_position prop =
+let get_prop_position (prop:property) =
   prop.position
-*)
 
 let get_chest b =
   let num_chest = List.length b.community_chest_list in

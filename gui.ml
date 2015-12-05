@@ -1,13 +1,14 @@
 open GMain
 open GdkKeysyms
 open Async.Std
+open Game_utils
 
 (*USE THIS COMMAND TO BUILD THE GTK GUI*)
 (*ocamlfind ocamlc -g -thread -package lablgtk2,async -linkpkg gtktest.ml -o gtktest*)
 
 exception Gui_error of string;;
 
-type property = { position: int;
+(*type property = { position: int;
                 }
 type player = { id: int;
                position: int ref;
@@ -15,7 +16,7 @@ type player = { id: int;
 
 type board = { player_list: player list;
                property_list: property list;
-             }
+             }*)
 
 let locale = GtkMain.Main.init ()
 
@@ -60,13 +61,13 @@ let tilelocation = [(720,720);
                     (720,565);
                     (720,630);]
 
-let board_state = {
+(*let board_state = {
   player_list = [{id = 0; position = ref 5};{id = 1; position = ref 6};{id = 2; position = ref 7}];
   property_list = [{position = 8};{position = 8};{position = 8};{position = 8};
                 {position = 13};{position = 13};{position = 13};{position = 13};
                 {position = 26};{position = 26};{position = 26};{position = 26};
                 {position = 37};{position = 37};{position = 37};{position = 37}];
-}
+}*)
 
 (*--------------------------BEGINNING GUI FUNCTIONS---------------------------*)
 
@@ -129,12 +130,13 @@ let house_pixbuf = GdkPixbuf.from_file "assets/black_house.png"
 (*Helper function for getting list of properties at the given board pos*)
 let properties_at_pos pos (proplst:property list) =
   List.fold_left
-    (fun acc (a:property) -> if a.position = pos then a::acc else acc) [] proplst
+    (fun acc (a:property) ->
+     if get_prop_position a = pos then a::acc else acc) [] proplst
 
 (*Helper function for getting list of player at the given board pos*)
 let players_at_pos pos playerlst =
   List.fold_left
-    (fun acc a -> if !(a.position) = pos then a::acc else acc) [] playerlst
+    (fun acc a -> if get_pl_position a = pos then a::acc else acc) [] playerlst
 
 (*Helper function for drawing a list of players at a given physical pos*)
 let draw_players physpos playerlst dest_pixbuf =
@@ -195,20 +197,20 @@ let draw_properties physpos proplst dest_pixbuf =
       propdraw_helper (pnum + 1) tl in
   propdraw_helper 0 proplst
 
-(*Callback function for updating the board pixbuf in the GUI*)
-let updateboard curboard: GdkPixbuf.pixbuf =
+(*Callback function for updating the board pixbuf and drawing it in the GUI*)
+let updateboard curboard =
   (*The pixbuf of the updated board*)
   let out_pixbuf = GdkPixbuf.copy scaled_board_pixbuf in
   let rec drawhelper curpos poslist=
     match poslist with
     | hd::tl->
-      let players = players_at_pos curpos curboard.player_list in
-      let props = properties_at_pos curpos curboard.property_list in
+      let players = players_at_pos curpos (get_player_list curboard) in
+      let props = properties_at_pos curpos (get_property_list curboard) in
       (if players = [] then () else draw_players hd players out_pixbuf);
       (if props = [] then () else draw_properties hd props out_pixbuf);
       drawhelper (curpos + 1) tl
     | [] -> () in
-  (drawhelper 0 tilelocation); out_pixbuf
+  (drawhelper 0 tilelocation); board_image#set_pixbuf out_pixbuf
 (*-----------------END OF HELPER FUNCTIONS FOR UPDATING BOARD-----------------*)
 
 (* Buttons *)
@@ -270,8 +272,7 @@ let main () =
 
   (* Button2 *)
   let _ = button2#connect#clicked ~callback: (
-    fun () -> let drawn_board_pixbuf = updateboard board_state in
-      board_image#set_pixbuf drawn_board_pixbuf) in
+    fun () -> (*updateboard board_state*) ()) in
 
   (* Toggle Button *)
   let _ = button3#connect#clicked ~callback: (fun () -> ()) in
