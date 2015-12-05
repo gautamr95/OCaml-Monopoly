@@ -96,8 +96,10 @@ let controls = GPack.box `VERTICAL ~width:400
                                    ~packing:game_area#add ()
 
 let buttons = GPack.box `VERTICAL ~packing:controls#add ()
+                                  ~height:200
 
 let commandarea = GPack.box `VERTICAL ~packing:controls#add ()
+                                      ~height:600
 
 let scrollingtext = GBin.scrolled_window  ~hpolicy:`NEVER
                                       ~vpolicy:`AUTOMATIC
