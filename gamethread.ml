@@ -9,6 +9,6 @@ let get_input () =
   Gui.print_to_cmd "waiting for lock\n";
   Mutex.lock (!wait_lock);
   Gui.print_to_cmd "lock acquired\n";
-  Gui.print_to_cmd (!cmd_input_str);
+
   Mutex.unlock (!wait_lock);
   Gui.print_to_cmd "lock unlocked\n"
