@@ -3,21 +3,24 @@ open Game_utils
 open AI_functions
 open Board_gen
 open Async.Std
+open Trading
 
 (* Game constants *)
 let total_players = 4
 let jail_fee = 30
-let tot_rounds = 50
+let tot_rounds = 30
 let house_cost = 50
 
-(* Embed everything in a function to be run through the GUI. *)
+(* Embed everything in a function to be run through the GUI. As can be
+seen through the toplevel file, two threads are created that run the main
+game GUI, and run the game logic (this file). So embedding the 'script'
+portion of the game in a function enables the threads to run. *)
 let run_game_main () =
-
-(* Mutex based function *)
 
 let wait_lock = ref (Mutex.create ()) in
 let cmd_input_str = ref "" in
 
+(* Mutex based function to get inputs *)
 let get_input () : string=
   Mutex.unlock (!wait_lock);
   Gui.readline wait_lock cmd_input_str;
@@ -28,12 +31,12 @@ let get_input () : string=
 (* To create random seed. *)
 let _ = Random.self_init () in
 
+(* Adds lists to generate the board *)
 let property_list = Board_gen.create_prop_list () in
 let tile_list = Board_gen.create_tile_list property_list in
 let chance_list = Board_gen.create_community_chest_list() in
 let community_chest_list =  Board_gen.create_chance_list() in
 
-(*      end         *)
 
 (* Give introductory message, need to press enter to continue *)
 let _ = (Gui.print_to_cmd "\n\n\nWelcome to OCaml Monopoly! This game has been developed by
@@ -69,11 +72,18 @@ let rec get_players () : int =
 
   let num_players = get_players_prompt () in
 
-  if 1 <= num_players && num_players <= 4 && (is_correct ()) then num_players else get_players () in
+  if 0 <= num_players && num_players <= 4 && (is_correct ()) then num_players
+  else get_players () in
 
 let num_players = get_players () in
 
-let rec make_ai_list acc human_num init =
+(* Makes a bool list that refers to which player id's correspond to
+AI's or human players
+Input: Acc - list accumulator
+human_num - number of human players
+init - Initial value (used for internal recursive purposes)
+Output: list of bool corresponding to an id that is AI vs. human *)
+let rec make_ai_list (acc: bool list) (human_num: int) (init: int): bool list =
   if init = 5 then acc
   else if human_num > 0 then
     (make_ai_list (acc@[false]) (human_num-1) (init+1))
@@ -83,6 +93,9 @@ let is_ai_list = make_ai_list [] num_players 1 in
 
 let game_board = create_board is_ai_list community_chest_list chance_list
                           property_list tile_list in
+move_property game_board 0 None (match get_property_from_name game_board "virginia" with |Some x -> x | None -> failwith "fuck");
+move_property game_board 0 None (match get_property_from_name game_board "states" with |Some x -> x | None -> failwith "fuck");
+move_property game_board 0 None (match get_property_from_name game_board "St.Charles" with |Some x -> x | None -> failwith "fuck");
 Gui.updateboard game_board;
 
 (* total turns (for each round)*)
@@ -106,12 +119,12 @@ let property_prompt p_id p_position  =
     (Gui.print_to_cmd (Printf.sprintf "\nWould you like to purchase %s, for a cost of %d? (y/n) -> " prop_name prop_price));
     let answer = get_input () in
     match String.lowercase (answer) with
-    | "y" ->
+    | "y" -> (* If the want to make a transaction (For confirmation) *)
       (let tot_money = get_money game_board p_id in
       if prop_price > tot_money  then
         ((Gui.print_to_cmd "\nError. You do not have enough money for this transaction.");
         false)
-      else
+      else (* They can buy the property, the transaction is executed *)
         let _ = (Gui.print_to_cmd (Printf.sprintf "\nYou have bought the property, %s!\n" prop_name)) in
         let _ = (move_property game_board p_id None prop) in
         let _ = (change_money game_board p_id (-1 * prop_price)) in
@@ -120,25 +133,29 @@ let property_prompt p_id p_position  =
     | _ -> Gui.print_to_cmd "\nInvalid command."; false
     ) in
 
-(* Helper REPL function for purchasing a house on a property. *)
+(* Helper REPL function for purchasing a house on a property. Takes in the
+player id, and prompts them for which properties they would like to
+buy houses for. *)
 let rec buy_house p_id =
   (Gui.print_to_cmd "\nChoose from the following options:
     Upgrade - Options to buy a house
     Properties - View your properties
     Quit - Go back to the main game options");
+  Gui.updateboard game_board;
   let command = get_input () in
   match String.lowercase (command) with
-  | "upgrade" ->
+  | "upgrade" -> (* Used for buying a house for a property *)
     (Gui.print_to_cmd "\nPlease enter the name of the property you would like to buy a house for -> ");
     let house_prop = get_input () in
     let prop_obj_option = get_property_from_name game_board house_prop in
     begin match prop_obj_option with
-    | None ->
+    | None -> (* No such property *)
       Gui.print_to_cmd "\nInvalid move. The property doesn't exist.";
       buy_house p_id
-    | Some prop_obj ->
+    | Some prop_obj -> (* Buying a house for the specified property *)
       begin match can_buy_house game_board p_id prop_obj with
       | true ->
+        (* Extra checks to make sure they have enough money *)
         if (get_money game_board p_id >= house_cost) then
           (Gui.print_to_cmd "\nYou have bought a house for your property!";
           add_house game_board p_id prop_obj;
@@ -146,29 +163,44 @@ let rec buy_house p_id =
         else
           (Gui.print_to_cmd "\nYou do not have enough money to buy this house.";
           buy_house p_id)
-      | false -> ( Gui.print_to_cmd "\nInvalid move. You can not buy the house because you either do not own the property or you don't have a monopoly.");
+      | false -> ( Gui.print_to_cmd "\nInvalid move. You can not buy the house because you either do not own the property, you don't have a monopoly, or you already have 4 houses on this property.");
         buy_house p_id
       end
     end
-  | "properties" -> Gui.print_to_cmd (print_players_properties game_board p_id); buy_house p_id
+  | "properties" ->
+    Gui.print_to_cmd (print_players_properties game_board p_id); buy_house p_id
   | "quit" -> ()
   | _ -> (Gui.print_to_cmd "\nInvalid command."; buy_house p_id) in
 
 (* Loop through game states, and update game state. This loop is taken for
-each player that plays the game. *)
+each player that plays the game. Takes in a unit, to help create the function
+and returns a unit. *)
 let rec game_loop () =
   Gui.updateboard game_board;
+
+  (* Adds turns for each player, and then updates the round if necessary *)
   turns := !turns + 1;
-  let _ = if !turns > 4 then (turns := 1; rounds := !rounds + 1) else () in
+  let _ = if !turns > 4
+    then (turns := 1; rounds := !rounds + 1; incr_round game_board) else () in
   if !rounds >= tot_rounds then ()
   else let curr_player_id = !turns - 1 in
+
+  (* If all other players are bankrupt, the game is done *)
   if others_bankrupt game_board curr_player_id then ()
-  else if is_bankrupt game_board curr_player_id then
+
+  (* If the player previously had the option to switch their state of
+  bankrupty, but haven't, they are finished. *)
+  else if
+    (is_bankrupt game_board curr_player_id)
+      && (get_done game_board curr_player_id) then
       (Gui.print_to_cmd (Printf.sprintf "\nPlayer %d, you are bankrupt, so your turn will be skipped.\n" curr_player_id))
+
+  (* Calls the corresponding AI functions *)
   else if is_ai game_board curr_player_id then
       (ai_decision game_board curr_player_id; game_loop ())
   else
     (* REPL for the individual players and the actions they can perform. *)
+
     let _ = Gui.print_to_cmd "__________________________________________________________\n" in
     let _ = Gui.print_to_cmd "__________________________________________________________" in
     let _ = (Gui.print_to_cmd (Printf.sprintf "\nPlayer %d, it is your turn.\nPress enter to roll the dice -> " curr_player_id)) in
@@ -191,6 +223,8 @@ let rec game_loop () =
 
     Gui.updateboard game_board;
 
+    (* If players were previously in jail, they get to roll, and if it's a double,
+    they move from jail for free, and otherwise, they have to pay a jail fee. *)
     let _ =
     if in_jail game_board curr_player_id then
       (Gui.print_to_cmd "\n\nYou were also in jail.";
@@ -202,27 +236,26 @@ let rec game_loop () =
         change_money game_board curr_player_id (-1 * jail_fee)))
     else () in
 
-
     let prop_option = (get_property game_board player_position) in
 
+    (* Checks the specific tile that they landed on. It could be a variety
+    of things such as chance card, community chest card, etc.*)
     let _ = match prop_option with
-    | None ->
+    | None -> (* When it's not a property tile *)
       (if is_chance game_board player_position then
         let (message, money_change, other_money_change) = get_chance game_board in
         ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou got a chance card!\n%s\n---------------------------\n" (message)));
         change_money game_board curr_player_id money_change;
         change_others_money game_board curr_player_id other_money_change)
-        (*move_to_position game_board curr_player_id move_space*)
       else if is_chest game_board player_position then
         let (message, money_change, other_money_change) = get_chest game_board in
         ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou got a community chest card!\n%s\n---------------------------\n" (message)));
         change_money game_board curr_player_id (money_change));
         change_others_money game_board curr_player_id other_money_change
-        (*move_to_position game_board curr_player_id move_space*)
       else if is_go_jail game_board player_position then
         ((Gui.print_to_cmd "\n---------------------------\nYou are going to jail :(\n---------------------------\n");
         move_to_jail game_board curr_player_id) else ())
-    | Some prop ->
+    | Some prop -> (* If they land on a property tile *)
       let holder = get_holder prop in
       (match holder with
       | None -> (* No one is holding the current property. *)
@@ -235,25 +268,31 @@ let rec game_loop () =
         else
           let rent_amt = get_rent prop in
 
-          let int_pow a b = int_of_float ((float_of_int a) ** (float_of_int b)) in
+          (* Multiplier created for the properties, and determined the
+          rent that they will need to pay. *)
+          let rent_multiplier = match num_houses with
+          | 1 -> 5 | 2 -> 15 | 3 -> 45 | 4 -> 60 | _ -> 1 in
 
-          let pay_amt = rent_amt * (int_pow 2 num_houses) in
+          let pay_amt = rent_amt * rent_multiplier in
           ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou have landed on player %d's property, and will pay a rent of %d.\n---------------------------\n" p_id pay_amt));
           change_money game_board curr_player_id (-1 * pay_amt);
-          change_money game_board p_id (pay_amt))) in
+          change_money game_board p_id (pay_amt))
+
+        )
+
+          in
 
     Gui.updateboard game_board;
 
+    (* Input and options that can recursively be updated for a single player's
+    turn, this does not represent a round *)
     let rec mini_repl () =
       Gui.updateboard game_board;
 
       (* First print the relevant options. *)
       let _ = Gui.print_to_cmd "\nYou have the following options:\n
-        Money - Displays how much money you currently have
         Property - Displays what properties you own
-        Position - Displays your numeric position on the board
         Trade - Initiates a trade, if possible
-        Upgrade - Upgrades a property with additional houses, if possible
         House - Options for buying houses for a property
         Done - End turn" in
 
@@ -262,32 +301,46 @@ let rec game_loop () =
         "\n\tBuy - Options for buying the current property")
       else () in
 
+      (* Warning message if they end up bankrupt. *)
+      let _ = if is_bankrupt game_board curr_player_id then
+        (Gui.print_to_cmd
+        "\n\n\tWarning! You are currently bankrupt. If you don't have 0 or positive wealth by the end of this turn, you will drop out of the game!")
+      else () in
+
       Gui.print_to_cmd "\n\nCommand -> ";
       let command = get_input () in
 
+      (* Checks input and matches on it *)
       let _ = match String.lowercase command with
-      | "money" ->
-        (Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou have $%d.\n---------------------------" (get_money game_board curr_player_id));
-        mini_repl ())
       | "property" ->
         (Gui.print_to_cmd (print_players_properties game_board curr_player_id);
         mini_repl ())
-      | "position" -> ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou are currently on position %d.\n---------------------------" player_position)); mini_repl ())
-      (*| "trade" -> (execute_trade (); mini_repl ()) TODO *)
-      | "house" -> (buy_house curr_player_id; mini_repl ()); Gui.updateboard game_board
-      | "done" -> ()
+      | "trade" ->
+        (trade_prompt game_board curr_player_id; Gui.updateboard game_board;
+          mini_repl ())
+      | "house" ->
+        (buy_house curr_player_id; Gui.updateboard game_board; mini_repl ())
+      | "done" -> Gui.updateboard game_board
       | "buy" -> (* Buying a new property. *)
         if not !prompt_buy_property then ((Gui.print_to_cmd "\n---------------------------\nInvalid command.\n---------------------------\n"); mini_repl ())
         else
           let transaction = property_prompt curr_player_id player_position in
-          let _ = if transaction then (prompt_buy_property := false; bought_property := true) else () in
+          Gui.updateboard game_board;
+          let _ = if transaction then
+            (prompt_buy_property := false; bought_property := true) else () in
           mini_repl ()
       | _ -> ((Gui.print_to_cmd "\n---------------------------\nInvalid command.\n---------------------------"); mini_repl ()) in
       Gui.updateboard game_board in
 
+    (* Starts off the mini_repl, which gets input from the human player *)
     let _ = (mini_repl ()) in
+    let _ = (if is_bankrupt game_board curr_player_id
+      then set_done game_board curr_player_id else ()) in
+
+  (* Recursively gets the game started again *)
   game_loop () in
 
+(* Starts off the game initially *)
 let _ = game_loop () in
 
 (* Determine end state of game. *)
@@ -307,9 +360,12 @@ let rec determine_winner id =
   let tot_value = held_money + total_property_value in
   let _ = if (tot_value > !winner_value) then
     (winner_id := id; winner_value := tot_value)
-  else () in
-  determine_winner (id+1) in
+  else () in determine_winner (id+1) in
+
 let _ = determine_winner 0 in
+
+Gui.print_to_cmd (Printf.sprintf "\nCongratulations player %d! You have won the game with a total evaluation value of %d!\n" !winner_id !winner_value);
+
 let _ = Gui.print_to_cmd "\n\nThe game is finished! Thanks for playing!\n\n" in ()
 
 (* Done with game script. *)

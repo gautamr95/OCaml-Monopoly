@@ -32,7 +32,8 @@ type player = { id: int;
                is_AI: bool;
                in_jail: bool ref;
                bankrupt:bool ref;
-               money: int ref
+               is_done: bool ref;
+               money: int ref;
              }
 
 type community_chest = string * int * int
@@ -46,6 +47,7 @@ type board = { player_list: player list;
                chance_list: chance list;
                property_list: property list;
                tile_list : tile list;
+               round : int ref;
              }
 
 
@@ -55,10 +57,15 @@ let get_player_list b =
 let get_property_list b =
   b.property_list
 
+let get_round b =
+  !(b.round)
+
+let incr_round b =
+  b.round := !(b.round) + 1
+
 let get_player b pl_id =
   let pl_list = get_player_list b in
   List.nth pl_list (pl_id)
-
 
 let get_property_from_name b p_name =
   let p_list = b.property_list in
@@ -107,7 +114,7 @@ let change_money b pl_id amt =
 
 let move_player b pl_id i =
   let pl = get_player b pl_id in
-  let new_pos = ((!(pl.position) + i) mod ((List.length b.tile_list) - 1)) in
+  let new_pos = ((!(pl.position) + i) mod ((List.length b.tile_list))) in
   if new_pos < !(pl.position) then
     change_money b pl_id 200
   else ();
@@ -164,7 +171,6 @@ let move_property b pl_id pl_id2 prop =
   | Some x -> let pl2_props = get_pl_prop_of_color b x prop in
     pl2_props := List.filter (fun x -> x <> prop) !(pl2_props)
 
-
 let get_prop_price p = p.cost
 
 let get_prop_name p = p.name
@@ -213,7 +219,8 @@ let get_houses prop =
 
 let move_to_jail b pl_id =
   let pl = get_player b pl_id in
-  let jail = List.find (fun x -> match x with | Jail _ -> true |_ -> false) b.tile_list in
+  let jail =
+    List.find (fun x -> match x with |Jail _ -> true |_ -> false) b.tile_list in
   match jail with
   | Jail i -> pl.position := i; pl.in_jail := true
   | _ -> ()
@@ -224,25 +231,24 @@ let leave_jail b pl_id =
 
 let print_prop_of_color p_list =
   let list_length = List.length p_list in
-  if list_length = 0 then " None\n"
+  if list_length = 0 then " None"
   else
-    List.fold_left (fun x y -> x^(Printf.sprintf " %s(Houses:%i) " y.name !(y.houses)))
+    List.fold_left
+      (fun x y -> x^(Printf.sprintf " %s(Houses:%i) " y.name !(y.houses)))
                    "" p_list
 
 let print_players_properties b pl_id =
   let props = get_player_property b pl_id in
   "\n---------------------------\n"^
-  print_prop_of_color !(props.brown)^
-  print_prop_of_color !(props.grey)^
-  print_prop_of_color !(props.pink)^
-  print_prop_of_color !(props.orange)^
-  print_prop_of_color !(props.red)^
-  print_prop_of_color !(props.yellow)^
-  print_prop_of_color !(props.green)^
-  print_prop_of_color !(props.blue)^
+  "Brown:" ^ print_prop_of_color !(props.brown)^ "\n" ^
+  "Grey:" ^ print_prop_of_color !(props.grey)^"\n" ^
+  "Pink:" ^ print_prop_of_color !(props.pink)^"\n" ^
+  "Orange:" ^ print_prop_of_color !(props.orange)^"\n" ^
+  "Red:" ^ print_prop_of_color !(props.red)^"\n" ^
+  "Yellow:" ^ print_prop_of_color !(props.yellow)^"\n" ^
+  "Green:" ^ print_prop_of_color !(props.green)^"\n" ^
+  "Blue:" ^ print_prop_of_color !(props.blue)^"\n" ^
   "---------------------------\n"
-
-
 
 let can_buy_house b pl_id prop =
   let prop_list = !(get_pl_prop_of_color b pl_id prop) in
@@ -265,20 +271,21 @@ let create_prop_cont () : property_container =
 
 let create_player id ai =
   {id; position = ref(0); properties = create_prop_cont(); is_AI = ai;
-   in_jail = ref(false); bankrupt = ref(false); money = ref(1500)}
+   in_jail = ref(false); bankrupt = ref(false); money = ref(1500);
+   is_done = ref false}
 
 let create_player_list ai_lst =
   let id_ref = ref(-1) in
   List.map (fun x -> id_ref := !id_ref + 1; create_player !id_ref x) ai_lst
 
-
 let create_board ai_lst community_chest_list
                  chance_list property_list tile_list =
   let player_list = create_player_list ai_lst in
-  {player_list;community_chest_list;chance_list;property_list;tile_list}
+  {player_list;community_chest_list;chance_list;property_list;
+  tile_list;round = ref(1)}
 
 (* Returns a number between 1 and 12 inclusive, simulating two dice rolled. *)
-let roll_dice () : (int * int) = (1 + Random.int 6, 1 + Random.int 6 )
+let roll_dice () : (int * int) = (1 + Random.int 6 , 1 + Random.int 6 )
 
 let move_to_position b pl_id pos =
   let pl = get_player b pl_id in
@@ -306,5 +313,14 @@ let create_chance_list () =
 
 let create_community_chest_list () =
   [("foo", 100) ; ("dog",-300)] *)
+
+let get_done b pl_id =
+  let pl = get_player b pl_id in
+  !(pl.is_done)
+
+let set_done b pl_id =
+  let pl = get_player b pl_id in
+  let done_ref = pl.is_done in
+  done_ref := true
 
 

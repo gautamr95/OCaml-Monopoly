@@ -95,7 +95,7 @@ let board = GPack.box `VERTICAL ~width:800
 let controls = GPack.box `VERTICAL ~width:400
                                    ~packing:game_area#add ()
 
-let buttons = GPack.box `VERTICAL ~packing:controls#add ()
+let infoarea = GPack.box `VERTICAL ~packing:controls#add ()
                                   ~height:200
 
 let commandarea = GPack.box `VERTICAL ~packing:controls#add ()
@@ -125,13 +125,21 @@ let board_image = GMisc.image ~pixbuf:drawn_board_pixbuf
 let obama_pixbuf = GdkPixbuf.from_file "assets/obama.png"
 let cena_pixbuf = GdkPixbuf.from_file "assets/cena.png"
 let sanders_pixbuf = GdkPixbuf.from_file "assets/sanders.png"
+let gaben_pixbuf = GdkPixbuf.from_file "assets/gaben.png"
 
 (*Load up the property pictures*)
 let house_pixbuf = GdkPixbuf.from_file "assets/black_house.png"
 
 (* Buttons *)
-let button = GButton.button ~label:"Push me!"
-                            ~packing:buttons#add ()
+(*let button = GButton.button ~label:"Push me!"
+                            ~packing:buttons#add ()*)
+
+(* Information display area *)
+let moneydisplay = GText.view ~editable:false
+                              ~cursor_visible:false
+                              ~wrap_mode:`CHAR
+                              ~show:true
+                              ~packing:infoarea#add ()
 
 (* Command input and display*)
 let commanddisplay = GText.view ~editable:false
@@ -146,8 +154,6 @@ let commandinput = GEdit.entry ~editable:true
 
 let print_to_cmd str =
   commanddisplay#buffer#insert ~iter:commanddisplay#buffer#end_iter str;
-  (*let a = commanddisplay#scroll_to_iter (commanddisplay#buffer#end_iter) in
-    if a then () else ();*)
   scrollingtext#vadjustment#set_value
         (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size +. 100.)
 
@@ -184,7 +190,7 @@ let draw_players physpos playerlst dest_pixbuf =
               (if get_player_id p = 0 then obama_pixbuf
                 else if get_player_id p = 1 then cena_pixbuf
                 else if get_player_id p = 2 then sanders_pixbuf
-                else if get_player_id p = 3 then sanders_pixbuf
+                else if get_player_id p = 3 then gaben_pixbuf
                 else raise (Gui_error "Invalid player ID"))) playerlst
 
 (*Helper function for drawing a list of properties at a given physical pos*)
@@ -203,10 +209,10 @@ let draw_properties propertylst dest_pixbuf =
       | _ -> raise (Gui_error "draw property fail") in
     let prop_holder_pos =
       match physpos with
-      | (x, y) when y = 720 -> (0,-20)
-      | (x, y) when x = 0   -> (20,0)
-      | (x, y) when y = 0   -> (0,20)
-      | (x, y) when x = 720 -> (-20,0)
+      | (x, y) when y = 720 -> (25,-20)
+      | (x, y) when x = 0   -> (20,25)
+      | (x, y) when y = 0   -> (25,20)
+      | (x, y) when x = 720 -> (-20,25)
       | _ -> raise (Gui_error "draw property fail") in
     let x  = fst (fst physpos_and_adj) in
     let y  = snd (fst physpos_and_adj) in
@@ -228,11 +234,11 @@ let draw_properties propertylst dest_pixbuf =
                 (if owner_id = 0 then obama_pixbuf
                   else if owner_id = 1 then cena_pixbuf
                   else if owner_id = 2 then sanders_pixbuf
-                  else if owner_id = 3 then sanders_pixbuf
+                  else if owner_id = 3 then gaben_pixbuf
                   else raise (Gui_error "Invalid player ID")));
     let rec draw_houses pnum =
       (*Draw the houses*)
-      if pnum = 0 then ()
+      if pnum = -1 then ()
       else
         (*Calculate the adjusted x and y positions*)
         let xhouse = x + pnum*dx in
@@ -250,7 +256,7 @@ let draw_properties propertylst dest_pixbuf =
                                               ~height:15
                                               house_pixbuf);
         draw_houses (pnum - 1) in
-    draw_houses num_of_houses in
+    draw_houses (num_of_houses - 1) in
 
   let rec draw_prop_list tileloc proplst tile_num =
     match (tileloc, proplst) with
@@ -268,6 +274,13 @@ let draw_properties propertylst dest_pixbuf =
   draw_prop_list tilelocation propertylst 0
 
 
+let update_money curboard =
+  let obama_mon = Printf.sprintf "Obama: $%d\n" (get_money curboard 0) in
+  let cena_mon = Printf.sprintf "John Cena: $%d\n" (get_money curboard 1) in
+  let sanders_mon = Printf.sprintf "Sanders: $%d\n" (get_money curboard 2) in
+  let gaben_mon = Printf.sprintf "Gaben: $%d\n" (get_money curboard 3) in
+  moneydisplay#buffer#set_text (obama_mon ^ cena_mon ^ sanders_mon ^ gaben_mon)
+
 (*Callback function for updating the board pixbuf and drawing it in the GUI*)
 let updateboard curboard =
   (*The pixbuf of the updated board*)
@@ -280,7 +293,8 @@ let updateboard curboard =
       (if players = [] then () else draw_players hd players out_pixbuf);
       draw_player_helper (curpos + 1) tl
     | [] -> () in
-  (draw_player_helper 0 tilelocation); board_image#set_pixbuf out_pixbuf
+  (draw_player_helper 0 tilelocation); board_image#set_pixbuf out_pixbuf;
+  update_money curboard
 
 (*-----------------END OF HELPER FUNCTIONS FOR UPDATING BOARD-----------------*)
 
@@ -302,8 +316,8 @@ let main () =
   let _ = board_image#set_pixbuf scaled_board_pixbuf in
 
   (* Button *)
-  let _ = button#connect#clicked ~callback: (
-    fun () -> board_image#set_pixbuf scaled_board_pixbuf) in
+  (*let _ = button#connect#clicked ~callback: (
+      fun () -> board_image#set_pixbuf scaled_board_pixbuf) in*)
 
   (* Command input and display*)
   let _ = commandinput#connect#activate ~callback: (
