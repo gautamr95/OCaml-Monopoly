@@ -1,5 +1,5 @@
 open Random
-Random.init 22;
+Random.self_init ();
 
 exception TODO
 (* Types used in the game *)
