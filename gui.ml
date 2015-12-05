@@ -209,10 +209,10 @@ let draw_properties propertylst dest_pixbuf =
       | _ -> raise (Gui_error "draw property fail") in
     let prop_holder_pos =
       match physpos with
-      | (x, y) when y = 720 -> (0,-20)
-      | (x, y) when x = 0   -> (20,0)
-      | (x, y) when y = 0   -> (0,20)
-      | (x, y) when x = 720 -> (-20,0)
+      | (x, y) when y = 720 -> (25,-20)
+      | (x, y) when x = 0   -> (20,25)
+      | (x, y) when y = 0   -> (25,20)
+      | (x, y) when x = 720 -> (-20,25)
       | _ -> raise (Gui_error "draw property fail") in
     let x  = fst (fst physpos_and_adj) in
     let y  = snd (fst physpos_and_adj) in
@@ -238,7 +238,7 @@ let draw_properties propertylst dest_pixbuf =
                   else raise (Gui_error "Invalid player ID")));
     let rec draw_houses pnum =
       (*Draw the houses*)
-      if pnum = 0 then ()
+      if pnum = -1 then ()
       else
         (*Calculate the adjusted x and y positions*)
         let xhouse = x + pnum*dx in
@@ -256,7 +256,7 @@ let draw_properties propertylst dest_pixbuf =
                                               ~height:15
                                               house_pixbuf);
         draw_houses (pnum - 1) in
-    draw_houses num_of_houses in
+    draw_houses (num_of_houses - 1) in
 
   let rec draw_prop_list tileloc proplst tile_num =
     match (tileloc, proplst) with

@@ -1,5 +1,24 @@
 open Game_utils
-open Trading
+open Trade_offers
+
+let accept_trade b req off rm om pl tp =
+  let gain_money = om - rm > 0 in
+  let get_cost_from_list = List.fold_left (fun a x -> a + get_prop_price x) 0 in
+  let gain_prop_cost = (get_cost_from_list off) - (get_cost_from_list req) > 0 in
+  let my_prop = List.fold_left (fun a x -> !(get_pl_prop_of_color b tp x)::a) []  in
+  let my_props_off = my_prop off in
+  let need_prop =  List.fold_left (fun a x -> a || x <> []) false my_props_off in
+  let my_money = get_money b tp in
+  let can_afford = my_money > rm in
+  let my_props_req = my_prop req in
+  let own_triple = List.fold_left (fun a x -> a || (List.length x = 3)) false my_props_req in
+  let trade =
+    if not can_afford then false
+    else if own_triple then false
+    else if need_prop then true
+    else if gain_money && gain_prop_cost then true
+    else false in
+  if trade then "y" else "n"
 
 let upgrade_a_prop b pl =
   let brown_prop = !(get_pl_prop_from_color b pl Brown) in
@@ -56,7 +75,9 @@ let trade_a_prop b pl =
           let num_houses = get_houses h in
           let offer = int_of_float (0.75 *. (float_of_int cost)) in
           let can_afford = (get_money b pl) > offer in
-          let will_trade = if (can_afford && num_houses = 0) then (trade_offer [get_prop_name h] [] 0 offer pl player)
+          let trade_fn = if (is_ai b player) then accept_trade else trade_offer in
+          let will_trade = if (can_afford && num_houses = 0) then 
+            (trade_fn [(get_prop_name h)] [] 0 offer pl player)
           else false in
           if will_trade then(
             let _ = move_property b player (Some pl) h in
@@ -89,7 +110,7 @@ let trade_a_prop b pl =
   else if (!can_trade && want_to_trade blue_prop) then (
     can_trade := false;
     prop_to_req blue_prop)
-  else 
+  else
     can_trade := false
 
 
@@ -105,7 +126,7 @@ let ai_decision (b : board) ( pl : int ) : unit =
                             pl d1 d2 (d1 + d2)) in
       move_player b pl (d1+d2);
       let new_pos = get_pl_position b pl in
-      let _ = if new_pos < (!curr_pos) then 
+      let _ = if new_pos < (!curr_pos) then
         Gui.print_to_cmd (Printf.sprintf "Player %i collected $200 for passing GO!" pl)
               else () in
       curr_pos := new_pos;
@@ -120,7 +141,7 @@ let ai_decision (b : board) ( pl : int ) : unit =
               let my_money = get_money b pl in
               let price = get_prop_price property in
               if my_money > price then
-                let _ = Gui.print_to_cmd (Printf.sprintf "Player %i bought %s for %i\n" pl name pric)e in
+                let _ = Gui.print_to_cmd (Printf.sprintf "Player %i bought %s for %i\n" pl name price) in
                (move_property b pl None property)
               else
                 ()
@@ -129,7 +150,7 @@ let ai_decision (b : board) ( pl : int ) : unit =
               let num_houses = get_houses property in
               let updated_rent = match num_houses with
               | 1 -> rent * 5
-              | 2 -> rent * 15 
+              | 2 -> rent * 15
               | 3 -> rent * 45
               | 4 -> rent * 60
               | _ -> rent in
@@ -169,21 +190,4 @@ let ai_decision (b : board) ( pl : int ) : unit =
           * maybe if reject trade next round offer more/ include diff prop
           * *)
 
-
-let accept_trade b req off rm om pl tp =
-  let gain_money = om - rm > 0 in
-  let gain_prop_cost= (get_prop_price off) - (get_prop_price req) > 0 in
-  let my_prop_off = !(get_pl_prop_of_color b tp off) in
-  let need_prop =  my_prop_off <> [] in
-  let my_money = get_money b tp in
-  let can_afford = my_money > rm in
-  let my_prop_req = !(get_pl_prop_of_color b tp req) in
-  let own_triple = List.length my_prop_req = 3 in
-  let trade =
-    if not can_afford then false
-    else if own_triple then false
-    else if need_prop then true
-    else if gain_money && gain_prop_cost then true
-    else false in
-  if trade then "y" else "n"
 
