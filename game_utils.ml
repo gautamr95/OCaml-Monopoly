@@ -5,7 +5,8 @@ exception TODO
 (* Types used in the game *)
 
 (* Constant values *)
-let house_cost = 50
+let house_cost = -50
+let house_return = 30
 
 type color = Brown|Grey|Pink|Orange|Red|Yellow|Green|Blue (*to do*)
 type property = { position: int;
@@ -259,6 +260,9 @@ let add_house b pl_id prop =
   prop.houses := !(prop.houses) + 1;
   change_money b pl_id house_cost
 
+let remove_house b pl_id prop =
+  prop.houses := !(prop.houses) - 1;
+  change_money b pl_id (house_return)
 
 let create_property position color cost rent name =
   {position;color;cost;holder=ref(None);rent;name;houses=ref(0)}
