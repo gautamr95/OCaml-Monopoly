@@ -132,3 +132,6 @@ val create_player_list : bool list -> player list
 
 val create_board : bool list -> community_chest list -> chance list ->
                    property list -> tile list -> board
+
+(* Simulates a dice roll and returns a pair of random ints between 1 and 6 inclusive *)
+val roll_dice  : unit -> int * int

@@ -250,6 +250,9 @@ let create_board ai_lst community_chest_list
   let player_list = create_player_list ai_lst in
   {player_list;community_chest_list;chance_list;property_list;tile_list}
 
+(* Returns a number between 1 and 12 inclusive, simulating two dice rolled. *)
+let roll_dice () : (int * int) = (1 + Random.int 6, 1 + Random.int 6 )
+
 (*let create_prop_list () =
   (create_property 1 Brown 300 20 "baltic") ::
   (create_property 3 Brown 300 20 "blah") ::
