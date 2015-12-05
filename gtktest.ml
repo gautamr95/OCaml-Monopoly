@@ -218,11 +218,8 @@ let button = GButton.button ~label:"Push me!"
 let button2 = GButton.button ~label:"Push me2!"
                             ~packing:buttons#add ()
 
-(* Toggle Button *)
-let togglebutton = GButton.toggle_button ~label:"Toggle me!"
-                                        ~active: false
-                                        ~draw_indicator: true
-                                        ~packing:buttons#add ()
+let button3 = GButton.button ~label:"Push me3!"
+                            ~packing:buttons#add ()
 
 (* Command input and display*)
 let commanddisplay = GText.view ~editable:false
@@ -241,56 +238,55 @@ let print_to_cmd str =
     (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size)
 
 (*Helper variables and functions for readline, which is a blocking function*)
-let is_waiting = ref (Ivar.create ())
-let cmd_input_str = ref ""
+let waiting = ref (ref (Mutex.create ()))
+let input_str = ref (ref "")
 
-let rec wait_for_input () =
-  if Ivar.is_empty (!is_waiting) then wait_for_input () else ()
-
-let readline () =
-  is_waiting := Ivar.create ();
-  wait_for_input ();
-  !cmd_input_str
+let readline waiting_ref string_ref =
+  print_to_cmd "gui locking\n";
+  Mutex.lock (!waiting_ref);
+  waiting := waiting_ref;
+  input_str := string_ref
 
 let main () =
   (*In main function, we connect the callback functions and finish setting up*)
-  window#connect#destroy ~callback:Main.quit;
+  let _ = window#connect#destroy ~callback:Main.quit in
 
   (* Game menu set up*)
-  factory#add_item "Quit" ~key:_Q ~callback: Main.quit;
-  factory#add_item "Restart" ~key:_R ~callback: Main.quit;
+  let _ = factory#add_item "Quit" ~key:_Q ~callback: Main.quit in
+  let _ = factory#add_item "Restart" ~key:_R ~callback: Main.quit in
 
   (*Create and scale the board image*)
-  GdkPixbuf.scale ~dest:scaled_board_pixbuf ~width:800
+  let _ = GdkPixbuf.scale ~dest:scaled_board_pixbuf ~width:800
                                             ~height:800
                                             ~interp:`BILINEAR
-                                            board_pixbuf;
+                                            board_pixbuf in
   (*Draw the board; we use scaled_board here because drawn_board has not been
    *properly initialized yet*)
-  board_image#set_pixbuf scaled_board_pixbuf;
+  let _ = board_image#set_pixbuf scaled_board_pixbuf in
 
   (* Button *)
-  button#connect#clicked ~callback: (
-    fun () -> board_image#set_pixbuf scaled_board_pixbuf);
+  let _ = button#connect#clicked ~callback: (
+    fun () -> board_image#set_pixbuf scaled_board_pixbuf) in
 
   (* Button2 *)
-  button2#connect#clicked ~callback: (
+  let _ = button2#connect#clicked ~callback: (
     fun () -> let drawn_board_pixbuf = updateboard board_state in
-      board_image#set_pixbuf drawn_board_pixbuf);
+      board_image#set_pixbuf drawn_board_pixbuf) in
 
   (* Toggle Button *)
-  togglebutton#connect#enter ~callback: (fun () -> prerr_endline "Entered!");
-  togglebutton#connect#leave ~callback: (fun () -> prerr_endline "Left!");
+  let _ = button3#connect#clicked ~callback: (fun () -> ()) in
 
   (* Command input and display*)
-  commandinput#connect#activate ~callback: (
-    fun () -> print_to_cmd (commandinput#text ^ "\n"); commandinput#set_text "";
-      cmd_input_str := commandinput#text;
-      if Ivar.is_empty (!is_waiting) then Ivar.fill (!is_waiting) true else ());
+  let _ = commandinput#connect#activate ~callback: (
+    fun () -> print_to_cmd (commandinput#text ^ "\n");
+      (!input_str) := commandinput#text;
+      commandinput#set_text "";
+      Mutex.unlock !(!waiting)) in
 
   (* Display the windows and enter Gtk+ main loop *)
   window#add_accel_group accel_group;
   window#show ();
-  Main.main ()
+  GtkThread.busy_waiting := true;
+  GtkThread.main ()
 
-let () = main ()
+(*let () = main ()*)
