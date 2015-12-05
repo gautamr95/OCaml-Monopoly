@@ -28,10 +28,10 @@ let get_input () : string=
 (* To create random seed. *)
 let _ = Random.self_init () in
 
-let property_list = create_prop_list () in
-let tile_list = create_tile_list property_list in
-let chance_list = create_community_chest_list() in
-let community_chest_list =  create_chance_list() in
+let property_list = Board_gen.create_prop_list () in
+let tile_list = Board_gen.create_tile_list property_list in
+let chance_list = Board_gen.create_community_chest_list() in
+let community_chest_list =  Board_gen.create_chance_list() in
 
 (*      end         *)
 
