@@ -103,6 +103,7 @@ let commandarea = GPack.box `VERTICAL ~packing:controls#add ()
 
 let scrollingtext = GBin.scrolled_window  ~hpolicy:`NEVER
                                       ~vpolicy:`AUTOMATIC
+                                      ~height:550
                                       ~packing:commandarea#add ()
 
 let board_pixbuf = GdkPixbuf.from_file "assets/monopoly.jpg"
@@ -124,9 +125,39 @@ let board_image = GMisc.image ~pixbuf:drawn_board_pixbuf
 let obama_pixbuf = GdkPixbuf.from_file "assets/obama.png"
 let cena_pixbuf = GdkPixbuf.from_file "assets/cena.png"
 let sanders_pixbuf = GdkPixbuf.from_file "assets/sanders.png"
+let gaben_pixbuf = GdkPixbuf.from_file "assets/gaben.png"
 
 (*Load up the property pictures*)
 let house_pixbuf = GdkPixbuf.from_file "assets/black_house.png"
+
+(* Buttons *)
+let button = GButton.button ~label:"Push me!"
+                            ~packing:buttons#add ()
+
+(* Command input and display*)
+let commanddisplay = GText.view ~editable:false
+                              ~cursor_visible:false
+                              ~wrap_mode:`CHAR
+                              ~show:true
+                              ~packing:scrollingtext#add ()
+
+let commandinput = GEdit.entry ~editable:true
+                              ~show:true
+                              ~packing:commandarea#add ()
+
+let print_to_cmd str =
+  commanddisplay#buffer#insert ~iter:commanddisplay#buffer#end_iter str;
+  scrollingtext#vadjustment#set_value
+        (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size +. 100.)
+
+(*Helper variables and functions for readline, which is a blocking function*)
+let waiting = ref (ref (Mutex.create ()))
+let input_str = ref (ref "")
+
+let readline waiting_ref string_ref =
+  Mutex.lock (!waiting_ref);
+  waiting := waiting_ref;
+  input_str := string_ref
 
 (*--------------------HELPER FUNCTIONS FOR UPDATING BOARD---------------------*)
 (*Helper function for getting list of player at the given board pos*)
@@ -152,7 +183,7 @@ let draw_players physpos playerlst dest_pixbuf =
               (if get_player_id p = 0 then obama_pixbuf
                 else if get_player_id p = 1 then cena_pixbuf
                 else if get_player_id p = 2 then sanders_pixbuf
-                else if get_player_id p = 3 then sanders_pixbuf
+                else if get_player_id p = 3 then gaben_pixbuf
                 else raise (Gui_error "Invalid player ID"))) playerlst
 
 (*Helper function for drawing a list of properties at a given physical pos*)
@@ -172,16 +203,16 @@ let draw_properties propertylst dest_pixbuf =
     let prop_holder_pos =
       match physpos with
       | (x, y) when y = 720 -> (0,-20)
-      | (x, y) when x = 0   -> (20, 0)
-      | (x, y) when y = 0   -> (0, 20)
+      | (x, y) when x = 0   -> (20,0)
+      | (x, y) when y = 0   -> (0,20)
       | (x, y) when x = 720 -> (-20,0)
       | _ -> raise (Gui_error "draw property fail") in
     let x  = fst (fst physpos_and_adj) in
     let y  = snd (fst physpos_and_adj) in
     let dx = fst (snd physpos_and_adj) in
     let dy = snd (snd physpos_and_adj) in
-    let xavatar = xhouse + (fst prop_holder_pos) in
-    let yavatar = yhouse + (snd prop_holder_pos) in
+    let xavatar = x + (fst prop_holder_pos) in
+    let yavatar = y + (snd prop_holder_pos) in
     (GdkPixbuf.composite ~dest:dest_pixbuf
                 ~alpha:200
                 ~ofs_x: (float_of_int xavatar)
@@ -196,7 +227,7 @@ let draw_properties propertylst dest_pixbuf =
                 (if owner_id = 0 then obama_pixbuf
                   else if owner_id = 1 then cena_pixbuf
                   else if owner_id = 2 then sanders_pixbuf
-                  else if owner_id = 3 then sanders_pixbuf
+                  else if owner_id = 3 then gaben_pixbuf
                   else raise (Gui_error "Invalid player ID")));
     let rec draw_houses pnum =
       (*Draw the houses*)
@@ -251,35 +282,6 @@ let updateboard curboard =
   (draw_player_helper 0 tilelocation); board_image#set_pixbuf out_pixbuf
 
 (*-----------------END OF HELPER FUNCTIONS FOR UPDATING BOARD-----------------*)
-
-(* Buttons *)
-let button = GButton.button ~label:"Push me!"
-                            ~packing:buttons#add ()
-
-(* Command input and display*)
-let commanddisplay = GText.view ~editable:false
-                              ~cursor_visible:false
-                              ~wrap_mode:`CHAR
-                              ~show:true
-                              ~packing:scrollingtext#add ()
-
-let commandinput = GEdit.entry ~editable:true
-                              ~show:true
-                              ~packing:commandarea#add ()
-
-let print_to_cmd str =
-  commanddisplay#buffer#insert ~iter:commanddisplay#buffer#end_iter str;
-  scrollingtext#vadjustment#set_value
-    (scrollingtext#vadjustment#upper -. scrollingtext#vadjustment#page_size)
-
-(*Helper variables and functions for readline, which is a blocking function*)
-let waiting = ref (ref (Mutex.create ()))
-let input_str = ref (ref "")
-
-let readline waiting_ref string_ref =
-  Mutex.lock (!waiting_ref);
-  waiting := waiting_ref;
-  input_str := string_ref
 
 let main () =
   (*In main function, we connect the callback functions and finish setting up*)

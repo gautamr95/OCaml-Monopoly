@@ -1,5 +1,25 @@
 open Str
-if readline_string = "TRADE" then
+open Game_utils
+
+(* req = requested prop
+ * off = offered prop
+ * rm = requested money
+ * om = offered money
+ * pl = the requester
+ * tp = the one pl wants to trade with
+ * Starts a trade request with the specified parameters*)
+let rec trade_offer req off rm om pl tp : bool =
+  Gui.print_to_cmd (Printf.sprintf "Player %i's trade request:\n" tp);
+  Gui.print_to_cmd (Printf.sprintf "Player %i wants:\n" pl);
+  List.iter (fun x -> Gui.print_to_cmd ("\n" ^ x)) req;
+  Gui.print_to_cmd (Printf.sprintf "$%i" rm);
+  Gui.print_to_cmd "In exchange for:";
+  List.iter (fun x -> Gui.print_to_cmd ("\n" ^ x)) off;
+  Gui.print_to_cmd (Printf.sprintf "$%i" om);
+  Gui.print_to_cmd "will you accept? (y/n):";
+  let input = String.lowercase(read_line ()) in
+  if input = "y" then true else if input = "n" then false else (print_endline "Invalid";
+    trade_offer req off rm om pl tp)
 
 (*call this function given the above event, if the player says they want to trade,
 this function steps them through the prompts to make a trade request, if the any input is valid
@@ -8,53 +28,56 @@ it kicks you out of trading and repeat the main repl, once its taken all your in
 the trade, if they say yes, then the trade carries out with the function make_trade
 which manipupates the players money and property list based on this, it is a function who returns
 unit, this function will be done once we get the board figured out more*)
-let trade_prompt pl b : unit=
-  print_string "Who do you want to trade with?\n";
-  let trade_player_s = String.lowercase(read_line ()) in
-  let trade_player = get_player b trade_player_s in
-  if trade_player = "null" then print_string "Invalid entry" else
-    print_string "What properties do you want? None for just money";
-    let requests = String.lowercase(read_line ()) in
-    let req_list = split (regexp " ") requests in
-    let valid = List.fold_left (fun x y -> x && (player_has_property trade_player)) true req_list in
-    if not valid then "Invalid entry" else
-      let req_props = List.map (get_property b) req_list in
-      print_string "How much Money do you want?";
-      let money_s = read_line () in
-      let money_opt = try Some(int_of_string money_s) with
-                      | failure _ -> None in
-      match money_opt with
-      |None -> "Invalid entry"
-      |Some money ->
-        if money > get_money trade_player then "Invalid entry" else
-          print_string "What properties will you offer?";
-          let offer = String.lowercase(read_line ()) in
-          let offer_list = split (regexp " ") requests in
-          let valid = List.fold_left (fun x y -> x && (player_has_property pl)) true offer_list in
-          if not valid then "Invalid entry" else
-          let offer_props = List.map (get_property b) offer_list in
-          print_string "How much Money will you offer?";
-          let money_o_s = read_line () in
-          let money_o_opt = try Some(int_of_string money_o_s) with
-                            | failure _ -> None in
-          match money_o_opt with
-          | None -> "Invalid Entry"
-          | Some money_o ->
-            if money_o > get_money pl then "invalid entry" else
-              let trade_accept = trade_offer req_list offer_list money_s money_o_s pl trade_player in
-              if trade_accept then make_trade req_props offer_props money money_o pl trade_player else
-                print_string "trade denied"
+let trade_prompt b pl : unit=
+  let rec trade_player_prompt () =
+    print_string "Who do you want to trade with?\n";
+    try (int_of_string (read_line ())) with
+    | Failure s -> trade_player_prompt () in
+  let trade_player = trade_player_prompt () in
+  print_string "What properties do you want? None for just money";
+  let requests = String.lowercase(read_line ()) in
+  let req_list = split (regexp " ") requests in
+  let correct_holder x =
+    match (get_property_from_name b x) with
+    | None -> -1
+    | Some prop -> (
+      match get_holder prop with
+      | None -> -1
+      | Some i -> i) in
+  let valid = List.fold_left (fun a x -> a && (correct_holder x) = trade_player) true in
+  if (not (valid req_list)) then Printf.printf "Invalid entry"
+  else
+    let req_p = List.map (get_property_from_name b) req_list in
+    let req_props = List.fold_left (fun x y -> match y with |Some(a) -> a::x|None -> x) [] req_p in
+    let rec request_prompt () =
+      Printf.printf "How much money do you want?\n";
+      try (int_of_string (read_line ())) with
+      | Failure s -> request_prompt () in
+    let money = request_prompt () in
+    if money > (get_money b trade_player) then Printf.printf "They cannot afford this\n" else
+      print_string "What properties will you offer?";
+      let offer = String.lowercase(read_line ()) in
+      let offer_list = split (regexp " ") offer in
+      if not (valid offer_list) then Printf.printf "Invalid entry"
+      else
+        let offer_p = List.map (get_property_from_name b) offer_list in
+        let offer_props = List.fold_left (fun x y -> match y with |Some(a) -> a::x|None -> x) [] offer_p in
+        let rec offer_prompt () =
+          Printf.printf "How much Money will you offer?\n";
+          try (int_of_string (read_line ())) with
+          | Failure s -> offer_prompt () in
+        let offer = offer_prompt () in
+        if offer > (get_money b pl) then Printf.printf "You cannot afford this\n" else
+          let trade_accept = trade_offer req_list offer_list money offer pl trade_player in
 
+          if trade_accept then
+            let _ = List.iter (move_property b pl (Some trade_player)) req_props in
+            let _ = List.iter (move_property b trade_player (Some pl)) offer_props in
+            let _ = change_money b pl (-offer) in
+            let _ = change_money b trade_player (offer) in
+            let _ = change_money b pl (money) in
+            let _ = change_money b pl (-money) in
+            print_string "Trade accepted!"
+          else
+            print_string "Trade denied!"
 
-let rec trade_offer req off rm om pl tp : bool =
-  print_endline (get_name tp) ^ "'s trade request:";
-  print_endline (get_name pl) ^ " wants:";
-  List.iter print_endline req;
-  print_endline ("$" ^ rm);
-  print_endline "In exchange for:";
-  List.iter print_endline off;
-  print_endline ("$" ^ om);
-  print_endline "will you accept? (y/n)";
-  let input = String.lowercase(read_line ()) in
-  if input = y then true else if input = n then false else print_endline "Invalid";
-    trade_offer req off rm om pl tp

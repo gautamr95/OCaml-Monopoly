@@ -3,11 +3,12 @@ open Game_utils
 open AI_functions
 open Board_gen
 open Async.Std
+open Trading
 
 (* Game constants *)
 let total_players = 4
 let jail_fee = 30
-let tot_rounds = 50
+let tot_rounds = 10000
 let house_cost = 50
 
 (* Embed everything in a function to be run through the GUI. *)
@@ -69,7 +70,7 @@ let rec get_players () : int =
 
   let num_players = get_players_prompt () in
 
-  if 1 <= num_players && num_players <= 4 && (is_correct ()) then num_players else get_players () in
+  if 0 <= num_players && num_players <= 4 && (is_correct ()) then num_players else get_players () in
 
 let num_players = get_players () in
 
@@ -272,7 +273,7 @@ let rec game_loop () =
         (Gui.print_to_cmd (print_players_properties game_board curr_player_id);
         mini_repl ())
       | "position" -> ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou are currently on position %d.\n---------------------------" player_position)); mini_repl ())
-      (*| "trade" -> (execute_trade (); mini_repl ()) TODO *)
+      | "trade" -> (trade_prompt game_board curr_player_id; mini_repl ())
       | "house" -> (buy_house curr_player_id; mini_repl ()); Gui.updateboard game_board
       | "done" -> ()
       | "buy" -> (* Buying a new property. *)
