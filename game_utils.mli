@@ -13,12 +13,16 @@ val get_player_list : board -> player list
 int is always less than or equal to number of players*)
 val get_player : board -> int -> player
 
+(*take in board and return the current round*)
 val get_round : board -> int
 
+(*take in board and increment the round*)
 val incr_round : board -> unit
 
+(*get the player whose turn it is*)
 val get_turn : board -> int
 
+(*set whose turn it is, take in board and player id*)
 val set_turn : board -> int -> unit
 
 (*take in player and return player id*)
@@ -130,17 +134,6 @@ val add_house : board -> int -> property -> unit
 (*pos, color, cost, rent name*)
 val create_property : int -> color -> int -> int -> string -> property
 
-
-(* Creates a board to be used in the beginning
-  Inputs:
-  - number of human players
-  - list of names of the human players (ids will be generated in this order)
-  -
-
-val create_board : int -> string array -> string list -> string -> board
-
-
-*)
 val create_player_list : bool list -> player list
 
 val create_board : bool list -> community_chest list -> chance list ->
@@ -165,7 +158,9 @@ val get_done : board -> int -> bool
 (* sets a player's state to be marked as done *)
 val set_done : board -> int -> unit
 
-(*remove all of players items*)
+(*remove all of players items givent by player id*)
 val return_pl_props : board -> int -> unit
 
+(*remove the houses of a player, first is player id, then property then number
+  of houses*)
 val remove_house : board -> int -> property -> int -> unit
