@@ -137,7 +137,7 @@ let rec buy_house p_id =
   (Gui.print_to_cmd "\nChoose from the following options:
     Upgrade - Options to buy a house
     Properties - View your properties
-    Back - Go back to the main game options");
+    Back - Go back to the main game options\n");
   Gui.updateboard game_board;
   let command = get_input () in
   match String.lowercase (command) with
@@ -176,7 +176,7 @@ let rec sell_house p_id =
   (Gui.print_to_cmd "\nChoose from the following options:
     Sell - Options to sell a house
     Properties - View your properties
-    Back - Go back to the main game options");
+    Back - Go back to the main game options\n");
   Gui.updateboard game_board;
   let command = get_input () in
   match String.lowercase (command) with
