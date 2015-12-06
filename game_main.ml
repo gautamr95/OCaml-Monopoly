@@ -351,7 +351,7 @@ let rec game_loop () =
       (* Warning message if they end up bankrupt. *)
       let _ = if is_bankrupt game_board curr_player_id then
         (Gui.print_to_cmd
-        "\n\n\tWarning! You are currently bankrupt. If you don't have 0 or positive wealth by the end of this turn, you will drop out of the game!")
+        "\n\nWarning! You are currently bankrupt. If you don't have 0 or positive wealth by the end of this turn, you will drop out of the game!")
       else () in
 
       Gui.print_to_cmd "\n\nCommand -> ";
