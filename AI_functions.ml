@@ -1,5 +1,6 @@
 open Game_utils
 open Trade_offer
+open Random
 
 let accept_trade b req off rm om pl tp =
   let get_cost_from_list = List.fold_left (fun a x -> a + get_prop_price x) 0 in
@@ -12,15 +13,19 @@ let accept_trade b req off rm om pl tp =
   let my_money = get_money b tp in
   let can_afford = my_money > rm in
   let my_props_req = my_prop req in
+  let rand = (Random.int 10) = 0 in
   let own_triple = List.fold_left (fun a x -> a || (List.length x = 3)) false my_props_req in
    let trade =
     if not can_afford then false
+    else if rand then true
     else if own_triple then false
     else if need_prop then true
     else if gain_money then true
     else false in
   trade
 
+(* If an AI has a monopoly it will start upgrading properties but only if 
+  * it has upgraded 2*)
 let upgrade_a_prop b pl up =
   if (up > 2) then false else(
   let brown_prop = !(get_pl_prop_from_color b pl Brown) in
@@ -41,6 +46,7 @@ let upgrade_a_prop b pl up =
           pl (get_prop_name h));
           add_house b pl h)
         else house_to_buy t in
+  (*way to block and only do one color a turn*)
   if (can_buy_houses brown_prop) then
    (house_to_buy brown_prop; true)
   else if (can_buy_houses grey_prop) then
@@ -59,6 +65,7 @@ let upgrade_a_prop b pl up =
     (house_to_buy blue_prop; true)
   else false)
 
+(* Finds a property it wants to trade for*)
 let trade_a_prop b pl =
   let brown_prop = !(get_pl_prop_from_color b pl Brown) in
   let grey_prop = !(get_pl_prop_from_color b pl Grey) in
@@ -154,10 +161,12 @@ let sell_all_houses b pl =
   List.iter i blue_prop
 
 let ai_decision (b : board) ( pl : int ) : unit =
+  (* refs for stopping infinite loops*)
   let rolled = ref false in
   let upgraded = ref 0 in
   let traded = ref false in
   let curr_pos = ref (get_pl_position b pl) in
+  (* Allows AI to repeat actions such as upgrading without rolling again*)
   let rec inner_repl _ =
     if not !rolled then
       (let (d1,d2) = roll_dice () in
