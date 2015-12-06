@@ -74,7 +74,7 @@ let trade_prompt b pl : unit=
       if money = -1 then () else
       if money < 0 then Gui.print_to_cmd "Money must be greater than 0\n" else
       if money > (get_money b trade_player) then Gui.print_to_cmd "They cannot afford this\n" else
-        Gui.print_to_cmd "What properties will you offer? None for just Money\n Please place \", \" between properties";
+        Gui.print_to_cmd "What properties will you offer? None for just Money\n Please place \", \" between properties\n";
         let offer = String.lowercase(get_input ()) in
         if offer = "back" then ()
         else
