@@ -27,7 +27,7 @@ let accept_trade b req off rm om pl tp =
 (* If an AI has a monopoly it will start upgrading properties but only if 
   * it has upgraded 2*)
 let upgrade_a_prop b pl up =
-  if (up > 2) then false else(
+  if (up > 1) then false else(
   let brown_prop = !(get_pl_prop_from_color b pl Brown) in
   let grey_prop = !(get_pl_prop_from_color b pl Grey) in
   let pink_prop = !(get_pl_prop_from_color b pl Pink) in
