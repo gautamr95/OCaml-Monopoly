@@ -250,8 +250,8 @@ let rec game_loop () =
   else
     (* REPL for the individual players and the actions they can perform. *)
 
-    let _ = Gui.print_to_cmd "__________________________________________________________\n" in
-    let _ = Gui.print_to_cmd "__________________________________________________________" in
+    let _ = Gui.print_to_cmd "____________________________________________\n" in
+    let _ = Gui.print_to_cmd "____________________________________________" in
     let _ = (Gui.print_to_cmd (Printf.sprintf "\nPlayer %d, it is your turn.\nPress enter to roll the dice -> " curr_player_id)) in
     let _ = get_input () in
 
@@ -294,11 +294,13 @@ let rec game_loop () =
       (if is_chance game_board player_position then
         let (message, money_change, other_money_change) = get_chance game_board in
         ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou got a chance card!\n%s\n---------------------------\n" (message)));
+        Gui.print_to_cmd (Printf.sprintf "You gained $%d, while the other players lost $%d" money_change other_money_change);
         change_money game_board curr_player_id money_change;
         change_others_money game_board curr_player_id other_money_change)
       else if is_chest game_board player_position then
         let (message, money_change, other_money_change) = get_chest game_board in
         ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou got a community chest card!\n%s\n---------------------------\n" (message)));
+        Gui.print_to_cmd (Printf.sprintf "You gained $%d, while the other players lost $%d" money_change other_money_change);
         change_money game_board curr_player_id (money_change));
         change_others_money game_board curr_player_id other_money_change
       else if is_go_jail game_board player_position then

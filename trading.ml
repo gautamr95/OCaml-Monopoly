@@ -67,7 +67,7 @@ let trade_prompt b pl : unit=
         let inp2 = String.lowercase(get_input()) in
         if inp2 = "back" then -1
         else
-          try (int_of_string (get_input())) with
+          try (int_of_string (inp2)) with
           | Failure s -> request_prompt () in
 
       let money = request_prompt () in
