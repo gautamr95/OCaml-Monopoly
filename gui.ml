@@ -95,10 +95,12 @@ let playerinfoarea = GPack.box `HORIZONTAL ~packing:infoarea#add ()
 
 let avatararea = GPack.box `VERTICAL ~packing:playerinfoarea#add ()
                                   ~border_width:2
+                                  ~width:35
                                   ~height:130
 
 let playermoneyarea = GPack.box `VERTICAL ~packing:playerinfoarea#add ()
                                   ~border_width:2
+                                  ~width:360
                                   ~height:130
 
 let scrollingtext = GBin.scrolled_window  ~hpolicy:`NEVER
@@ -138,6 +140,8 @@ let gameinfodisplay = GMisc.label ~selectable:false
 
 let playermoneydisplay = GMisc.label ~selectable:false
                               ~justify: `LEFT
+                              ~width:360
+                              ~xalign: 0.
                               ~show:true
                               ~packing:playermoneyarea#add ()
 
