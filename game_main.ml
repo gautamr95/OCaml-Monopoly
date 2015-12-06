@@ -197,7 +197,7 @@ let rec sell_house p_id =
           | true ->
             (* Extra checks to make sure they have enough money *)
               (Gui.print_to_cmd "\nYou have sold a house for your property!";
-              remove_house game_board p_id prop_obj;
+              remove_house game_board p_id prop_obj 1;
               sell_house p_id)
           | false -> ( Gui.print_to_cmd "\nInvalid move. You do not have anymore houses on this property.");
             sell_house p_id

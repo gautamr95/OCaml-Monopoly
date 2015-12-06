@@ -168,4 +168,4 @@ val set_done : board -> int -> unit
 (*remove all of players items*)
 val return_pl_props : board -> int -> unit
 
-val remove_house : board -> int -> property -> unit
+val remove_house : board -> int -> property -> int -> unit

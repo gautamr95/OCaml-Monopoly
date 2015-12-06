@@ -122,6 +122,38 @@ let trade_a_prop b pl =
   else
     can_trade := false
 
+let sell_all_houses b pl =
+  let brown_prop = !(get_pl_prop_from_color b pl Brown) in
+  let grey_prop = !(get_pl_prop_from_color b pl Grey) in
+  let pink_prop = !(get_pl_prop_from_color b pl Pink) in
+  let orange_prop = !(get_pl_prop_from_color b pl Orange) in
+  let red_prop = !(get_pl_prop_from_color b pl Red) in
+  let yellow_prop = !(get_pl_prop_from_color b pl Yellow) in
+  let green_prop = !(get_pl_prop_from_color b pl Green) in
+  let blue_prop = !(get_pl_prop_from_color b pl Blue) in
+  let i = (fun x -> if get_houses x > 0 then remove_house b pl x (get_houses x) else ()) in
+  List.iter i brown_prop;
+  if get_money b pl >= 0 then ()
+  else
+  List.iter i grey_prop;
+  if get_money b pl >= 0 then ()
+  else
+  List.iter i pink_prop;
+  if get_money b pl >= 0 then ()
+  else
+  List.iter i orange_prop;
+  if get_money b pl >= 0 then ()
+  else
+  List.iter i red_prop;
+  if get_money b pl >= 0 then ()
+  else
+  List.iter i yellow_prop;
+  if get_money b pl >= 0 then ()
+  else
+  List.iter i green_prop;
+  if get_money b pl >= 0 then ()
+  else
+  List.iter i blue_prop
 
 let ai_decision (b : board) ( pl : int ) : unit =
   let rolled = ref false in
@@ -198,6 +230,11 @@ let ai_decision (b : board) ( pl : int ) : unit =
       | Go -> ()
       | Go_jail  -> Gui.print_to_cmd (Printf.sprintf "Player %i is going to jail!\n" pl);move_to_jail b pl); inner_repl ())
     else (
+      if (is_bankrupt b pl) then
+        let _ = sell_all_houses b pl in
+        let _ = Gui.print_to_cmd("Selling houses\n") in
+        (if is_bankrupt b pl then () else inner_repl())
+      else
       if (upgrade_a_prop b pl (!upgraded) ) then (upgraded := !upgraded + 1;
               inner_repl ())
       else if (not (!traded)) then
@@ -212,5 +249,7 @@ let ai_decision (b : board) ( pl : int ) : unit =
           * offer 75% of cost
           * maybe if reject trade next round offer more/ include diff prop
           * *)
+
+
 
 
