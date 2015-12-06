@@ -369,7 +369,7 @@ let rec game_loop () =
         (buy_house curr_player_id; Gui.updateboard game_board; mini_repl ())
       | "done" -> Gui.updateboard game_board
       | "sell" ->
-        (sell_house curr_playyer_id; Gui.updateboard game_board; mini_repl ())
+        (sell_house curr_player_id; Gui.updateboard game_board; mini_repl ())
       | "buy" -> (* Buying a new property. *)
         if not !prompt_buy_property then ((Gui.print_to_cmd "\n---------------------------\nInvalid command.\n---------------------------\n"); mini_repl ())
         else
