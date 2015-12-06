@@ -34,7 +34,7 @@ let trade_prompt b pl : unit=
   let is_done = get_done b trade_player in
   if is_done then Gui.print_to_cmd "That player is no longer in the game\n"
   else(
-  Gui.print_to_cmd "What properties do you want? None for just money \n";
+    Gui.print_to_cmd "What properties do you want? None for just money \nPlease place \", \" between properties\n";
   let requests = String.lowercase(get_input ()) in
   if requests = "back" then ()
   else
