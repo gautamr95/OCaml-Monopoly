@@ -137,7 +137,7 @@ let rec buy_house p_id =
   (Gui.print_to_cmd "\nChoose from the following options:
     Upgrade - Options to buy a house
     Properties - View your properties
-    Quit - Go back to the main game options");
+    Back - Go back to the main game options");
   Gui.updateboard game_board;
   let command = get_input () in
   match String.lowercase (command) with
@@ -166,8 +166,51 @@ let rec buy_house p_id =
     end
   | "properties" ->
     Gui.print_to_cmd (print_players_properties game_board p_id); buy_house p_id
-  | "quit" -> ()
+  | "back" -> ()
   | _ -> (Gui.print_to_cmd "\nInvalid command."; buy_house p_id) in
+
+(* Helper REPL function for selling a house on a property. Takes in the
+player id, and prompts them for which properties they would like to
+sell houses for. *)
+let rec sell_house p_id =
+  (Gui.print_to_cmd "\nChoose from the following options:
+    Sell - Options to sell a house
+    Properties - View your properties
+    Back - Go back to the main game options");
+  Gui.updateboard game_board;
+  let command = get_input () in
+  match String.lowercase (command) with
+  | "sell" -> (* Used for selling a house for a property *)
+    (Gui.print_to_cmd "\nPlease enter the name of the property you would like to sell a house on -> ");
+    let house_prop = get_input () in
+    let prop_obj_option = get_property_from_name game_board house_prop in
+    begin match prop_obj_option with
+    | None -> (* No such property *)
+      Gui.print_to_cmd "\nInvalid move. The property doesn't exist.";
+      sell_house p_id
+    | Some prop_obj -> (* Selling a house for the specified property *)
+      begin match get_holder prop_obj with
+      | None -> Gui.print_to_cmd "\nInvalid move. No one owns this property."; sell_house p_id
+      | Some holder ->
+        if holder = p_id then
+          begin match get_houses prop_obj > 0 with
+          | true ->
+            (* Extra checks to make sure they have enough money *)
+              (Gui.print_to_cmd "\nYou have sold a house for your property!";
+              remove_house game_board p_id prop_obj;
+              sell_house p_id)
+          | false -> ( Gui.print_to_cmd "\nInvalid move. You do not have anymore houses on this property.");
+            sell_house p_id
+          end
+        else Gui.print_to_cmd "\nInvalid move. You do not own this property."
+      end
+    end
+  | "properties" ->
+    Gui.print_to_cmd (print_players_properties game_board p_id); sell_house p_id
+  | "back" -> ()
+  | _ -> (Gui.print_to_cmd "\nInvalid command."; sell_house p_id) in
+
+
 
 (* Loop through game states, and update game state. This loop is taken for
 each player that plays the game. Takes in a unit, to help create the function
@@ -201,7 +244,8 @@ let rec game_loop () =
   else if is_ai game_board curr_player_id then
       (ai_decision game_board curr_player_id;
       let _ = (if is_bankrupt game_board curr_player_id
-        then set_done game_board curr_player_id else ()) in
+        then (set_done game_board curr_player_id;
+        return_pl_props game_board curr_player_id) else ()) in
         game_loop ())
   else
     (* REPL for the individual players and the actions they can perform. *)
@@ -282,10 +326,7 @@ let rec game_loop () =
           ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou have landed on player %d's property, and will pay a rent of %d.\n---------------------------\n" p_id pay_amt));
           change_money game_board curr_player_id (-1 * pay_amt);
           change_money game_board p_id (pay_amt))
-
-        )
-
-          in
+        ) in
 
     Gui.updateboard game_board;
 
@@ -299,6 +340,7 @@ let rec game_loop () =
         Property - Displays what properties you own
         Trade - Initiates a trade, if possible
         House - Options for buying houses for a property
+        Sell - Options for selling houses on a property
         Done - End turn" in
 
       let _ = if !prompt_buy_property then
@@ -326,6 +368,8 @@ let rec game_loop () =
       | "house" ->
         (buy_house curr_player_id; Gui.updateboard game_board; mini_repl ())
       | "done" -> Gui.updateboard game_board
+      | "sell" ->
+        (sell_house curr_playyer_id; Gui.updateboard game_board; mini_repl ())
       | "buy" -> (* Buying a new property. *)
         if not !prompt_buy_property then ((Gui.print_to_cmd "\n---------------------------\nInvalid command.\n---------------------------\n"); mini_repl ())
         else
@@ -341,7 +385,7 @@ let rec game_loop () =
     let _ = (mini_repl ()) in
 
     let _ = (if is_bankrupt game_board curr_player_id
-      then set_done game_board curr_player_id else ()) in
+      then (set_done game_board curr_player_id; return_pl_props game_board curr_player_id ) else ()) in
 
     (* Recursively gets the game started again *)
     game_loop () in
