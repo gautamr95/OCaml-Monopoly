@@ -1,7 +1,6 @@
 open Game_utils
 
-(* draw_gui [b pr pl] updates the GUI with the current board b, property
-list pr, and player list pl *)
+(* draw_gui [b] updates the GUI with the current board b *)
 val updateboard : board -> unit
 
 (* print_to_cmd [str] prints the [str] to the command display inside the GUI
@@ -17,4 +16,6 @@ val print_to_cmd : string -> unit
   postconditions: None*)
 val readline : Mutex.t ref -> string ref -> unit
 
+(* Call this function at the start to run the GUI
+ * Should be called from a separate thread*)
 val main : unit -> unit

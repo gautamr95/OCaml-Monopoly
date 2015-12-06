@@ -53,7 +53,7 @@ let tilelocation = [(720,720);
 
 (*--------------------------BEGINNING GUI FUNCTIONS---------------------------*)
 
-let window = GWindow.window ~width:1200 ~height:830
+let window = GWindow.window ~width:1280 ~height:830
                               ~title:"Monopoly" ()
 
 let main_container = GPack.box `VERTICAL ~packing:window#add ()
@@ -120,6 +120,8 @@ let house_pixbuf = GdkPixbuf.from_file "assets/black_house.png"
 
 (* Information display area *)
 let infodisplay = GMisc.label ~selectable:false
+                              ~justify: `LEFT
+                              ~markup: "<span size=\"18000\">Info Display</span>"
                               ~show:true
                               ~packing:infoarea#add ()
 
@@ -266,7 +268,8 @@ let update_info_area curboard =
   let round_info = Printf.sprintf "Round: %d\n" (get_round curboard) in
   let turn_info = Printf.sprintf "It is Player %d's turn.\n" (get_turn curboard) in
   let money_info = update_money curboard in
-  infodisplay#set_text (round_info ^ turn_info ^ money_info)
+  infodisplay#set_label ("<span size=\"18000\">" ^
+    round_info ^ turn_info ^ money_info ^ "</span>")
 
 (*Callback function for updating the board pixbuf and drawing it in the GUI*)
 let updateboard curboard =
@@ -292,7 +295,6 @@ let main () =
   (* Game menu set up*)
   let _ = factory#add_item "Quit" ~key:_Q
                                   ~callback: (fun () -> Pervasives.exit 0) in
-  let _ = factory#add_item "Restart" ~key:_R ~callback: Main.quit in
 
   (*Create and scale the board image*)
   let _ = GdkPixbuf.scale ~dest:scaled_board_pixbuf ~width:800
@@ -306,6 +308,8 @@ let main () =
   (* Button *)
   (*let _ = button#connect#clicked ~callback: (
       fun () -> board_image#set_pixbuf scaled_board_pixbuf) in*)
+
+  let _ = infodisplay#set_use_markup true in
 
   (* Command input and display*)
   let _ = commandinput#connect#activate ~callback: (
