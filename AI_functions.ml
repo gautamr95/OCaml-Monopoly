@@ -72,7 +72,7 @@ let trade_a_prop b pl =
   let yellow_prop = !(get_pl_prop_from_color b pl Yellow) in
   let green_prop = !(get_pl_prop_from_color b pl Green) in
   let blue_prop = !(get_pl_prop_from_color b pl Blue) in
-  let want_to_trade lst = List.length lst = 2 in
+  let want_to_trade lst = List.length lst > 0 in
   let rec prop_to_req plst  =
     match plst with
     | [] -> ()
@@ -82,7 +82,7 @@ let trade_a_prop b pl =
       | Some player ->
           let cost = get_prop_price h in
           let num_houses = get_houses h in
-          let offer = int_of_float (0.75 *. (float_of_int cost)) in
+          let offer = int_of_float (1.15 *. (float_of_int cost)) in
           let can_afford = (get_money b pl) > offer in
           let trade_fn = if (is_ai b player) then accept_trade b else trade_offer in
           let will_trade = if (can_afford && num_houses = 0) then
@@ -122,6 +122,7 @@ let trade_a_prop b pl =
   else
     can_trade := false
 
+(*Sells houses of a specific color when needs extra money*)
 let sell_all_houses b pl =
   let brown_prop = !(get_pl_prop_from_color b pl Brown) in
   let grey_prop = !(get_pl_prop_from_color b pl Grey) in
@@ -132,6 +133,7 @@ let sell_all_houses b pl =
   let green_prop = !(get_pl_prop_from_color b pl Green) in
   let blue_prop = !(get_pl_prop_from_color b pl Blue) in
   let i = (fun x -> if get_houses x > 0 then remove_house b pl x (get_houses x) else ()) in
+  (*Way to block liquidating all assets*)
   List.iter i brown_prop;
   if get_money b pl >= 0 then ()
   else
