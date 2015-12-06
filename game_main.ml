@@ -162,7 +162,7 @@ let rec buy_house p_id =
           buy_house p_id)
       | false -> ( Gui.print_to_cmd "\nInvalid move. You can not buy the house because you either do not own the property, you don't have a monopoly, or you already have 4 houses on this property.");
         buy_house p_id
-      ended
+      end
     end
   | "properties" ->
     Gui.print_to_cmd (print_players_properties game_board p_id); buy_house p_id
@@ -251,7 +251,7 @@ let rec game_loop () =
     (* REPL for the individual players and the actions they can perform. *)
 
     let _ = Gui.print_to_cmd "____________________________________________\n" in
-    let _ = Gui.print_to_cmd "____________________________________________\n" in
+    let _ = Gui.print_to_cmd "____________________________________________" in
     let _ = (Gui.print_to_cmd (Printf.sprintf "\nPlayer %d, it is your turn.\nPress enter to roll the dice -> " curr_player_id)) in
     let _ = get_input () in
 
