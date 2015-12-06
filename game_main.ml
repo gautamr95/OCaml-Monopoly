@@ -268,7 +268,7 @@ let rec game_loop () =
     let player_position = (get_pl_position game_board curr_player_id) in
 
     let _ = if (old_position > player_position)
-      then Gui.print_to_cmd ("\nYou get $200 for passing go!") else () in
+      then Gui.print_to_cmd ("\nYou get $200 for passing GO!") else () in
 
     Gui.updateboard game_board;
 
@@ -323,7 +323,7 @@ let rec game_loop () =
           | 1 -> 5 | 2 -> 15 | 3 -> 45 | 4 -> 60 | _ -> 1 in
 
           let pay_amt = rent_amt * rent_multiplier in
-          ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou have landed on player %d's property, and will pay a rent of %d.\n---------------------------\n" p_id pay_amt));
+          ((Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nYou have landed on player %d's property, and will pay a rent of $%d.\n---------------------------\n" p_id pay_amt));
           change_money game_board curr_player_id (-1 * pay_amt);
           change_money game_board p_id (pay_amt))
         ) in
