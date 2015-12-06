@@ -158,7 +158,7 @@ let p3_image = GMisc.image ~pixbuf:gaben_pixbuf
 (* Command input and display*)
 let commanddisplay = GText.view ~editable:false
                               ~cursor_visible:false
-                              ~wrap_mode:`CHAR
+                              ~wrap_mode:`WORD
                               ~show:true
                               ~packing:scrollingtext#add ()
 
