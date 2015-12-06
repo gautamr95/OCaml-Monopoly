@@ -278,6 +278,7 @@ let rec game_loop () =
     if in_jail game_board curr_player_id then
       (Gui.print_to_cmd "\n\nYou were also in jail.";
       move_to_jail game_board curr_player_id;
+      leave_jail game_board curr_player_id;
       if (d1=d2) then
         (Gui.print_to_cmd "\nSince you rolled a double, though, you can move out of jail at no cost!\n")
       else
