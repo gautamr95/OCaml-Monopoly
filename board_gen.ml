@@ -6,7 +6,7 @@ let create_prop_list () =
     (create_property 6 Grey 100 6 "Oriental") ::
     (create_property 8 Grey 100 6 "Vermont") ::
     (create_property 9 Grey 120 8 "Connecticut") ::
-    (create_property 11 Pink 140 10 "St.Charles") ::
+    (create_property 11 Pink 140 10 "St.Charles Place") ::
     (create_property 13 Pink 140 10 "States") ::
     (create_property 14 Pink 160 12 "Virginia") ::
     (create_property 16 Orange 180 14 "St.James") ::
@@ -22,7 +22,7 @@ let create_prop_list () =
     (create_property 32 Green 300 26 "North Carolina") ::
     (create_property 34 Green 320 28 "Pennsylvania") ::
     (create_property 37 Blue 350 35 "Park Place") ::
-    (create_property 38 Blue 350 35 "Wall") ::
+    (create_property 38 Blue 350 35 "Wall Street") ::
     (create_property 39 Blue 400 50 "Boardwalk") ::
     []
 
@@ -78,8 +78,8 @@ let create_chance_list () =
   ("There are no brakes on the feel train",-20,-20);]
 
 let create_community_chest_list () =
-  [("U WOT M8", -300,50);
-  ("You got 10000 upvotes. Wow!",300,0);
+  [("U WOT M8", -150,50);
+  ("You got 10000 upvotes. Wow!",200,0);
   ("Dank fuel can't melt jet memes",150,50);
-  ("Ayy lmao",200,0);
-  ("You have surpassed 1337 link karma",200,0);]
+  ("Ayy lmao",50,0);
+  ("You have surpassed 1337 link karma",20,0);]

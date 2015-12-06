@@ -24,7 +24,7 @@ unit, this function will be done once we get the board figured out more*)
 let trade_prompt b pl : unit=
 
   let rec trade_player_prompt () =
-    Gui.print_to_cmd "Who do you want to trade with? Enter player number\nBack - Go back to main options \n";
+    Gui.print_to_cmd "Back - Go back to main options \nWho do you want to trade with? Enter player number\n";
     let inp = get_input() in if String.lowercase(inp) = "back" then -1 else
       try (int_of_string (inp)) with
       | Failure s -> Gui.print_to_cmd "Invalid entry\n"; trade_player_prompt () in
@@ -34,7 +34,7 @@ let trade_prompt b pl : unit=
   let is_done = get_done b trade_player in
   if is_done then Gui.print_to_cmd "That player is no longer in the game\n"
   else(
-  Gui.print_to_cmd "What properties do you want? None for just money \nBack - Go back to main options \n";
+  Gui.print_to_cmd "What properties do you want? None for just money \n";
   let requests = String.lowercase(get_input ()) in
   if requests = "back" then ()
   else
@@ -63,7 +63,7 @@ let trade_prompt b pl : unit=
                     |None -> x) [] req_p in
 
       let rec request_prompt () =
-        Gui.print_to_cmd "How much money do you want?\nBack - Go back to main options \n";
+        Gui.print_to_cmd "How much money do you want?\n";
         let inp2 = String.lowercase(get_input()) in
         if inp2 = "back" then -1
         else
@@ -74,7 +74,7 @@ let trade_prompt b pl : unit=
       if money = -1 then () else
       if money < 0 then Gui.print_to_cmd "Money must be greater than 0\n" else
       if money > (get_money b trade_player) then Gui.print_to_cmd "They cannot afford this\n" else
-        Gui.print_to_cmd "What properties will you offer? None for just Money\nBack - Go back to main options \n";
+        Gui.print_to_cmd "What properties will you offer? None for just Money\n Please place \", \" between properties";
         let offer = String.lowercase(get_input ()) in
         if offer = "back" then ()
         else
@@ -87,7 +87,7 @@ let trade_prompt b pl : unit=
                                                          |Some(a) -> a::x
                                                          |None -> x) [] offer_p in
             let rec offer_prompt () =
-              Gui.print_to_cmd "How much Money will you offer?\nBack - Go back to main options \n";
+              Gui.print_to_cmd "How much Money will you offer?\n";
               let inp3 = String.lowercase(get_input()) in
               if inp3 = "back" then -1
               else
