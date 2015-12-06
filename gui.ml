@@ -189,13 +189,19 @@ let players_at_pos b pos playerlst =
 (*Helper function for drawing a list of players at a given physical pos*)
 let draw_players physpos playerlst dest_pixbuf =
   let x = fst physpos in let y = snd physpos in
-  List.iter (fun p ->
+  List.iteri (fun i p ->
+    let adjusted_pos = if i = 0 then (0,0)
+                  else if i = 1 then (30,0)
+                  else if i = 2 then (0,30)
+                                else (30,30) in
+    let xadj = x + (fst adjusted_pos) in
+    let yadj = y + (snd adjusted_pos) in
     GdkPixbuf.composite ~dest:dest_pixbuf
               ~alpha:200
-              ~ofs_x: (float_of_int x)
-              ~ofs_y: (float_of_int y)
-              ~dest_x:x
-              ~dest_y:y
+              ~ofs_x: (float_of_int xadj)
+              ~ofs_y: (float_of_int yadj)
+              ~dest_x:xadj
+              ~dest_y:yadj
               ~interp:`BILINEAR
               ~scale_x:1.
               ~scale_y:1.
@@ -287,6 +293,7 @@ let draw_properties propertylst dest_pixbuf =
     | _ -> () in
   draw_prop_list tilelocation propertylst 0
 
+(* Helper function to update money display string called by update_info_area*)
 let update_money curboard =
   let obama_mon = Printf.sprintf "P0-Obama: $%d\n" (get_money curboard 0) in
   let cena_mon = Printf.sprintf "P1-Cena: $%d\n" (get_money curboard 1) in
@@ -294,6 +301,7 @@ let update_money curboard =
   let gaben_mon = Printf.sprintf "P3-Gaben: $%d\n" (get_money curboard 3) in
   (obama_mon ^ cena_mon ^ sanders_mon ^ gaben_mon)
 
+(*Helper function to update the game information and money display*)
 let update_info_area curboard =
   let round_info = Printf.sprintf "Round: %d\n" (get_round curboard) in
   let turn_info = Printf.sprintf "It is Player %d's turn.\n" (get_turn curboard) in
@@ -339,7 +347,6 @@ let main () =
   (* Set up the info display area *)
   let _ = gameinfodisplay#set_use_markup true in
   let _ = playermoneydisplay#set_use_markup true in
-
 
   (* Command input and display*)
   let _ = commandinput#connect#activate ~callback: (
