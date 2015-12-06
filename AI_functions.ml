@@ -13,7 +13,7 @@ let accept_trade b req off rm om pl tp =
   let can_afford = my_money > rm in
   let my_props_req = my_prop req in
   let own_triple = List.fold_left (fun a x -> a || (List.length x = 3)) false my_props_req in
-  let _ = Gui.print_to_cmd (Printf.sprintf 
+  let _ = Gui.print_to_cmd (Printf.sprintf
   "Gain Money : %b
   Own triple : %b
   Need prop : %b\n" gain_money own_triple need_prop ) in
@@ -41,7 +41,7 @@ let upgrade_a_prop b pl up =
     | [] -> ()
     | h::t ->
         if (can_buy_house b pl h) then (
-          Gui.print_to_cmd (Printf.sprintf "Player %i bought a house for %s\n" 
+          Gui.print_to_cmd (Printf.sprintf "Player %i bought a house for %s\n"
           pl (get_prop_name h));
           add_house b pl h)
         else house_to_buy t in
@@ -172,28 +172,28 @@ let ai_decision (b : board) ( pl : int ) : unit =
 
       | Chance ->
           let (s,mm,tm) = get_chance b in
-          let _ = Gui.print_to_cmd (Printf.sprintf "\n---------------------------Player %i landed on Chance!\n%s\n--------------------------\n" pl s) in
+          let _ = Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nPlayer %i landed on Chance!\n%s\n--------------------------\n" pl s) in
           let _ = Gui.print_to_cmd (Printf.sprintf "Player %i gets %i \nAll other Players get %i\n" pl mm tm) in
           change_money b pl mm;
           change_others_money b pl tm
       | Chest ->
           let (s,mm,tm) = get_chest b in
-          let _ = Gui.print_to_cmd (Printf.sprintf "\n---------------------------Player %i landed on Community Chest!\n%s\n--------------------------\n" pl s) in
+          let _ = Gui.print_to_cmd (Printf.sprintf "\n---------------------------\nPlayer %i landed on Community Chest!\n%s\n--------------------------\n" pl s) in
           let _ = Gui.print_to_cmd (Printf.sprintf "Player %i gets %i \nAll other Players get %i\n" pl mm tm) in
           change_money b pl mm;
           change_others_money b pl tm
-      | Jail _ -> 
+      | Jail _ ->
           let is_in_jail = in_jail b pl in
-          let _ = if (is_in_jail) then 
+          let _ = if (is_in_jail) then
             let _ = move_player b pl (d1 + d2) in
             let _ = leave_jail b pl in
             let _ = Gui.print_to_cmd (Printf.sprintf "Player %i is in jail!\n" pl) in
-            if(d1=d2) then 
+            if(d1=d2) then
               Gui.print_to_cmd (Printf.sprintf "Player %i rolled doubles!\n" pl)
             else (
               Gui.print_to_cmd (Printf.sprintf "Player %i didn't roll doubles. He will lose $30.\n" pl);
               change_money b pl (-30))
-          else 
+          else
             Gui.print_to_cmd (Printf.sprintf "Player %i is just visiting jail.\n" pl) in ()
       | Go -> ()
       | Go_jail  -> Gui.print_to_cmd (Printf.sprintf "Player %i is going to jail!\n" pl);move_to_jail b pl); inner_repl ())
