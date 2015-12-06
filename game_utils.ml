@@ -260,9 +260,9 @@ let add_house b pl_id prop =
   prop.houses := !(prop.houses) + 1;
   change_money b pl_id house_cost
 
-let remove_house b pl_id prop =
-  prop.houses := !(prop.houses) - 1;
-  change_money b pl_id (house_return)
+let remove_house b pl_id prop num =
+  prop.houses := !(prop.houses) - num;
+  change_money b pl_id (house_return*num)
 
 let create_property position color cost rent name =
   {position;color;cost;holder=ref(None);rent;name;houses=ref(0)}
@@ -332,7 +332,10 @@ let return_pl_props b pl_id =
   List.iter (fun x ->
     match !(x.holder) with
     | None -> ()
-    | Some i -> if i = pl_id then x.holder := None else ()) b.property_list
+    | Some i -> if i = pl_id then
+                  let _ = x.holder := None in
+                  x.houses := 0
+                else ()) b.property_list
 
 let get_turn b = !(b.turn)
 

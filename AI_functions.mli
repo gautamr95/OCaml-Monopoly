@@ -4,7 +4,7 @@ open Game_utils
 val ai_decision: board -> int -> unit
 
 (*AI determines which properties to upgrade with houses if it is allowed to*)
-val upgrade_a_prop : board -> int -> bool
+val upgrade_a_prop : board -> int -> int -> bool
 
 (*take in property that ai is on, take in list of properties from game board,
   take list of players in the game, take in you player info structure
