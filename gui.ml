@@ -85,6 +85,22 @@ let commandarea = GPack.box `VERTICAL ~packing:controls#add ()
                                       ~border_width:2
                                       ~height:600
 
+let gameinfoarea = GPack.box `VERTICAL ~packing:infoarea#add ()
+                                  ~border_width:2
+                                  ~height:70
+
+let playerinfoarea = GPack.box `HORIZONTAL ~packing:infoarea#add ()
+                                  ~border_width:2
+                                  ~height:130
+
+let avatararea = GPack.box `VERTICAL ~packing:playerinfoarea#add ()
+                                  ~border_width:2
+                                  ~height:130
+
+let playermoneyarea = GPack.box `VERTICAL ~packing:playerinfoarea#add ()
+                                  ~border_width:2
+                                  ~height:130
+
 let scrollingtext = GBin.scrolled_window  ~hpolicy:`NEVER
                                       ~vpolicy:`AUTOMATIC
                                       ~height:550
@@ -114,16 +130,26 @@ let gaben_pixbuf = GdkPixbuf.from_file "assets/gaben.png"
 (*Load up the property pictures*)
 let house_pixbuf = GdkPixbuf.from_file "assets/black_house.png"
 
-(* Buttons *)
-(*let button = GButton.button ~label:"Push me!"
-                            ~packing:buttons#add ()*)
-
 (* Information display area *)
-let infodisplay = GMisc.label ~selectable:false
-                              ~justify: `LEFT
-                              ~markup: "<span size=\"18000\">Info Display</span>"
+let gameinfodisplay = GMisc.label ~selectable:false
+                              ~justify: `CENTER
                               ~show:true
-                              ~packing:infoarea#add ()
+                              ~packing:gameinfoarea#add ()
+
+let playermoneydisplay = GMisc.label ~selectable:false
+                              ~justify: `LEFT
+                              ~show:true
+                              ~packing:playermoneyarea#add ()
+
+(* Avatar display area*)
+let p0_image = GMisc.image ~pixbuf:obama_pixbuf
+                              ~packing:avatararea#add ()
+let p1_image = GMisc.image ~pixbuf:cena_pixbuf
+                              ~packing:avatararea#add ()
+let p2_image = GMisc.image ~pixbuf:sanders_pixbuf
+                              ~packing:avatararea#add ()
+let p3_image = GMisc.image ~pixbuf:gaben_pixbuf
+                              ~packing:avatararea#add ()
 
 (* Command input and display*)
 let commanddisplay = GText.view ~editable:false
@@ -167,8 +193,8 @@ let draw_players physpos playerlst dest_pixbuf =
               ~dest_x:x
               ~dest_y:y
               ~interp:`BILINEAR
-              ~scale_x:0.5
-              ~scale_y:0.5
+              ~scale_x:1.
+              ~scale_y:1.
               ~width:30
               ~height:30
               (if get_player_id p = 0 then obama_pixbuf
@@ -211,8 +237,8 @@ let draw_properties propertylst dest_pixbuf =
                 ~dest_x:xavatar
                 ~dest_y:yavatar
                 ~interp:`BILINEAR
-                ~scale_x:0.25
-                ~scale_y:0.25
+                ~scale_x:0.5
+                ~scale_y:0.5
                 ~width:15
                 ~height:15
                 (if owner_id = 0 then obama_pixbuf
@@ -258,18 +284,19 @@ let draw_properties propertylst dest_pixbuf =
   draw_prop_list tilelocation propertylst 0
 
 let update_money curboard =
-  let obama_mon = Printf.sprintf "Player 0 - Obama: $%d\n" (get_money curboard 0) in
-  let cena_mon = Printf.sprintf "Player 1 - John Cena: $%d\n" (get_money curboard 1) in
-  let sanders_mon = Printf.sprintf "Player 2 - Sanders: $%d\n" (get_money curboard 2) in
-  let gaben_mon = Printf.sprintf "Player 3 - Gaben: $%d\n" (get_money curboard 3) in
+  let obama_mon = Printf.sprintf "P0-Obama: $%d\n" (get_money curboard 0) in
+  let cena_mon = Printf.sprintf "P1-Cena: $%d\n" (get_money curboard 1) in
+  let sanders_mon = Printf.sprintf "P2-Sanders: $%d\n" (get_money curboard 2) in
+  let gaben_mon = Printf.sprintf "P3-Gaben: $%d\n" (get_money curboard 3) in
   (obama_mon ^ cena_mon ^ sanders_mon ^ gaben_mon)
 
 let update_info_area curboard =
   let round_info = Printf.sprintf "Round: %d\n" (get_round curboard) in
   let turn_info = Printf.sprintf "It is Player %d's turn.\n" (get_turn curboard) in
   let money_info = update_money curboard in
-  infodisplay#set_label ("<span size=\"18000\">" ^
-    round_info ^ turn_info ^ money_info ^ "</span>")
+  gameinfodisplay#set_label ("<span size=\"18000\">" ^
+    round_info ^ turn_info ^ "</span>");
+  playermoneydisplay#set_label ("<span size=\"18500\">" ^ money_info ^ "</span>")
 
 (*Callback function for updating the board pixbuf and drawing it in the GUI*)
 let updateboard curboard =
@@ -305,11 +332,10 @@ let main () =
    *properly initialized yet*)
   let _ = board_image#set_pixbuf scaled_board_pixbuf in
 
-  (* Button *)
-  (*let _ = button#connect#clicked ~callback: (
-      fun () -> board_image#set_pixbuf scaled_board_pixbuf) in*)
+  (* Set up the info display area *)
+  let _ = gameinfodisplay#set_use_markup true in
+  let _ = playermoneydisplay#set_use_markup true in
 
-  let _ = infodisplay#set_use_markup true in
 
   (* Command input and display*)
   let _ = commandinput#connect#activate ~callback: (
